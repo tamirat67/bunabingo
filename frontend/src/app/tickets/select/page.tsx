@@ -23,19 +23,21 @@ function SelectCardInner() {
 
   const totalStake = selectedCards.length * pricePerCard;
   const hasBalance = Number(wallet?.balance || 0) >= totalStake;
-  
-  const lastSelected = selectedCards[selectedCards.length - 1];
-  const previewCard = lastSelected ? PREDEFINED_CARDS[lastSelected] : null;
 
   const toggleCard = (num: number) => {
     if (selectedCards.includes(num)) {
       setSelectedCards(selectedCards.filter(n => n !== num));
     } else {
       if (selectedCards.length >= 3) {
-        show('Maximum 3 cards allowed per player!', 'error');
+        show('Maximum 3 cards allowed! 🛡️', 'error');
         return;
       }
-      setSelectedCards([...selectedCards, num]);
+      const newSelection = [...selectedCards, num];
+      setSelectedCards(newSelection);
+      
+      // Fun Toasts for multi-selection
+      if (newSelection.length === 2) show('Nice! Double your chances! ✌️', 'success');
+      if (newSelection.length === 3) show('JACKPOT MODE! 3 Cards active! 🔥', 'success');
     }
   };
 
@@ -45,12 +47,12 @@ function SelectCardInner() {
 
     setLoading(true);
     try {
+      let gId = '';
       for (const cardId of selectedCards) {
         const res = await joinGame(roomType, cardId);
-        if (cardId === selectedCards[selectedCards.length - 1]) {
-           router.push(`/game?id=${res.gameId}`);
-        }
+        gId = res.gameId;
       }
+      router.push(`/game?id=${gId}`);
     } catch (err: any) {
       show(err.response?.data?.error || 'Failed to join game', 'error');
     } finally {
@@ -71,7 +73,7 @@ function SelectCardInner() {
         </div>
         <div className="stat-capsule">
           <div className="lbl orange">Stake</div>
-          <div className="val">{totalStake || pricePerCard}</div>
+          <div className="val">{totalStake || pricePerCard} ETB</div>
         </div>
         <div className="stat-capsule">
           <div className="lbl orange">Wallet</div>
@@ -104,69 +106,78 @@ function SelectCardInner() {
         ))}
       </div>
 
-      <div className="bottom-area">
-        <div className="preview-wrap">
-          {previewCard ? (
-            <div className="cartela-hint">
-              <div className="hint-header">
-                <span>B</span><span>I</span><span>N</span><span>G</span><span>O</span>
-              </div>
-              {previewCard.map((row, ri) => (
-                <div key={ri} className="hint-row">
-                  {row.map((cell, ci) => (
-                    <span key={ci} className={`hint-cell ${cell === '*' ? 'star' : ''}`}>
-                      {cell === '*' ? '⭐' : cell}
-                    </span>
+      {/* ─── Multi-Card Pattern Preview ───────────────────── */}
+      <div className="previews-container">
+        {selectedCards.length > 0 ? (
+          <div className="previews-scroll">
+            {selectedCards.map((id) => (
+              <div key={id} className="hint-card-wrapper">
+                <div className="cartela-hint">
+                  <div className="hint-header">
+                    <span>B</span><span>I</span><span>N</span><span>G</span><span>O</span>
+                  </div>
+                  {(PREDEFINED_CARDS as any)[id].map((row: any[], ri: number) => (
+                    <div key={ri} className="hint-row">
+                      {row.map((cell, ci) => (
+                        <span key={ci} className={`hint-cell ${cell === '*' ? 'star' : ''}`}>
+                          {cell === '*' ? '⭐' : cell}
+                        </span>
+                      ))}
+                    </div>
                   ))}
+                  <div className="hint-card-num">Card #{id}</div>
                 </div>
-              ))}
-              <div className="hint-card-num">Card #{lastSelected}</div>
-            </div>
-          ) : (
-            <div className="preview-placeholder">Tap 1, 2, or 3 cards to start</div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="preview-placeholder">Tap up to 3 cards to see patterns</div>
+        )}
+      </div>
 
-        <div className="action-btns">
-          <button className="btn-refresh" onClick={() => setSelectedCards([])}>Reset</button>
-          <button 
-            className={`btn-start ${selectedCards.length === 0 || !hasBalance || loading ? 'disabled' : ''}`}
-            onClick={handleStart}
-            disabled={loading}
-          >
-            {loading ? 'Joining...' : selectedCards.length > 1 ? `Play ${selectedCards.length} Cards` : 'Start Game'}
-          </button>
-        </div>
+      {/* ─── Action Section ────────────────────────────────── */}
+      <div className="action-bar">
+        <button className="btn-reset" onClick={() => setSelectedCards([])}>Clear Selection</button>
+        <button 
+          className={`btn-start ${selectedCards.length === 0 || !hasBalance || loading ? 'disabled' : ''}`}
+          onClick={handleStart}
+          disabled={loading}
+        >
+          {loading ? 'Entering Room...' : selectedCards.length > 1 ? `PLAY ${selectedCards.length} CARDS` : 'START GAME'}
+        </button>
       </div>
 
       <Navbar />
 
       <style jsx>{`
-        .select-container { min-height: 100vh; background: #a68cc5; padding: 16px; padding-bottom: 90px; }
+        .select-container { min-height: 100vh; background: #2d1b4d; padding: 16px; padding-bottom: 100px; }
         .connection-status { text-align: center; color: #4ade80; font-weight: 800; font-size: 14px; margin-bottom: 12px; }
         .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
-        .stat-capsule { background: white; border-radius: 8px; padding: 6px 2px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat-capsule { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 2px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .stat-capsule .lbl { font-size: 8px; color: #f97316; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
-        .stat-capsule .val { font-size: 12px; color: #333; font-weight: 800; }
-        .balance-warning { background: #fecaca; color: #dc2626; padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-align: center; margin-bottom: 16px; border: 1px solid #f87171; }
-        .btn-deposit-now { margin-top: 6px; background: #dc2626; color: white; border: none; padding: 4px 16px; border-radius: 99px; font-weight: 800; font-size: 11px; cursor: pointer; }
-        .card-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; background: rgba(255,255,255,0.3); padding: 6px; border-radius: 12px; margin-bottom: 20px; }
-        .grid-item { aspect-ratio: 1; background: #e0d4f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #4b3b63; cursor: pointer; transition: all 0.2s; }
-        .grid-item.selected { background: #22c55e; color: white; transform: scale(1.05); box-shadow: 0 0 10px rgba(34,197,94,0.5); border: 2px solid white; }
-        .bottom-area { display: flex; align-items: flex-end; gap: 12px; margin-top: 10px; }
-        .preview-wrap { flex: 0 0 130px; min-height: 120px; }
-        .preview-placeholder { font-size: 9px; opacity: 0.5; color: white; text-align: center; padding-top: 40px; font-weight: 700; }
-        .cartela-hint { background: white; padding: 8px; border-radius: 12px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+        .stat-capsule .val { font-size: 12px; color: white; font-weight: 800; }
+
+        .card-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; margin-bottom: 20px; }
+        .grid-item { aspect-ratio: 1; background: rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s; }
+        .grid-item.selected { background: #22c55e; color: white; transform: scale(1.05); box-shadow: 0 0 15px rgba(34,197,94,0.4); border: 2px solid white; }
+
+        .previews-container { margin-bottom: 24px; min-height: 140px; }
+        .previews-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 4px; padding-bottom: 12px; scroll-snap-type: x mandatory; }
+        .hint-card-wrapper { flex: 0 0 130px; scroll-snap-align: start; }
+        .preview-placeholder { text-align: center; color: rgba(255,255,255,0.3); font-size: 12px; font-weight: 700; padding-top: 50px; }
+
+        .cartela-hint { background: white; padding: 8px; border-radius: 12px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
         .hint-header { display: flex; gap: 2px; justify-content: center; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
         .hint-header span { width: 20px; font-size: 10px; font-weight: 900; color: #f97316; text-align: center; }
         .hint-row { display: flex; gap: 2px; justify-content: center; }
         .hint-cell { width: 20px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #333; }
         .hint-cell.star { font-size: 10px; }
         .hint-card-num { font-size: 8px; color: #999; text-align: center; margin-top: 4px; font-weight: 700; }
-        .action-btns { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-        .btn-refresh { background: #3b82f6; border: none; color: white; padding: 12px; border-radius: 12px; font-weight: 900; font-size: 18px; box-shadow: 0 4px 0 #2563eb; }
-        .btn-start { background: #f97316; border: none; color: white; padding: 12px; border-radius: 12px; font-weight: 900; font-size: 18px; box-shadow: 0 4px 0 #ea580c; }
-        .btn-start.disabled { background: #666; opacity: 0.5; box-shadow: none; cursor: not-allowed; }
+
+        .action-bar { display: flex; flex-direction: column; gap: 12px; }
+        .btn-reset { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+        .btn-start { background: linear-gradient(180deg, #f97316 0%, #ea580c 100%); border: none; color: white; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 20px; box-shadow: 0 4px 0 #9a3412; cursor: pointer; }
+        .btn-start.disabled { background: #444; box-shadow: none; opacity: 0.5; cursor: not-allowed; }
       `}</style>
     </div>
   );
