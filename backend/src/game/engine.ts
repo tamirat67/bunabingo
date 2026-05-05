@@ -387,7 +387,7 @@ export async function joinGame(
   const preparedCards: { id: number, pattern: BingoCard }[] = [];
   for (const cardId of cardIds) {
     const normalizedId = Math.max(1, Math.min(100, cardId));
-    const pattern = PREDEFINED_CARDS[normalizedId];
+    const pattern = PREDEFINED_CARDS[normalizedId - 1];
     if (!pattern) throw new Error(`Invalid card selection: ${cardId}`);
     
     preparedCards.push({
