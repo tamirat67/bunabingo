@@ -1,30 +1,34 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Dices, Trophy, History, Wallet, UserCircle } from 'lucide-react';
+import { Home, Trophy, History, Wallet, UserCircle } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
 
   const navItems = [
-    { label: 'Game', href: '/', icon: <Dices size={26} strokeWidth={2} /> },
-    { label: 'Scores', href: '/scores', icon: <Trophy size={26} strokeWidth={2} /> },
-    { label: 'History', href: '/history', icon: <History size={26} strokeWidth={2} /> },
-    { label: 'Wallet', href: '/wallet', icon: <Wallet size={26} strokeWidth={2} /> },
-    { label: 'Profile', href: '/profile', icon: <UserCircle size={26} strokeWidth={2} /> },
+    { label: 'Home',    href: '/',        icon: Home       },
+    { label: 'Games',   href: '/scores',  icon: Trophy     },
+    { label: 'History', href: '/history', icon: History    },
+    { label: 'Wallet',  href: '/wallet',  icon: Wallet     },
+    { label: 'Profile', href: '/profile', icon: UserCircle },
   ];
 
   return (
     <nav className="bottom-nav">
-      <div className="nav-inner">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
+      <div className="nav-card">
+        {navItems.map(({ label, href, icon: Icon }) => {
+          const isActive = pathname === href;
           return (
-            <Link key={item.label} href={item.href} className={`nav-item ${isActive ? 'active' : ''}`}>
-              <div className="icon-box">
-                {item.icon}
-                {isActive && <div className="active-indicator"></div>}
+            <Link key={label} href={href} className={`nav-tab ${isActive ? 'active' : ''}`}>
+              <div className={`icon-wrap ${isActive ? 'icon-active' : ''}`}>
+                <Icon
+                  size={24}
+                  strokeWidth={isActive ? 2.2 : 1.8}
+                />
               </div>
+              <span className="tab-label">{label}</span>
+              {isActive && <span className="active-bar" />}
             </Link>
           );
         })}
@@ -32,45 +36,96 @@ export default function Navbar() {
 
       <style jsx>{`
         .bottom-nav {
-          position: fixed; bottom: 0; left: 0; right: 0;
-          height: 75px; background: var(--bg-nav); border-top: 1px solid var(--border-light);
-          display: flex; justify-content: center; align-items: center;
-          padding-bottom: env(safe-area-inset-bottom); z-index: 9999;
-          box-shadow: 0 -10px 40px rgba(0,0,0,0.4);
-          transition: background-color 0.3s;
-        }
-        .nav-inner {
-          display: flex; width: 100%; max-width: 500px; justify-content: space-around; align-items: center;
-        }
-        .nav-item {
-          display: flex; flex-direction: column; align-items: center;
-          color: var(--text-main) !important; text-decoration: none;
-          flex: 1; transition: all 0.3s ease;
-          position: relative; opacity: 0.5;
-        }
-        .nav-item.active { 
-          opacity: 1; 
-          transform: translateY(-5px);
-        }
-        
-        .icon-box {
-          position: relative; display: flex; align-items: center; justify-content: center;
-          width: 50px; height: 50px;
-        }
-        
-        .active-indicator {
-          position: absolute; bottom: -10px; width: 8px; height: 8px;
-          background: var(--gold-accent); border-radius: 50%;
-          box-shadow: 0 0 12px var(--gold-accent);
-          animation: popIn 0.3s forwards;
-        }
-        
-        @keyframes popIn {
-          from { transform: scale(0); }
-          to { transform: scale(1); }
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          z-index: 9999;
+          /* Warm cream background matching the design */
+          background: #F5ECD7;
+          padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+          display: flex;
+          justify-content: center;
         }
 
-        .nav-item:active { transform: scale(0.85); }
+        /* Floating white card */
+        .nav-card {
+          width: 100%;
+          max-width: 480px;
+          background: #FFFFFF;
+          border-radius: 24px;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          padding: 8px 4px;
+          box-shadow: 0 4px 24px rgba(139, 90, 20, 0.12);
+        }
+
+        /* Each tab */
+        .nav-tab {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 3px;
+          flex: 1;
+          text-decoration: none;
+          position: relative;
+          padding: 6px 2px 8px;
+          transition: transform 0.15s ease;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-tab:active {
+          transform: scale(0.92);
+        }
+
+        /* Icon wrapper — golden square when active */
+        .icon-wrap {
+          width: 44px;
+          height: 44px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #5C3D1E;
+          transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .icon-active {
+          background: #FFF0D0;
+          color: #C98A1A;
+        }
+
+        /* Label text */
+        .tab-label {
+          font-size: 11px;
+          font-weight: 500;
+          color: #5C3D1E;
+          letter-spacing: 0.2px;
+          transition: font-weight 0.2s;
+        }
+
+        .active .tab-label {
+          font-weight: 700;
+          color: #3B2208;
+        }
+
+        /* Golden underline indicator */
+        .active-bar {
+          position: absolute;
+          bottom: 2px;
+          width: 20px;
+          height: 3px;
+          background: #C98A1A;
+          border-radius: 99px;
+          animation: growIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes growIn {
+          from { transform: scaleX(0); opacity: 0; }
+          to   { transform: scaleX(1); opacity: 1; }
+        }
       `}</style>
     </nav>
   );
