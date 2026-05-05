@@ -1,132 +1,187 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { initTelegram, getTgUser } from '../lib/telegram';
-import { getWallet, getTransactions } from '../lib/api';
+import { getTransactions, getWalletAudit } from '../lib/api';
 import Navbar from '../components/Navbar';
 import Link from 'next/link';
 
-interface Wallet { balance: string; totalDeposited: string; totalWon: string; totalWithdrawn: string; totalSpent: string }
-interface Txn { id: string; type: string; amount: string; description: string; createdAt: string }
-
-const TXN_ICONS: Record<string, string> = {
-  DEPOSIT: '📥', WITHDRAWAL: '📤', TICKET_PURCHASE: '🎫', PRIZE_WIN: '🏆', REFUND: '↩️',
-};
-
-export default function DashboardPage() {
-  const [wallet, setWallet]   = useState<Wallet | null>(null);
-  const [txns,   setTxns]     = useState<Txn[]>([]);
+export default function WalletPage() {
+  const [data, setData] = useState<any>(null);
+  const [txns, setTxns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [noTg,   setNoTg]     = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const user = getTgUser();
+
+  const loadData = async (isAudit = false) => {
+    if (isAudit) setRefreshing(true);
+    try {
+      const [audit, t] = await Promise.all([getWalletAudit(), getTransactions()]);
+      setData(audit);
+      setTxns(t.slice(0, 10));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     initTelegram();
-    Promise.all([getWallet(), getTransactions()])
-      .then(([w, t]) => { setWallet(w); setTxns(t.slice(0, 8)); })
-      .catch(err => {
-        if (err?.response?.status === 401 || !window.Telegram?.WebApp?.initData) {
-          setNoTg(true);
-        }
-      })
-      .finally(() => setLoading(false));
+    loadData();
   }, []);
-
-  /* ── Not in Telegram ──────────────────────────────── */
-  if (noTg || (!loading && !wallet && !window?.Telegram?.WebApp?.initData)) {
-    return (
-      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:24, textAlign:'center', gap:16 }}>
-        <div style={{ fontSize:72 }}>🎰</div>
-        <div style={{ fontSize:26, fontWeight:800, background:'linear-gradient(135deg,var(--gold),#fff)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
-          BunaBingo
-        </div>
-        <div style={{ fontSize:15, color:'var(--txt2)', maxWidth:280, lineHeight:1.6 }}>
-          This Mini App must be opened inside <strong style={{color:'var(--txt)'}}>Telegram</strong>. Start the bot and tap the Play button!
-        </div>
-        <div className="card card-gold" style={{ width:'100%', maxWidth:320, padding:20, marginTop:8 }}>
-          <div style={{ fontSize:13, color:'var(--txt2)', marginBottom:12 }}>Developers: running locally?</div>
-          <div style={{ fontSize:12, color:'var(--txt3)', textAlign:'left', lineHeight:1.8 }}>
-            1. Add <code style={{color:'var(--gold)'}}>BOT_TOKEN</code> to <code>backend/.env</code><br/>
-            2. Start the bot: <code style={{color:'var(--gold)'}}>npm run dev</code><br/>
-            3. Open your bot in Telegram → tap <strong>Play</strong>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) return <div className="loading"><div className="spinner" /><span>Loading wallet…</span></div>;
 
-  const fmt = (v: string | undefined) => Number(v || 0).toFixed(2);
-  const isCredit = (type: string) => ['DEPOSIT', 'PRIZE_WIN', 'REFUND'].includes(type);
-
   return (
-    <>
-      <div style={{ padding:'20px 20px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <div>
-          <div className="page-title">💰 Wallet</div>
-          <div style={{ fontSize:13, color:'var(--txt2)', marginTop:2 }}>
-            Welcome back{user?.first_name ? `, ${user.first_name}` : ''}! 👋
+    <div className="wallet-container">
+      {/* ─── Header ────────────────────────────────────────── */}
+      <div className="wallet-header">
+        <h1 className="title">Wallet</h1>
+        <button className={`refresh-btn ${refreshing ? 'spinning' : ''}`} onClick={() => loadData(true)}>
+          🔄
+        </button>
+      </div>
+
+      {/* ─── User Card ─────────────────────────────────────── */}
+      <div className="user-card">
+        <div className="user-info">
+          <span className="icon">👤</span>
+          <span className="phone">{user?.username || 'User'}</span>
+        </div>
+        <div className="verified-badge">✅ Verified</div>
+      </div>
+
+      {/* ─── Tabs ─────────────────────────────────────────── */}
+      <div className="wallet-tabs">
+        <div className="tab active">Balance</div>
+        <Link href="/history" className="tab">History</Link>
+      </div>
+
+      {/* ─── Main Balance Section ──────────────────────────── */}
+      <div className="balance-section">
+        <div className="main-balance-card">
+          <div className="bal-header">
+            <span>Main Balance</span>
+            <span className="amount">{Number(data?.mainBalance || 0).toFixed(0)} Birr</span>
           </div>
-        </div>
-        <div style={{ fontSize:32 }}>🎰</div>
-      </div>
 
-      <div className="section" style={{ gap:12 }}>
-        <div className="bal-hero">
-          <div className="bal-label">💵 Available Balance</div>
-          <div className="bal-amount">
-            <span style={{ fontSize:20, fontWeight:500, verticalAlign:'super', marginRight:4 }}>ETB</span>
-            {fmt(wallet?.balance)}
+          <div className="sub-bal-grid">
+            <div className="sub-bal-card">
+              <div className="sub-info">
+                <span className="icon">🪙</span>
+                <span>Bonus Balance</span>
+              </div>
+              <span className="sub-val">{Number(data?.bonusBalance || 0).toFixed(0)}</span>
+            </div>
+
+            <div className="sub-bal-card">
+              <div className="sub-info">
+                <span className="icon">🟡</span>
+                <span>Coins</span>
+              </div>
+              <span className="sub-val yellow">{Number(data?.coins || 0).toFixed(0)}</span>
+            </div>
           </div>
-        </div>
 
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-          <Link href="/deposit"  className="btn btn-gold"  style={{ borderRadius:12 }}>📥 Deposit</Link>
-          <Link href="/withdraw" className="btn btn-ghost" style={{ borderRadius:12 }}>💸 Withdraw</Link>
-        </div>
-
-        <Link href="/tickets" className="btn btn-gold btn-full btn-lg">🎮 Play Bingo Now</Link>
-      </div>
-
-      <div className="section">
-        <div className="sec-title">Overview</div>
-        <div className="stat-grid">
-          <div className="stat-card"><div className="stat-label">Total Deposited</div><div className="stat-val c-blue">{fmt(wallet?.totalDeposited)} <span style={{fontSize:12}}>ETB</span></div></div>
-          <div className="stat-card"><div className="stat-label">Total Won 🏆</div><div className="stat-val c-gold">{fmt(wallet?.totalWon)} <span style={{fontSize:12}}>ETB</span></div></div>
-          <div className="stat-card"><div className="stat-label">Tickets Spent</div><div className="stat-val c-red">{fmt(wallet?.totalSpent)} <span style={{fontSize:12}}>ETB</span></div></div>
-          <div className="stat-card"><div className="stat-label">Withdrawn</div><div className="stat-val">{fmt(wallet?.totalWithdrawn)} <span style={{fontSize:12}}>ETB</span></div></div>
+          <button className="convert-btn">
+            📥 Convert Coin
+          </button>
         </div>
       </div>
 
-      <div className="section">
-        <div className="flex justify-between items-center">
-          <div className="sec-title">Recent Transactions</div>
-          <Link href="/history" style={{ fontSize:12, color:'var(--gold)' }}>See all</Link>
-        </div>
-        <div className="card" style={{ padding:'8px 16px' }}>
-          {txns.length === 0 && (
-            <div style={{ padding:'20px 0', textAlign:'center', color:'var(--txt2)', fontSize:13 }}>
-              No transactions yet. Deposit to get started!
-            </div>
-          )}
-          {txns.map(t => (
-            <div key={t.id} className="txn-item">
-              <div className="txn-icon" style={{ background: isCredit(t.type) ? 'rgba(34,197,94,.1)' : 'rgba(239,68,68,.1)' }}>
-                {TXN_ICONS[t.type] || '💫'}
+      {/* ─── Recent Transactions ────────────────────────────── */}
+      <div className="transactions-section">
+        <h3 className="section-title">Recent Transactions</h3>
+        
+        {txns.length === 0 ? (
+          <div className="no-txns">No recent transactions</div>
+        ) : (
+          <div className="txn-list">
+            {txns.map((t) => (
+              <div key={t.id} className="txn-row">
+                <div className="txn-main">
+                  <span className="txn-icon">{t.type === 'DEPOSIT' || t.type === 'WINNING' ? '➕' : '➖'}</span>
+                  <div className="txn-details">
+                    <div className="txn-type">{t.type.replace(/_/g, ' ')}</div>
+                    <div className="txn-date">{new Date(t.createdAt).toLocaleDateString()}</div>
+                  </div>
+                </div>
+                <div className={`txn-amt ${t.type === 'DEPOSIT' || t.type === 'WINNING' ? 'pos' : 'neg'}`}>
+                  {t.type === 'DEPOSIT' || t.type === 'WINNING' ? '+' : '-'}{Number(t.amount).toFixed(0)}
+                </div>
               </div>
-              <div style={{ flex:1 }}>
-                <div className="txn-label">{t.description || t.type.replace(/_/g,' ')}</div>
-                <div className="txn-date">{new Date(t.createdAt).toLocaleString()}</div>
-              </div>
-              <div className={`txn-amt ${isCredit(t.type) ? 'credit' : 'debit'}`}>
-                {isCredit(t.type) ? '+' : '-'}{fmt(t.amount)}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      <div className="footer-brand">© Buna Bingo</div>
 
       <Navbar />
-    </>
+
+      <style jsx>{`
+        .wallet-container { min-height: 100vh; background: #a68cc5; padding: 20px 16px 100px; color: white; }
+        
+        .wallet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .wallet-header .title { font-size: 24px; font-weight: 800; }
+        .refresh-btn { background: none; border: none; font-size: 20px; cursor: pointer; transition: all 0.3s; }
+        .refresh-btn.spinning { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .user-card { 
+          background: rgba(255,255,255,0.15); border-radius: 16px; padding: 16px 20px;
+          display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+        }
+        .user-info { display: flex; align-items: center; gap: 12px; font-weight: 700; }
+        .verified-badge { color: #4ade80; font-size: 12px; font-weight: 800; }
+
+        .wallet-tabs { display: flex; gap: 30px; margin-bottom: 24px; border-bottom: 2px solid rgba(255,255,255,0.1); }
+        .tab { 
+          padding-bottom: 8px; font-size: 15px; font-weight: 800; color: rgba(255,255,255,0.5); 
+          text-decoration: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px;
+        }
+        .tab.active { color: white; border-bottom-color: white; }
+
+        .main-balance-card { background: rgba(255,255,255,0.1); border-radius: 24px; padding: 24px; }
+        .bal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .bal-header span:first-child { font-size: 18px; font-weight: 600; opacity: 0.8; }
+        .bal-header .amount { font-size: 28px; font-weight: 900; }
+
+        .sub-bal-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+        .sub-bal-card {
+          background: rgba(255,255,255,0.1); border-radius: 16px; padding: 16px 20px;
+          display: flex; justify-content: space-between; align-items: center;
+        }
+        .sub-info { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; opacity: 0.8; }
+        .sub-val { font-size: 18px; font-weight: 800; }
+        .sub-val.yellow { color: #facc15; }
+
+        .convert-btn {
+          width: 100%; background: #66bb6a; border: none; color: white; padding: 14px;
+          border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer;
+          box-shadow: 0 4px 0 #388e3c; transition: all 0.1s;
+        }
+        .convert-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #388e3c; }
+
+        .transactions-section { margin-top: 32px; margin-bottom: 40px; }
+        .section-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; opacity: 0.9; }
+        .no-txns { text-align: center; padding: 40px; opacity: 0.4; font-weight: 600; }
+        
+        .txn-row {
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .txn-main { display: flex; align-items: center; gap: 12px; }
+        .txn-icon { font-size: 18px; opacity: 0.5; }
+        .txn-type { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+        .txn-date { font-size: 11px; opacity: 0.5; }
+        .txn-amt { font-size: 16px; font-weight: 800; }
+        .txn-amt.pos { color: #4ade80; }
+        .txn-amt.neg { opacity: 0.8; }
+
+        .footer-brand { text-align: center; font-size: 12px; opacity: 0.3; font-weight: 600; margin-bottom: 20px; }
+      `}</style>
+    </div>
   );
 }

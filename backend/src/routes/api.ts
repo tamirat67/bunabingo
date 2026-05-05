@@ -11,6 +11,46 @@ import prisma from '../lib/prisma';
 import multer from 'multer';
 import path from 'path';
 import { config } from '../config';
+// Wallet Audit & Consistency
+router.get('/me/wallet/audit', async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  try {
+    const wallet = await getOrCreateWallet(user.id);
+    
+    // Calculate True Balance from all completed transactions
+    const audit = await prisma.transaction.groupBy({
+      where: { walletId: wallet.id, status: 'COMPLETED' },
+      by: ['type'],
+      _sum: { amount: true }
+    });
+
+    const sums: Record<string, number> = {};
+    audit.forEach(item => { sums[item.type] = Number(item._sum.amount || 0); });
+
+    const trueBalance = 
+      (sums['DEPOSIT'] || 0) + 
+      (sums['WINNING'] || 0) - 
+      (sums['BET'] || 0) - 
+      (sums['WITHDRAWAL'] || 0);
+
+    // If there is a mismatch, normalize it (Update wallet to match audit)
+    if (Math.abs(Number(wallet.balance) - trueBalance) > 0.01) {
+      await prisma.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: trueBalance }
+      });
+    }
+
+    res.json({
+      mainBalance: trueBalance,
+      bonusBalance: Number(wallet.bonusBalance),
+      coins: sums['WINNING'] || 0, // In this system, winning amounts are treated as 'coins' for conversion
+      walletId: wallet.id
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Wallet audit failed' });
+  }
+});
 
 const router = Router();
 
