@@ -15,7 +15,7 @@ function TicketContent() {
   const [loading, setLoading] = useState(true);
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
   const [joining, setJoining] = useState(false);
-  const [occupiedCards, setOccupiedCards] = useState<number[]>([10, 42, 55, 78, 91]); 
+  const [occupiedCards, setOccupiedCards] = useState<number[]>([]); // Empty by default
   const [jackpot, setJackpot] = useState(808);
   const [dismissAlert, setDismissAlert] = useState(false);
 
@@ -119,7 +119,7 @@ function TicketContent() {
               <div 
                 key={num} 
                 className={`cartela-item ${isOccupied ? 'held' : ''} ${isSelected ? 'chosen' : ''}`}
-                onClick={() => !isOccupied && setSelectedCard(num)}
+                onClick={() => !isOccupied && setSelectedCard(prev => prev === num ? null : num)}
               >
                 {num}
               </div>
