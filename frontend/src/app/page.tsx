@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import Splash from '../components/Splash';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../components/Toast';
-import { Target, Trophy, Play, Dices, Gift, Wallet, Zap, Sparkles } from 'lucide-react';
+import { Target, Trophy, Play, Dices, Gift, Wallet, Zap } from 'lucide-react';
 
 interface Room {
   id: string;
@@ -22,7 +22,6 @@ export default function LobbyPage() {
   const [wallet, setWallet] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(!hasShownSplash);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const router = useRouter();
   const { show } = useToast();
 
@@ -33,7 +32,6 @@ export default function LobbyPage() {
         u = await getMe();
       } catch (err: any) {
         if (err.response?.status === 401) {
-          // Auto-Register if not found
           const twa = (window as any).Telegram?.WebApp;
           const startParam = twa ? new URLSearchParams(twa.initData).get('start_param') : null;
           u = await register({ phoneNumber: '', referredById: startParam || undefined });
@@ -58,14 +56,19 @@ export default function LobbyPage() {
     loadData();
   }, []);
 
-  const handleJoin = (type: string, price: string) => {
+  const handleJoin = (type: string, price: number) => {
     const currentBalance = wallet?.balance || 0;
-    if (currentBalance < Number(price) && type !== 'CASUAL') {
+    if (currentBalance < price && type !== 'CASUAL_FREE') {
       show(`Insufficient Balance. Please top up to join the ${price} ETB room.`, 'error');
-      // Still redirect so they can see the top-up alert on the selection page
     }
     router.push(`/tickets/select?type=${type}&price=${price}`);
   };
+
+  const roomConfig = [
+    { type: 'CASUAL', price: 10, label: 'Casual' },
+    { type: 'STANDARD', price: 25, label: 'Standard' },
+    { type: 'JACKPOT', price: 100, label: 'Jackpot' },
+  ];
 
   return (
     <div className="lobby-container">
@@ -73,7 +76,7 @@ export default function LobbyPage() {
         setShowSplash(false);
         hasShownSplash = true;
       }} />}
-
+      
       <div className="lobby-nav-top">
         <div className="top-left">
            <span className="live-dot pulse"></span>
@@ -105,19 +108,20 @@ export default function LobbyPage() {
       </div>
 
       <div className="rooms-stack">
-        {[10, 20, 50, 100].map((price, idx) => (
-          <div key={`bingo-${price}`} className="room-item-wrapper">
+        {roomConfig.map((room, idx) => (
+          <div key={`bingo-${room.type}`} className="room-item-wrapper">
             {idx > 0 && <div className="jackpot-divider">JACKPOT 0 / 1000</div>}
             <div className="room-row-simple">
               <div className="col-bet-simple">
-                <div className="v">{price}</div>
+                <div className="v">{room.price}</div>
                 <div className="l">ETB</div>
+                <div className="room-tag">{room.label}</div>
               </div>
               
               <div className="col-win-simple">
                 <Trophy size={20} className="trophy-gold" />
                 <div className="win-info">
-                   <div className="v yellow">{price * 8}</div>
+                   <div className="v yellow">{room.price * 8}</div>
                    <div className="p">0 players</div>
                 </div>
               </div>
@@ -127,7 +131,7 @@ export default function LobbyPage() {
                   <div className="badge-active">ACTIVE 0</div>
                   <div className="badge-ready">READY</div>
                 </div>
-                <button className="btn-join-simple" onClick={() => handleJoin('STANDARD', price.toString())}>JOIN</button>
+                <button className="btn-join-simple" onClick={() => handleJoin(room.type, room.price)}>JOIN</button>
               </div>
             </div>
           </div>
@@ -137,7 +141,7 @@ export default function LobbyPage() {
       {/* DEMO ROW */}
       <div className="demo-section-simple">
         <div className="jackpot-divider">JACKPOT 0 / 1000</div>
-        <div className="demo-row-simple" onClick={() => handleJoin('CASUAL', '0')}>
+        <div className="demo-row-simple" onClick={() => handleJoin('CASUAL', 0)}>
            <div className="demo-left">
               <div className="f">FREE</div>
               <div className="d">DEMO</div>
@@ -161,19 +165,13 @@ export default function LobbyPage() {
         <span>SPIN GAMES</span>
       </div>
 
-      <div className="table-headers">
-        <div className="h-bet">BET</div>
-        <div className="h-win">WIN/PLAYER</div>
-        <div className="h-status">STATUS & JOIN</div>
-      </div>
-
       <div className="rooms-stack">
-        {[10, 20, 50, 100].map((price, idx) => (
-          <div key={`spin-${price}`} className="room-item-wrapper">
+        {roomConfig.map((room, idx) => (
+          <div key={`spin-${room.type}`} className="room-item-wrapper">
              {idx > 0 && <div className="jackpot-divider">JACKPOT 0 / 1000</div>}
              <div className="room-row-simple">
                 <div className="col-bet-simple">
-                  <div className="v">{price}</div>
+                  <div className="v">{room.price}</div>
                   <div className="l">ETB</div>
                 </div>
                 <div className="col-win-simple">
@@ -222,6 +220,7 @@ export default function LobbyPage() {
         .col-bet-simple { text-align: left; }
         .col-bet-simple .v { font-size: 28px; font-weight: 900; line-height: 1; color: var(--text-main); }
         .col-bet-simple .l { font-size: 10px; font-weight: 800; opacity: 0.6; }
+        .room-tag { font-size: 9px; font-weight: 900; color: var(--gold-accent); text-transform: uppercase; margin-top: 4px; }
 
         .col-win-simple { display: flex; align-items: center; gap: 10px; padding: 0 10px; }
         .win-info .v { font-size: 20px; font-weight: 900; line-height: 1; }

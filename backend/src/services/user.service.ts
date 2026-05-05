@@ -29,8 +29,8 @@ export async function findOrCreateUser(
       },
     });
 
-    // Create wallet
-    await prisma.wallet.create({ data: { userId: user.id } });
+    // Create wallet with 1000 ETB for test purposes
+    await prisma.wallet.create({ data: { userId: user.id, balance: 1000 } });
 
     if (user.referredById) {
       await prisma.user.update({
