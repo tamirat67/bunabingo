@@ -16,10 +16,12 @@ async function main() {
   // ─── Express Server ──────────────────────────────────────
   const app = express();
 
-  app.use(helmet());
   app.use(cors({
-    origin: [config.bot.miniAppUrl, 'http://localhost:3000'],
-    credentials: true,
+    origin: true,
+    credentials: true
+  }));
+  app.use(helmet({
+    crossOriginResourcePolicy: false,
   }));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
