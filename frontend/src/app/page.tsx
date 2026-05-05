@@ -143,6 +143,12 @@ export default function LobbyPage() {
         <span>SPIN GAMES</span>
       </div>
 
+      <div className="table-headers">
+        <div className="h-bet">BET</div>
+        <div className="h-win">WIN/PLAYER</div>
+        <div className="h-status">STATUS & JOIN</div>
+      </div>
+
       <div className="rooms-stack">
         {[10, 20, 50].map((price, idx) => (
           <div key={`spin-${price}`} className="room-item-wrapper">
