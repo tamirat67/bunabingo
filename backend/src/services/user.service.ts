@@ -2,12 +2,15 @@ import prisma from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { config } from '../config';
 
-export async function findOrCreateUser(telegramUser: {
-  id: number;
-  username?: string;
-  first_name: string;
-  last_name?: string;
-}) {
+export async function findOrCreateUser(
+  telegramUser: {
+    id: number;
+    username?: string;
+    first_name: string;
+    last_name?: string;
+  },
+  referredById?: string
+) {
   const telegramId = BigInt(telegramUser.id);
 
   let user = await prisma.user.findUnique({ where: { telegramId } });
@@ -20,11 +23,19 @@ export async function findOrCreateUser(telegramUser: {
         firstName: telegramUser.first_name,
         lastName: telegramUser.last_name,
         isAdmin: config.bot.adminIds.includes(telegramUser.id),
+        referredById: referredById && referredById.length > 20 ? referredById : undefined,
       },
     });
 
     // Create wallet
     await prisma.wallet.create({ data: { userId: user.id } });
+
+    if (user.referredById) {
+      await prisma.user.update({
+        where: { id: user.referredById },
+        data: { referralCount: { increment: 1 } }
+      });
+    }
 
     logger.info(`New user registered: ${user.firstName} (TG: ${telegramUser.id})`);
   } else {

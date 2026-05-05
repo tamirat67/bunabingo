@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getUserByTelegramId } from '../services/user.service';
+import { getUserByTelegramId, findOrCreateUser } from '../services/user.service';
 import crypto from 'crypto';
 
 /**
@@ -47,8 +47,15 @@ export async function telegramAuthMiddleware(
     if (!userParam) return res.status(401).json({ error: 'No user data' });
 
     const tgUser = JSON.parse(userParam);
-    const user = await getUserByTelegramId(tgUser.id);
-    if (!user) return res.status(401).json({ error: 'User not registered' });
+    const startParam = params.get('start_param');
+
+    const user = await findOrCreateUser({
+      id: tgUser.id,
+      username: tgUser.username,
+      first_name: tgUser.first_name,
+      last_name: tgUser.last_name,
+    }, startParam || undefined);
+
     if (user.status === 'BANNED') return res.status(403).json({ error: 'Account banned' });
 
     (req as any).user = user;

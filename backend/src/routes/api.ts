@@ -111,6 +111,24 @@ router.get('/me/profile', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/me/profile', async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { firstName, phoneNumber } = req.body;
+  try {
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: { 
+        firstName: firstName || undefined,
+        // We'll store phone in a custom field if we add it, but for now just update firstName
+        // If we want to store phone, we'd need a field in schema.
+      }
+    });
+    res.json({ success: true, user: updated });
+  } catch (err) {
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
 router.get('/wallet', async (req: Request, res: Response) => {
   const user = (req as any).user;
   const wallet = await getOrCreateWallet(user.id);
