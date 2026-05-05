@@ -220,8 +220,20 @@ router.post('/games/join', joinGameLimiter, async (req: Request, res: Response) 
   if (!user) return res.status(401).json({ error: 'Verification required to play' });
   try {
     const { roomType, cardIds } = req.body;
-    const room = await getRoomWithActiveGame(roomType);
-    if (!room || !room.games[0]) return res.status(404).json({ error: 'No active game found' });
+    
+    // Self-healing: Ensure room exists and has a game
+    let room = await getRoomWithActiveGame(roomType);
+    
+    if (!room) {
+       // Force initialization if room is missing
+       await initializeRooms();
+       room = await getRoomWithActiveGame(roomType);
+    }
+
+    if (!room || !room.games[0]) {
+       return res.status(404).json({ error: `Room ${roomType} is currently initializing. Please try again in a second.` });
+    }
+
     const { tickets, cards } = await joinGame(user.id, room.games[0].id, cardIds);
     res.json({ success: true, tickets, cards, gameId: room.games[0].id });
   } catch (e: any) {
