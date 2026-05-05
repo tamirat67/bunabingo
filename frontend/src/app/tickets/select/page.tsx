@@ -4,18 +4,18 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { getWallet, joinGame } from '../../../lib/api';
 import { PREDEFINED_CARDS } from '../../../lib/predefinedCards';
 import Navbar from '../../../components/Navbar';
-import Toast from '../../../components/Toast';
+import { useToast } from '../../../components/Toast';
 
 function SelectCardInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { show } = useToast();
   const roomType = searchParams.get('type') || 'CASUAL';
   const pricePerCard = Number(searchParams.get('price') || '10');
 
   const [wallet, setWallet] = useState<any>(null);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     getWallet().then(setWallet).catch(() => {});
@@ -32,7 +32,7 @@ function SelectCardInner() {
       setSelectedCards(selectedCards.filter(n => n !== num));
     } else {
       if (selectedCards.length >= 3) {
-        setToast({ msg: 'Maximum 3 cards allowed per player!', type: 'error' });
+        show('Maximum 3 cards allowed per player!', 'error');
         return;
       }
       setSelectedCards([...selectedCards, num]);
@@ -40,21 +40,19 @@ function SelectCardInner() {
   };
 
   const handleStart = async () => {
-    if (selectedCards.length === 0) return setToast({ msg: 'Tap a number to select your card!', type: 'error' });
-    if (!hasBalance) return setToast({ msg: 'Insufficient balance!', type: 'error' });
+    if (selectedCards.length === 0) return show('Tap a number to select your card!', 'error');
+    if (!hasBalance) return show('Insufficient balance!', 'error');
 
     setLoading(true);
     try {
-      // Loop to buy each ticket individually
       for (const cardId of selectedCards) {
         const res = await joinGame(roomType, cardId);
-        // We only need the gameId from the last join to redirect
         if (cardId === selectedCards[selectedCards.length - 1]) {
            router.push(`/game?id=${res.gameId}`);
         }
       }
     } catch (err: any) {
-      setToast({ msg: err.response?.data?.error || 'Failed to join game', type: 'error' });
+      show(err.response?.data?.error || 'Failed to join game', 'error');
     } finally {
       setLoading(false);
     }
@@ -141,7 +139,6 @@ function SelectCardInner() {
         </div>
       </div>
 
-      {toast && <Toast message={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
       <Navbar />
 
       <style jsx>{`
