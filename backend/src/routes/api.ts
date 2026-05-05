@@ -82,7 +82,13 @@ router.post('/auth/register', async (req: Request, res: Response) => {
       last_name: tgUser.last_name,
     }, referredById, phoneNumber);
 
-    res.json({ success: true, user });
+    res.json({ 
+      success: true, 
+      user: {
+        ...user,
+        telegramId: user.telegramId.toString()
+      } 
+    });
   } catch (err) {
     res.status(500).json({ error: 'Registration failed' });
   }
@@ -103,7 +109,11 @@ router.get('/me', async (req: Request, res: Response) => {
     });
   }
   
-  res.json({ ...user, wallet });
+  res.json({ 
+    ...user, 
+    telegramId: user.telegramId.toString(),
+    wallet 
+  });
 });
 
 router.get('/me/profile', async (req: Request, res: Response) => {
