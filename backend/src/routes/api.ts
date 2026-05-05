@@ -96,24 +96,25 @@ router.post('/auth/register', async (req: Request, res: Response) => {
 
 // ─── User / Wallet ────────────────────────────────────────────
 router.get('/me', async (req: Request, res: Response) => {
-  const user = (req as any).user;
-  if (!user) return res.status(401).json({ error: 'Not registered' });
-  
-  let wallet = await prisma.wallet.findUnique({ where: { userId: user.id } });
-  if (!wallet) {
-    wallet = await prisma.wallet.create({ data: { userId: user.id, balance: 1000 } });
-  } else if (Number(wallet.balance) < 100) {
-    wallet = await prisma.wallet.update({
-      where: { userId: user.id },
-      data: { balance: 1000 }
-    });
+  try {
+    const user = (req as any).user;
+    if (!user) return res.status(401).json({ error: 'Not registered' });
+    
+    let wallet = await prisma.wallet.findUnique({ where: { userId: user.id } });
+    if (!wallet) {
+      wallet = await prisma.wallet.create({ data: { userId: user.id, balance: 1000 } });
+    } else if (new Decimal(wallet.balance).lessThan(100)) {
+      wallet = await prisma.wallet.update({
+        where: { userId: user.id },
+        data: { balance: 1000 }
+      });
+    }
+    
+    res.json({ ...user, wallet });
+  } catch (err) {
+    logger.error('Wallet sync error:', err);
+    res.status(500).json({ error: 'Failed to sync wallet balance' });
   }
-  
-  res.json({ 
-    ...user, 
-    telegramId: user.telegramId.toString(),
-    wallet 
-  });
 });
 
 router.get('/me/profile', async (req: Request, res: Response) => {

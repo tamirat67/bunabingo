@@ -68,18 +68,24 @@ function TicketContent() {
     });
   };
 
-  const handleJoin = async () => {
+  const handleJoin = async (retryCount = 0) => {
     if (selectedCards.length === 0 || joining) return;
     setJoining(true);
     try {
       const res = await joinGame(roomType, selectedCards);
       router.push(`/game?id=${res.gameId}`);
     } catch (err: any) {
+      // If it's a network error and we haven't retried yet, try one more time
+      if ((err.message === 'Network Error' || !err.response) && retryCount < 1) {
+        console.log('Network flicker detected, retrying join...');
+        setTimeout(() => handleJoin(retryCount + 1), 1000);
+        return;
+      }
       const errMsg = err.response?.data?.error || err.message || 'Unknown error joining game';
       alert(`Buna Bingo Join Error: ${errMsg}`);
       console.error('Join error detail:', err.response?.data);
     } finally {
-      setJoining(false);
+      if (retryCount >= 1 || !joining) setJoining(false);
     }
   };
 
