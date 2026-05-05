@@ -67,12 +67,12 @@ const upload = multer({
 // ─── Auth for all routes ──────────────────────────────────────
 router.use(telegramAuthMiddleware);
 
-// ─── Registration (Manual) ───────────────────────────────────
+// ─── Registration (Manual / Auto) ───────────────────────────
 router.post('/auth/register', async (req: Request, res: Response) => {
   const tgUser = (req as any).tgUser; // Attached by middleware for unregistered users
   const { phoneNumber, referredById } = req.body;
 
-  if (!phoneNumber) return res.status(400).json({ error: 'Phone number required' });
+  // Phone number is now optional for basic registration
 
   try {
     const user = await findOrCreateUser({

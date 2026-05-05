@@ -20,15 +20,11 @@ function TicketContent() {
   const loadUser = async () => {
     try {
       const u = await getMe();
-      if (!u || !u.id) {
-        setShowOnboarding(true);
-      } else {
-        setUser(u);
-        setShowOnboarding(false);
-      }
+      setUser(u);
     } catch (err: any) {
       if (err.response?.status === 401) {
-        setShowOnboarding(true);
+        // If somehow not auto-registered in lobby, push back or re-try
+        router.push('/');
       }
     } finally {
       setLoading(false);
@@ -56,8 +52,6 @@ function TicketContent() {
 
   return (
     <div className="select-container">
-      {showOnboarding && <Onboarding onSuccess={loadUser} />}
-
       <div className="select-header">
         <button className="btn-back" onClick={() => router.push('/')}>
           <ChevronLeft size={24} />

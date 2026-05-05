@@ -26,19 +26,27 @@ export default function LobbyPage() {
 
   const loadData = async () => {
     try {
-      const [u] = await Promise.all([getMe()]);
-      if (!u || !u.id) {
-        setShowOnboarding(true);
-      } else {
+      let u;
+      try {
+        u = await getMe();
+      } catch (err: any) {
+        if (err.response?.status === 401) {
+          // Auto-Register if not found
+          const twa = (window as any).Telegram?.WebApp;
+          const startParam = twa ? new URLSearchParams(twa.initData).get('start_param') : null;
+          u = await register({ phoneNumber: '', referredById: startParam || undefined });
+        } else {
+          throw err;
+        }
+      }
+
+      if (u) {
         const [r, w] = await Promise.all([getRooms(), getWallet()]);
         setRooms(r);
         setWallet(w);
-        setShowOnboarding(false);
       }
     } catch (err: any) {
-      if (err.response?.status === 401) {
-        setShowOnboarding(true);
-      }
+      console.error('Lobby load failed', err);
     } finally {
       setLoading(false);
     }
@@ -55,8 +63,6 @@ export default function LobbyPage() {
   return (
     <div className="lobby-container">
       {showSplash && <Splash isLoading={loading} onFinish={() => setShowSplash(false)} />}
-      
-      {showOnboarding && <Onboarding onSuccess={loadData} />}
 
       <div className="lobby-nav-top">
         <div className="top-left">
