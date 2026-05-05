@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getWallet } from '../../lib/api';
+import { getWallet, getMe } from '../../lib/api';
 import { initTelegram } from '../../lib/telegram';
 import Navbar from '../../components/Navbar';
 import { useToast } from '../../components/Toast';
