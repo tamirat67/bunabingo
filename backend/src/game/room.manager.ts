@@ -21,6 +21,12 @@ export async function initializeRooms(): Promise<void> {
       maxPlayers: 200,
     },
     {
+      type: RoomType.PRO,
+      ticketPrice: config.game.ticketPrice.PRO,
+      minPlayers: config.game.minPlayers.PRO,
+      maxPlayers: 300,
+    },
+    {
       type: RoomType.JACKPOT,
       ticketPrice: config.game.ticketPrice.JACKPOT,
       minPlayers: config.game.minPlayers.JACKPOT,

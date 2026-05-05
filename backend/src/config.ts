@@ -21,13 +21,15 @@ export const config = {
   game: {
     ticketPrice: {
       CASUAL: parseFloat(process.env.TICKET_PRICE_CASUAL || '10'),
-      STANDARD: parseFloat(process.env.TICKET_PRICE_STANDARD || '25'),
+      STANDARD: parseFloat(process.env.TICKET_PRICE_STANDARD || '20'),
+      PRO: parseFloat(process.env.TICKET_PRICE_PRO || '50'),
       JACKPOT: parseFloat(process.env.TICKET_PRICE_JACKPOT || '100'),
     },
     minPlayers: {
       CASUAL: 2,
-      STANDARD: 5,
-      JACKPOT: 20,
+      STANDARD: 3,
+      PRO: 5,
+      JACKPOT: 10,
     },
     countdown: {
       2: 30,   // 2 players → 30s
