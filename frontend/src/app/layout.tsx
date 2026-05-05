@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { ToastProvider } from '../components/Toast';
 import Script from 'next/script';
-import '../globals.css';
+import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
