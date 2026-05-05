@@ -33,17 +33,32 @@ function TicketContent() {
     }
   };
 
+  const refreshBalance = async () => {
+    try {
+      const u = await getMe();
+      setUser(u);
+    } catch (err) {
+      console.error('Balance sync failed', err);
+    }
+  };
+
   useEffect(() => {
     loadUser();
   }, []);
 
   const handleToggleCard = (num: number) => {
     setSelectedCards(prev => {
+      let next;
       if (prev.includes(num)) {
-        return prev.filter(id => id !== num);
+        next = prev.filter(id => id !== num);
+      } else if (prev.length < 3) {
+        next = [...prev, num];
+      } else {
+        return prev;
       }
-      if (prev.length >= 3) return prev; // Hard limit of 3
-      return [...prev, num];
+      // Silently refresh balance to keep UI in sync
+      refreshBalance();
+      return next;
     });
   };
 
