@@ -173,6 +173,7 @@ router.get('/transactions', async (req: Request, res: Response) => {
 // ─── Deposits ─────────────────────────────────────────────────
 router.post('/deposits', depositLimiter, upload.single('screenshot'), async (req: Request, res: Response) => {
   const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Verification required to play' });
   try {
     const { amount, reference } = req.body;
     const screenshotUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
@@ -192,6 +193,7 @@ router.get('/deposits', async (req: Request, res: Response) => {
 // ─── Withdrawals ──────────────────────────────────────────────
 router.post('/withdrawals', withdrawLimiter, async (req: Request, res: Response) => {
   const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Verification required to play' });
   try {
     const { amount, accountName, accountNumber, bankName } = req.body;
     const wd = await createWithdrawalRequest(user.id, parseFloat(amount), accountName, accountNumber, bankName);
@@ -215,6 +217,7 @@ router.get('/rooms', async (_req: Request, res: Response) => {
 
 router.post('/games/join', joinGameLimiter, async (req: Request, res: Response) => {
   const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Verification required to play' });
   try {
     const { roomType, cardId } = req.body;
     const room = await getRoomWithActiveGame(roomType);
