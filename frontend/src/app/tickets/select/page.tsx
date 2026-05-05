@@ -1,9 +1,10 @@
 'use client';
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getWallet, joinGame } from '../../../lib/api';
+import { getWallet, joinGame, getMe } from '../../../lib/api';
 import { PREDEFINED_CARDS } from '../../../lib/predefinedCards';
 import Navbar from '../../../components/Navbar';
+import Onboarding from '../../../components/Onboarding';
 import { useToast } from '../../../components/Toast';
 
 function SelectCardInner() {
@@ -16,9 +17,27 @@ function SelectCardInner() {
   const [wallet, setWallet] = useState<any>(null);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  const loadData = async () => {
+    try {
+      const u = await getMe();
+      if (!u || !u.id) {
+        setShowOnboarding(true);
+      } else {
+        const w = await getWallet();
+        setWallet(w);
+        setShowOnboarding(false);
+      }
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        setShowOnboarding(true);
+      }
+    }
+  };
 
   useEffect(() => {
-    getWallet().then(setWallet).catch(() => {});
+    loadData();
   }, []);
 
   const totalStake = selectedCards.length * pricePerCard;
@@ -60,6 +79,7 @@ function SelectCardInner() {
 
   return (
     <div className="select-container">
+      {showOnboarding && <Onboarding onSuccess={loadData} />}
       <div className="connection-status">
         <span className="live-dot pulse"></span> BUNA BINGO SECURE
       </div>
