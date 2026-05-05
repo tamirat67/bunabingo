@@ -351,10 +351,15 @@ export async function createWaitingGame(roomId: string): Promise<string> {
   return game.id;
 }
 
+import { PREDEFINED_CARDS } from '../lib/predefinedCards';
+
+// ... existing code ...
+
 // ─── Join Game ────────────────────────────────────────────────
 export async function joinGame(
   userId: string,
   gameId: string,
+  cardId: number = 1 // Default to 1 if not provided
 ): Promise<{ ticket: any; card: BingoCard }> {
   const game = await prisma.game.findUnique({
     where: { id: gameId },
@@ -365,6 +370,17 @@ export async function joinGame(
   if (game.status !== GameStatus.WAITING && game.status !== GameStatus.COUNTDOWN) {
     throw new Error('Game is not accepting players');
   }
+
+  // Ensure cardId is valid 1-100
+  const normalizedCardId = Math.max(1, Math.min(100, cardId));
+  const cardPattern = PREDEFINED_CARDS[normalizedCardId];
+
+  if (!cardPattern) throw new Error('Invalid card selection');
+
+  // Convert predefined format [[...], [...]] to engine format { rows: [...] }
+  const card: BingoCard = {
+    rows: cardPattern.map(row => row.map(cell => cell === 0 ? 'FREE' : cell)) as any
+  };
 
   const existingTicket = await prisma.ticket.findUnique({
     where: { userId_gameId: { userId, gameId } },
@@ -379,9 +395,6 @@ export async function joinGame(
   if (new Decimal(wallet.balance).lessThan(ticketPrice)) {
     throw new Error(`Insufficient balance. Need ${ticketPrice}, have ${wallet.balance}`);
   }
-
-  // Generate unique card
-  const card = generateBingoCard();
 
   // Deduct balance
   const newBalance = new Decimal(wallet.balance).sub(ticketPrice);

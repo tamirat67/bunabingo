@@ -176,10 +176,10 @@ router.get('/rooms', async (_req: Request, res: Response) => {
 router.post('/games/join', joinGameLimiter, async (req: Request, res: Response) => {
   const user = (req as any).user;
   try {
-    const { roomType } = req.body;
+    const { roomType, cardId } = req.body;
     const room = await getRoomWithActiveGame(roomType);
     if (!room || !room.games[0]) return res.status(404).json({ error: 'No active game found' });
-    const { ticket, card } = await joinGame(user.id, room.games[0].id);
+    const { ticket, card } = await joinGame(user.id, room.games[0].id, cardId);
     res.json({ success: true, ticket, card, gameId: room.games[0].id });
   } catch (e: any) {
     res.status(400).json({ error: e.message });
