@@ -34,15 +34,13 @@ function SelectCardInner() {
       }
       const newSelection = [...selectedCards, num];
       setSelectedCards(newSelection);
-      
-      // Fun Toasts for multi-selection
-      if (newSelection.length === 2) show('Nice! Double your chances! ✌️', 'success');
-      if (newSelection.length === 3) show('JACKPOT MODE! 3 Cards active! 🔥', 'success');
+      if (newSelection.length === 2) show('Double your chances! ✌️', 'success');
+      if (newSelection.length === 3) show('JACKPOT MODE active! 🔥', 'success');
     }
   };
 
   const handleStart = async () => {
-    if (selectedCards.length === 0) return show('Tap a number to select your card!', 'error');
+    if (selectedCards.length === 0) return show('Select your lucky card!', 'error');
     if (!hasBalance) return show('Insufficient balance!', 'error');
 
     setLoading(true);
@@ -63,25 +61,21 @@ function SelectCardInner() {
   return (
     <div className="select-container">
       <div className="connection-status">
-        <span className="wifi-icon">📶</span> CONNECTED
+        <span className="live-dot pulse"></span> BUNA BINGO SECURE
       </div>
 
       <div className="stats-row">
         <div className="stat-capsule">
-          <div className="lbl orange">Selected</div>
+          <div className="lbl">Selected</div>
           <div className="val">{selectedCards.length} / 3</div>
         </div>
         <div className="stat-capsule">
-          <div className="lbl orange">Stake</div>
+          <div className="lbl">Stake</div>
           <div className="val">{totalStake || pricePerCard} ETB</div>
         </div>
         <div className="stat-capsule">
-          <div className="lbl orange">Wallet</div>
+          <div className="lbl">Wallet</div>
           <div className="val">{Number(wallet?.balance || 0).toFixed(0)}</div>
-        </div>
-        <div className="stat-capsule">
-          <div className="lbl orange">Bonus</div>
-          <div className="val">0</div>
         </div>
       </div>
 
@@ -106,7 +100,6 @@ function SelectCardInner() {
         ))}
       </div>
 
-      {/* ─── Multi-Card Pattern Preview ───────────────────── */}
       <div className="previews-container">
         {selectedCards.length > 0 ? (
           <div className="previews-scroll">
@@ -131,53 +124,56 @@ function SelectCardInner() {
             ))}
           </div>
         ) : (
-          <div className="preview-placeholder">Tap up to 3 cards to see patterns</div>
+          <div className="preview-placeholder">Select up to 3 lucky cards</div>
         )}
       </div>
 
-      {/* ─── Action Section ────────────────────────────────── */}
       <div className="action-bar">
-        <button className="btn-reset" onClick={() => setSelectedCards([])}>Clear Selection</button>
         <button 
           className={`btn-start ${selectedCards.length === 0 || !hasBalance || loading ? 'disabled' : ''}`}
           onClick={handleStart}
           disabled={loading}
         >
-          {loading ? 'Entering Room...' : selectedCards.length > 1 ? `PLAY ${selectedCards.length} CARDS` : 'START GAME'}
+          {loading ? 'Joining...' : selectedCards.length > 1 ? `PLAY ${selectedCards.length} CARDS` : 'START BINGO'}
         </button>
+        <button className="btn-reset" onClick={() => setSelectedCards([])}>Reset Selection</button>
       </div>
 
       <Navbar />
 
       <style jsx>{`
-        .select-container { min-height: 100vh; background: #2d1b4d; padding: 16px; padding-bottom: 100px; }
-        .connection-status { text-align: center; color: #4ade80; font-weight: 800; font-size: 14px; margin-bottom: 12px; }
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
-        .stat-capsule { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 2px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .stat-capsule .lbl { font-size: 8px; color: #f97316; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
-        .stat-capsule .val { font-size: 12px; color: white; font-weight: 800; }
+        .select-container { min-height: 100vh; background: #F5E6BE; padding: 16px; padding-bottom: 100px; color: #000; }
+        .connection-status { text-align: center; color: #4B3621; font-weight: 800; font-size: 13px; margin-bottom: 12px; opacity: 0.8; }
+        .live-dot { display: inline-block; width: 6px; height: 6px; background: #22c55e; border-radius: 50%; margin-right: 4px; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        .card-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; margin-bottom: 20px; }
-        .grid-item { aspect-ratio: 1; background: rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s; }
-        .grid-item.selected { background: #22c55e; color: white; transform: scale(1.05); box-shadow: 0 0 15px rgba(34,197,94,0.4); border: 2px solid white; }
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+        .stat-capsule { background: #FFF9E6; border-radius: 12px; padding: 10px 4px; text-align: center; border: 1px solid #E6D5A8; }
+        .stat-capsule .lbl { font-size: 9px; color: #6F4E37; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
+        .stat-capsule .val { font-size: 13px; color: #4B3621; font-weight: 900; }
 
-        .previews-container { margin-bottom: 24px; min-height: 140px; }
-        .previews-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 4px; padding-bottom: 12px; scroll-snap-type: x mandatory; }
-        .hint-card-wrapper { flex: 0 0 130px; scroll-snap-align: start; }
-        .preview-placeholder { text-align: center; color: rgba(255,255,255,0.3); font-size: 12px; font-weight: 700; padding-top: 50px; }
+        .card-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; background: rgba(75, 54, 33, 0.05); padding: 8px; border-radius: 12px; margin-bottom: 20px; }
+        .grid-item { aspect-ratio: 1; background: #FFF9E6; border: 1px solid #E6D5A8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #4B3621; cursor: pointer; transition: all 0.2s; }
+        .grid-item.selected { background: #4B3621; color: #F5E6BE; transform: scale(1.05); box-shadow: 0 4px 12px rgba(75, 54, 33, 0.3); border: 2px solid #F5E6BE; }
 
-        .cartela-hint { background: white; padding: 8px; border-radius: 12px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        .previews-container { margin-bottom: 20px; min-height: 140px; }
+        .previews-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 4px; padding-bottom: 12px; }
+        .hint-card-wrapper { flex: 0 0 130px; }
+        .preview-placeholder { text-align: center; color: #6F4E37; font-size: 12px; font-weight: 700; padding-top: 50px; opacity: 0.5; }
+
+        .cartela-hint { background: white; padding: 8px; border-radius: 12px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 8px 20px rgba(75, 54, 33, 0.15); border: 1px solid #eee; }
         .hint-header { display: flex; gap: 2px; justify-content: center; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
-        .hint-header span { width: 20px; font-size: 10px; font-weight: 900; color: #f97316; text-align: center; }
+        .hint-header span { width: 20px; font-size: 10px; font-weight: 900; color: #6F4E37; text-align: center; }
         .hint-row { display: flex; gap: 2px; justify-content: center; }
         .hint-cell { width: 20px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #333; }
         .hint-cell.star { font-size: 10px; }
         .hint-card-num { font-size: 8px; color: #999; text-align: center; margin-top: 4px; font-weight: 700; }
 
-        .action-bar { display: flex; flex-direction: column; gap: 12px; }
-        .btn-reset { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
-        .btn-start { background: linear-gradient(180deg, #f97316 0%, #ea580c 100%); border: none; color: white; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 20px; box-shadow: 0 4px 0 #9a3412; cursor: pointer; }
-        .btn-start.disabled { background: #444; box-shadow: none; opacity: 0.5; cursor: not-allowed; }
+        .action-bar { display: flex; flex-direction: column; gap: 10px; }
+        .btn-start { background: #4B3621; color: #F5E6BE; border: none; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 20px; box-shadow: 0 6px 0 #2a1e12; cursor: pointer; letter-spacing: 0.5px; }
+        .btn-start.disabled { background: #E6D5A8; color: #6F4E37; box-shadow: none; opacity: 0.5; cursor: not-allowed; }
+        .btn-reset { background: transparent; border: 1px solid #E6D5A8; color: #6F4E37; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
       `}</style>
     </div>
   );

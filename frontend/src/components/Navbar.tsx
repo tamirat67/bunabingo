@@ -1,16 +1,17 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Gamepad2, Trophy, History, Wallet, User } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
 
   const navItems = [
-    { label: 'Game', href: '/', icon: '🎮' },
-    { label: 'Scores', href: '/history', icon: '🏆' },
-    { label: 'History', href: '/history', icon: '⏳' },
-    { label: 'Wallet', href: '/wallet', icon: '👛' },
-    { label: 'Profile', href: '/profile', icon: '👤' },
+    { label: 'Game', href: '/', icon: <Gamepad2 size={24} /> },
+    { label: 'Scores', href: '/history', icon: <Trophy size={24} /> },
+    { label: 'History', href: '/history', icon: <History size={24} /> },
+    { label: 'Wallet', href: '/wallet', icon: <Wallet size={24} /> },
+    { label: 'Profile', href: '/profile', icon: <User size={24} /> },
   ];
 
   return (
@@ -28,20 +29,20 @@ export default function Navbar() {
       <style jsx>{`
         .bottom-nav {
           position: fixed; bottom: 0; left: 0; right: 0;
-          height: 70px; background: #2d1b4d; border-top: 1px solid rgba(255,255,255,0.1);
+          height: 75px; background: #4B3621; border-top: 1px solid rgba(245, 230, 190, 0.15);
           display: flex; justify-content: space-around; align-items: center;
           padding-bottom: env(safe-area-inset-bottom); z-index: 100;
-          box-shadow: 0 -10px 30px rgba(0,0,0,0.3);
+          box-shadow: 0 -10px 40px rgba(0,0,0,0.4);
         }
         .nav-item {
           display: flex; flex-direction: column; align-items: center;
-          gap: 4px; color: rgba(255,255,255,0.4); text-decoration: none;
-          flex: 1; transition: all 0.2s;
+          gap: 6px; color: rgba(245, 230, 190, 0.4); text-decoration: none;
+          flex: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .nav-item.active { color: #facc15; transform: translateY(-2px); }
-        .nav-icon { font-size: 24px; transition: transform 0.2s; }
-        .nav-item.active .nav-icon { transform: scale(1.1); }
-        .nav-label { font-size: 10px; font-weight: 800; text-transform: capitalize; }
+        .nav-item.active { color: #facc15; transform: translateY(-4px); }
+        .nav-icon { transition: transform 0.3s; }
+        .nav-item.active .nav-icon { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.4)); }
+        .nav-label { font-size: 11px; font-weight: 800; text-transform: capitalize; letter-spacing: 0.3px; }
       `}</style>
     </nav>
   );
