@@ -75,7 +75,7 @@ export default function LobbyPage() {
       </div>
 
       <div className="section-header">
-        <Target size={20} className="purple-icon" />
+        <Target size={20} className="coffee-icon" />
         <span className="title">BINGO GAMES</span>
       </div>
 
@@ -104,7 +104,7 @@ export default function LobbyPage() {
               </div>
               <div className="col-status">
                 <div className="badge active">ACTIVE 0</div>
-                <button className="btn-join purple" onClick={() => handleJoin('STANDARD', price.toString())}>JOIN</button>
+                <button className="btn-join" onClick={() => handleJoin('STANDARD', price.toString())}>JOIN</button>
               </div>
             </div>
           </div>
@@ -112,7 +112,7 @@ export default function LobbyPage() {
       </div>
 
       <div className="section-header sp-mt">
-        <Dices size={20} className="purple-icon" />
+        <Dices size={20} className="coffee-icon" />
         <span className="title">SPIN GAMES</span>
       </div>
 
@@ -135,7 +135,7 @@ export default function LobbyPage() {
               </div>
               <div className="col-status">
                 <div className="badge active">ACTIVE 0</div>
-                <button className="btn-join purple outline" onClick={() => show(`Spin coming soon!`, 'info')}>JOIN</button>
+                <button className="btn-join outline" onClick={() => show(`Spin coming soon!`, 'info')}>JOIN</button>
               </div>
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function LobbyPage() {
       <style jsx>{`
         .lobby-container { min-height: 100vh; background: #F5E6BE; padding-bottom: 90px; color: #000; }
         
-        .lobby-nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #6b21a8; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .lobby-nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #6F4E37; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .nav-left { display: flex; align-items: center; gap: 6px; }
         .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
         .pulse { animation: pulse 2s infinite; }
@@ -158,8 +158,8 @@ export default function LobbyPage() {
         .yellow { color: #facc15; }
 
         .section-header { padding: 24px 16px 12px; display: flex; align-items: center; gap: 8px; }
-        .section-header .title { font-size: 16px; font-weight: 900; color: #6b21a8; letter-spacing: 0.5px; }
-        .purple-icon { color: #6b21a8; }
+        .section-header .title { font-size: 16px; font-weight: 900; color: #6F4E37; letter-spacing: 0.5px; }
+        .coffee-icon { color: #6F4E37; }
         .sp-mt { margin-top: 10px; }
 
         .column-headers { display: grid; grid-template-columns: 80px 1fr 100px; padding: 0 16px 8px; font-size: 11px; font-weight: 800; opacity: 0.5; color: #000; }
@@ -179,11 +179,10 @@ export default function LobbyPage() {
         .win-count { font-size: 11px; opacity: 0.6; font-weight: 700; }
 
         .col-status { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .badge.active { background: #6b21a8; color: white; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 99px; }
+        .badge.active { background: #22c55e; color: white; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 99px; }
         
-        .btn-join { width: 100%; border: none; padding: 9px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-        .btn-join.purple { background: #6b21a8; color: white; box-shadow: 0 4px 0 #4c1d95; }
-        .btn-join.purple.outline { background: transparent; color: #6b21a8; border: 2.5px solid #6b21a8; box-shadow: none; padding: 6.5px; }
+        .btn-join { width: 100%; border: none; padding: 9px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.2s; background: #22c55e; color: white; box-shadow: 0 4px 0 #16a34a; }
+        .btn-join.outline { background: transparent; color: #22c55e; border: 2.5px solid #22c55e; box-shadow: none; padding: 6.5px; }
         .btn-join:active { transform: translateY(2px); box-shadow: none; }
       `}</style>
     </div>

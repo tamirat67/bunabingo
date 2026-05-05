@@ -19,22 +19,15 @@ export default function Onboarding({ onSuccess }: OnboardingProps) {
     }
 
     const twa = (window as any).Telegram.WebApp;
-    
     setLoading(true);
     
-    // Trigger Native Telegram Bottom Sheet
     twa.requestContact(async (res: any) => {
       if (res.status === 'sent') {
         try {
           const phoneNumber = res.response_data?.phone_number || res.phone_number;
-          // Extract referral from start_param if exists
           const startParam = new URLSearchParams(twa.initData).get('start_param');
           
-          await register({ 
-            phoneNumber, 
-            referredById: startParam || undefined 
-          });
-          
+          await register({ phoneNumber, referredById: startParam || undefined });
           show('Verification Successful! Welcome ☕', 'success');
           onSuccess();
         } catch (err) {
@@ -93,7 +86,7 @@ export default function Onboarding({ onSuccess }: OnboardingProps) {
       <style jsx>{`
         .onboard-overlay {
           position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(0,0,0,0.8); z-index: 9999;
+          background: rgba(0,0,0,0.85); z-index: 9999;
           display: flex; align-items: flex-end;
           backdrop-filter: blur(8px);
         }
@@ -103,39 +96,39 @@ export default function Onboarding({ onSuccess }: OnboardingProps) {
           padding: 20px 24px 40px;
           animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
-          color: #4B3621;
+          color: #000000;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         .sheet-handle {
-          width: 40px; height: 5px; background: rgba(75, 54, 33, 0.2);
+          width: 40px; height: 5px; background: rgba(0, 0, 0, 0.2);
           border-radius: 99px; margin: 0 auto 24px;
         }
         
         .sheet-content { text-align: center; }
         
         .icon-badge {
-          width: 80px; height: 80px; background: #6b21a8; color: #facc15;
+          width: 80px; height: 80px; background: #6F4E37; color: #F5E6BE;
           border-radius: 24px; display: flex; align-items: center; justify-content: center;
-          margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(107, 33, 168, 0.3);
+          margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(111, 78, 55, 0.3);
         }
         
-        .sheet-title { font-size: 24px; font-weight: 900; margin-bottom: 12px; }
-        .sheet-desc { font-size: 14px; font-weight: 700; opacity: 0.8; line-height: 1.5; margin-bottom: 24px; }
+        .sheet-title { font-size: 24px; font-weight: 900; margin-bottom: 12px; color: #000; }
+        .sheet-desc { font-size: 14px; font-weight: 800; opacity: 1; line-height: 1.5; margin-bottom: 24px; color: #4B3621; }
         
         .perks-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 30px; }
-        .perk { font-size: 13px; font-weight: 800; background: rgba(107, 33, 168, 0.05); padding: 8px 16px; border-radius: 12px; display: inline-block; align-self: center; }
+        .perk { font-size: 13px; font-weight: 900; background: rgba(0,0,0,0.05); padding: 8px 16px; border-radius: 12px; display: inline-block; align-self: center; color: #000; }
 
         .btn-verify {
-          width: 100%; background: #6b21a8; color: white; border: none;
+          width: 100%; background: #6F4E37; color: #F5E6BE; border: none;
           padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px;
           display: flex; align-items: center; justify-content: center; gap: 12px;
-          box-shadow: 0 10px 25px rgba(107, 33, 168, 0.3); cursor: pointer; transition: 0.2s;
+          box-shadow: 0 10px 25px rgba(111, 78, 55, 0.3); cursor: pointer; transition: 0.2s;
         }
         .btn-verify:active { transform: scale(0.98); }
         .btn-verify.loading { opacity: 0.8; }
         
-        .privacy-note { font-size: 11px; font-weight: 700; opacity: 0.5; margin-top: 16px; }
+        .privacy-note { font-size: 11px; font-weight: 800; opacity: 0.5; margin-top: 16px; color: #000; }
 
         .spinner-small {
           width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3);

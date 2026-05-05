@@ -29,20 +29,20 @@ export default function Navbar() {
       <style jsx>{`
         .bottom-nav {
           position: fixed; bottom: 0; left: 0; right: 0;
-          height: 75px; background: #6b21a8; border-top: 1px solid rgba(255, 255, 255, 0.1);
+          height: 75px; background: #6F4E37; border-top: 1px solid rgba(0, 0, 0, 0.1);
           display: flex; justify-content: space-around; align-items: center;
           padding-bottom: env(safe-area-inset-bottom); z-index: 100;
-          box-shadow: 0 -10px 40px rgba(0,0,0,0.4);
+          box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
         }
         .nav-item {
           display: flex; flex-direction: column; align-items: center;
-          gap: 6px; color: rgba(255, 255, 255, 0.4); text-decoration: none;
+          gap: 6px; color: rgba(0, 0, 0, 0.5); text-decoration: none;
           flex: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .nav-item.active { color: #facc15; transform: translateY(-4px); }
+        .nav-item.active { color: #000000; transform: translateY(-4px); }
         .nav-icon { transition: transform 0.3s; }
-        .nav-item.active .nav-icon { transform: scale(1.15); filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.6)); }
-        .nav-label { font-size: 11px; font-weight: 800; text-transform: capitalize; letter-spacing: 0.3px; }
+        .nav-item.active .nav-icon { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.2)); }
+        .nav-label { font-size: 11px; font-weight: 900; text-transform: capitalize; letter-spacing: 0.3px; color: #000000; }
       `}</style>
     </nav>
   );
