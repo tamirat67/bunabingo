@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import Onboarding from '../components/Onboarding';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../components/Toast';
-import { Target, Trophy, Play, Dices, Gift, Wallet, Zap, Sparkles } from 'lucide-react';
+import { Target, Trophy, Play, Dices, Gift, Wallet, Zap, Sparkles, ChevronRight } from 'lucide-react';
 
 interface Room {
   id: string;
@@ -111,27 +111,33 @@ export default function LobbyPage() {
         ))}
       </div>
 
+      {/* EXACT DEMO ROW LAYOUT FROM SCREENSHOT */}
+      <div className="demo-standalone-row">
+        <div className="jackpot-mini-bar">JACKPOT 0 / 1000</div>
+        <div className="demo-premium-row" onClick={() => handleJoin('CASUAL', '0')}>
+          <div className="demo-left">
+            <div className="f-txt">FREE</div>
+            <div className="d-txt">DEMO</div>
+          </div>
+          
+          <div className="demo-mid">
+            <Play size={20} className="play-icon" />
+            <div className="mid-txt">
+               <div className="t">Practice Mode</div>
+               <div className="s">No real money</div>
+            </div>
+          </div>
+
+          <div className="demo-right">
+             <button className="btn-open-mini">OPEN</button>
+             <button className="btn-try-mini">TRY</button>
+          </div>
+        </div>
+      </div>
+
       <div className="section-header sp-mt">
         <Dices size={20} className="coffee-icon" />
         <span className="title">SPIN GAMES</span>
-      </div>
-
-      {/* INDEPENDENT CENTERED DEMO SECTION - NOW ABOVE SPIN LIST */}
-      <div className="demo-center-section">
-        <div className="demo-card">
-          <div className="demo-card-inner">
-            <div className="demo-header">
-              <Sparkles size={18} className="sparkle" />
-              <span>FREE PRACTICE MODE</span>
-              <Sparkles size={18} className="sparkle" />
-            </div>
-            <h2 className="demo-title">Master the Game</h2>
-            <p className="demo-desc">Play a full bingo match for free and learn the winning patterns.</p>
-            <button className="btn-join-demo" onClick={() => handleJoin('CASUAL', '0')}>
-              <Zap size={18} /> START FREE DEMO
-            </button>
-          </div>
-        </div>
       </div>
 
       <div className="game-list">
@@ -203,16 +209,23 @@ export default function LobbyPage() {
         .btn-join.outline { background: transparent; color: #22c55e; border: 2.5px solid #22c55e; box-shadow: none; padding: 6.5px; }
         .btn-join:active { transform: translateY(2px); box-shadow: none; }
 
-        /* DEMO CENTERED STYLES */
-        .demo-center-section { padding: 12px 16px 24px; }
-        .demo-card { background: #6F4E37; border-radius: 28px; padding: 24px; box-shadow: 0 15px 35px rgba(111, 78, 55, 0.25); border: 2px solid #E6D5A8; }
-        .demo-card-inner { text-align: center; color: #F5E6BE; }
-        .demo-header { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 900; letter-spacing: 2px; opacity: 0.6; margin-bottom: 12px; }
-        .sparkle { color: #facc15; }
-        .demo-title { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
-        .demo-desc { font-size: 13px; font-weight: 700; opacity: 0.7; margin-bottom: 24px; max-width: 250px; margin-left: auto; margin-right: auto; line-height: 1.4; }
-        .btn-join-demo { width: 100%; background: #22c55e; color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 0 #16a34a; cursor: pointer; }
-        .btn-join-demo:active { transform: translateY(2px); box-shadow: none; }
+        /* EXACT DEMO ROW STYLES */
+        .demo-standalone-row { margin-top: 20px; background: #6F4E37; padding-bottom: 4px; }
+        .jackpot-mini-bar { background: rgba(0,0,0,0.2); color: #F5E6BE; font-size: 10px; font-weight: 800; text-align: center; padding: 4px; letter-spacing: 1px; }
+        .demo-premium-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 16px; background: #6F4E37; color: #F5E6BE; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        
+        .demo-left { text-align: left; }
+        .demo-left .f-txt { font-size: 24px; font-weight: 900; line-height: 1; }
+        .demo-left .d-txt { font-size: 10px; font-weight: 800; opacity: 0.6; letter-spacing: 2px; }
+
+        .demo-mid { display: flex; align-items: center; gap: 12px; }
+        .play-icon { opacity: 0.4; }
+        .mid-txt .t { font-size: 16px; font-weight: 900; }
+        .mid-txt .s { font-size: 11px; font-weight: 600; opacity: 0.6; }
+
+        .demo-right { display: flex; gap: 8px; }
+        .btn-open-mini { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #F5E6BE; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 900; }
+        .btn-try-mini { background: #4B3621; border: none; color: white; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 900; box-shadow: 0 4px 0 #2a1e12; }
       `}</style>
     </div>
   );
