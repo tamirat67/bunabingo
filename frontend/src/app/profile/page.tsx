@@ -28,13 +28,22 @@ export default function ProfilePage() {
     setSoundOn(savedSound);
     setTheme(savedTheme);
 
-    Promise.all([getWallet()])
-      .then(([w]) => {
-        setWallet(w);
-        setUser(w.user);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    const fetchData = async () => {
+      try {
+        const [userData, walletData] = await Promise.all([
+          getMe(),
+          getWallet()
+        ]);
+        setUser(userData);
+        setWallet(walletData);
+      } catch (err) {
+        console.error('Failed to fetch profile data', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const toggleSound = () => {
