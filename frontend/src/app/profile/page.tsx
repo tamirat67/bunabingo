@@ -68,10 +68,16 @@ export default function ProfilePage() {
             <User size={48} />
           </div>
           <h2 className="user-name">{user?.firstName || 'Buna Player'}</h2>
+          {user?.telegramUsername && (
+            <div className="user-handle">@{user.telegramUsername}</div>
+          )}
           <div className="badge-verified">
             <ShieldCheck size={14} /> Verified Member
           </div>
-          <p className="user-id">ID: {user?.id?.slice(-8).toUpperCase()}</p>
+          <div className="profile-id-stack">
+            <p className="user-id">TG ID: {user?.telegramId?.toString() || '...'}</p>
+            <p className="user-id mini">BUNA ID: {user?.id?.slice(-8).toUpperCase()}</p>
+          </div>
         </div>
       </div>
 
