@@ -69,7 +69,9 @@ function TicketContent() {
       const res = await joinGame(roomType, selectedCards);
       router.push(`/game?id=${res.gameId}`);
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to join game');
+      const errMsg = err.response?.data?.error || err.message || 'Unknown error joining game';
+      alert(`Buna Bingo Join Error: ${errMsg}`);
+      console.error('Join error detail:', err.response?.data);
     } finally {
       setJoining(false);
     }
@@ -96,9 +98,12 @@ function TicketContent() {
 
       {/* Stats Header Row */}
       <div className="stats-capsule-row">
-        <div className="capsule">
+        <div className="capsule wallet-capsule" onClick={refreshBalance} style={{ cursor: 'pointer' }}>
           <div className="l">Wallet</div>
           <div className="v">{(user?.wallet?.balance || 0).toFixed(0)}</div>
+          {Number(user?.wallet?.balance || 0) === 0 && (
+             <div className="topup-hint">Tap to Fix</div>
+          )}
         </div>
         <div className="capsule">
           <div className="l">Bonus</div>
