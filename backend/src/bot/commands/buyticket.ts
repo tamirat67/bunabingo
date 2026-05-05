@@ -30,8 +30,6 @@ export async function handleBuyTicket(ctx: Context) {
       )];
     });
 
-    roomButtons.push([Markup.button.webApp('🎮 Open in Mini App', `${config.bot.miniAppUrl}/tickets`)]);
-
     await ctx.reply(
       `🎫 *Buy Bingo Ticket*\n\n` +
       `Choose a room to join:\n\n` +
@@ -41,7 +39,10 @@ export async function handleBuyTicket(ctx: Context) {
       `Game starts automatically when minimum players join!`,
       {
         parse_mode: 'Markdown',
-        ...Markup.inlineKeyboard(roomButtons),
+        ...Markup.inlineKeyboard([
+          ...roomButtons,
+          [Markup.button.webApp('🎮 Open in Mini App', `${config.bot.miniAppUrl}/tickets`) as any],
+        ]),
       }
     );
   } catch (err) {
