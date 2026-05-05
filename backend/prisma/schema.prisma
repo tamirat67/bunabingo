@@ -63,6 +63,7 @@ enum TransactionType {
   TICKET_PURCHASE
   PRIZE_WIN
   REFUND
+  REFERRAL_BONUS
 }
 
 enum TransactionStatus {
@@ -88,6 +89,10 @@ model User {
   lastActiveAt     DateTime    @default(now())
   ipHash           String?     // hashed for privacy
   deviceHash       String?
+  referredById     String?
+  referredBy       User?       @relation("Referral", fields: [referredById], references: [id])
+  referrals        User[]      @relation("Referral")
+  referralCount    Int         @default(0)
 
   wallet           Wallet?
   deposits         Deposit[]
