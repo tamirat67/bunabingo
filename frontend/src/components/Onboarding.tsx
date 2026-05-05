@@ -91,44 +91,45 @@ export default function Onboarding({ onSuccess }: OnboardingProps) {
           backdrop-filter: blur(8px);
         }
         .onboard-sheet {
-          width: 100%; background: #F5E6BE;
+          width: 100%; background: var(--bg-main);
           border-radius: 32px 32px 0 0;
           padding: 20px 24px 40px;
           animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
-          color: #000000;
+          color: var(--text-main);
+          border-top: 1px solid var(--border-light);
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         .sheet-handle {
-          width: 40px; height: 5px; background: rgba(0, 0, 0, 0.2);
-          border-radius: 99px; margin: 0 auto 24px;
+          width: 40px; height: 5px; background: var(--border-strong);
+          border-radius: 99px; margin: 0 auto 24px; opacity: 0.3;
         }
         
         .sheet-content { text-align: center; }
         
         .icon-badge {
-          width: 80px; height: 80px; background: #6F4E37; color: #F5E6BE;
+          width: 80px; height: 80px; background: var(--bg-nav); color: white;
           border-radius: 24px; display: flex; align-items: center; justify-content: center;
-          margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(111, 78, 55, 0.3);
+          margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
         
-        .sheet-title { font-size: 24px; font-weight: 900; margin-bottom: 12px; color: #000; }
-        .sheet-desc { font-size: 14px; font-weight: 800; opacity: 1; line-height: 1.5; margin-bottom: 24px; color: #4B3621; }
+        .sheet-title { font-size: 24px; font-weight: 900; margin-bottom: 12px; color: var(--text-main); }
+        .sheet-desc { font-size: 14px; font-weight: 800; opacity: 0.8; line-height: 1.5; margin-bottom: 24px; color: var(--text-main); }
         
         .perks-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 30px; }
-        .perk { font-size: 13px; font-weight: 900; background: rgba(0,0,0,0.05); padding: 8px 16px; border-radius: 12px; display: inline-block; align-self: center; color: #000; }
+        .perk { font-size: 13px; font-weight: 900; background: var(--jackpot-bg); padding: 8px 16px; border-radius: 12px; display: inline-block; align-self: center; color: var(--text-main); border: 1px solid var(--border-light); }
 
         .btn-verify {
-          width: 100%; background: #6F4E37; color: #F5E6BE; border: none;
+          width: 100%; background: var(--bg-nav); color: white; border: none;
           padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px;
           display: flex; align-items: center; justify-content: center; gap: 12px;
-          box-shadow: 0 10px 25px rgba(111, 78, 55, 0.3); cursor: pointer; transition: 0.2s;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.3); cursor: pointer; transition: 0.2s;
         }
         .btn-verify:active { transform: scale(0.98); }
         .btn-verify.loading { opacity: 0.8; }
         
-        .privacy-note { font-size: 11px; font-weight: 800; opacity: 0.5; margin-top: 16px; color: #000; }
+        .privacy-note { font-size: 11px; font-weight: 800; opacity: 0.4; margin-top: 16px; color: var(--text-main); }
 
         .spinner-small {
           width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3);

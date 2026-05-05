@@ -1,208 +1,154 @@
 'use client';
 import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { getWallet, joinGame, getMe } from '../../../lib/api';
-import { PREDEFINED_CARDS } from '../../../lib/predefinedCards';
-import Navbar from '../../../components/Navbar';
-import Onboarding from '../../../components/Onboarding';
-import { useToast } from '../../../components/Toast';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getMe, joinGame } from '../../lib/api';
+import Onboarding from '../../components/Onboarding';
+import { ChevronLeft, Info, CheckCircle2, Ticket } from 'lucide-react';
 
-function SelectCardInner() {
-  const searchParams = useSearchParams();
+function TicketContent() {
   const router = useRouter();
-  const { show } = useToast();
-  const roomType = searchParams.get('type') || 'CASUAL';
-  const pricePerCard = Number(searchParams.get('price') || '10');
+  const searchParams = useSearchParams();
+  const roomType = searchParams.get('type') || 'STANDARD';
+  const ticketPrice = searchParams.get('price') || '10';
 
-  const [wallet, setWallet] = useState<any>(null);
-  const [selectedCards, setSelectedCards] = useState<number[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<number>(1);
+  const [joining, setJoining] = useState(false);
 
-  const loadData = async () => {
+  const loadUser = async () => {
     try {
       const u = await getMe();
       if (!u || !u.id) {
         setShowOnboarding(true);
       } else {
-        const w = await getWallet();
-        setWallet(w);
+        setUser(u);
         setShowOnboarding(false);
       }
     } catch (err: any) {
       if (err.response?.status === 401) {
         setShowOnboarding(true);
       }
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const totalStake = selectedCards.length * pricePerCard;
-  const hasBalance = Number(wallet?.balance || 0) >= totalStake;
-
-  const toggleCard = (num: number) => {
-    if (selectedCards.includes(num)) {
-      setSelectedCards(selectedCards.filter(n => n !== num));
-    } else {
-      if (selectedCards.length >= 3) {
-        show('Maximum 3 cards allowed! 🛡️', 'error');
-        return;
-      }
-      const newSelection = [...selectedCards, num];
-      setSelectedCards(newSelection);
-      if (newSelection.length === 2) show('Double your chances! ✌️', 'success');
-      if (newSelection.length === 3) show('JACKPOT MODE active! 🔥', 'success');
-    }
-  };
-
-  const handleStart = async () => {
-    if (selectedCards.length === 0) return show('Select your lucky card!', 'error');
-    if (!hasBalance) return show('Insufficient balance!', 'error');
-
-    setLoading(true);
-    try {
-      let gId = '';
-      for (const cardId of selectedCards) {
-        const res = await joinGame(roomType, cardId);
-        gId = res.gameId;
-      }
-      router.push(`/game?id=${gId}`);
-    } catch (err: any) {
-      show(err.response?.data?.error || 'Failed to join game', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadUser();
+  }, []);
+
+  const handleJoin = async () => {
+    if (!user) return;
+    setJoining(true);
+    try {
+      const res = await joinGame(roomType, selectedCard);
+      router.push(`/game?id=${res.gameId}`);
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to join game');
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  if (loading) return <div className="loading"><div className="spinner" /><span>PREPARING CARDS...</span></div>;
+
   return (
     <div className="select-container">
-      {showOnboarding && <Onboarding onSuccess={loadData} />}
-      <div className="connection-status">
-        <span className="live-dot pulse"></span> BUNA BINGO SECURE
-      </div>
+      {showOnboarding && <Onboarding onSuccess={loadUser} />}
 
-      <div className="stats-row">
-        <div className="stat-capsule">
-          <div className="lbl">Selected</div>
-          <div className="val">{selectedCards.length} / 3</div>
-        </div>
-        <div className="stat-capsule">
-          <div className="lbl">Stake</div>
-          <div className="val">{totalStake || pricePerCard} ETB</div>
-        </div>
-        <div className="stat-capsule">
-          <div className="lbl">Wallet</div>
-          <div className="val">{Number(wallet?.balance || 0).toFixed(0)}</div>
+      <div className="select-header">
+        <button className="btn-back" onClick={() => router.push('/')}>
+          <ChevronLeft size={24} />
+        </button>
+        <div className="header-info">
+          <h1>Select Cartela</h1>
+          <p>{roomType} Room • {ticketPrice} ETB</p>
         </div>
       </div>
 
-      {!hasBalance && selectedCards.length > 0 && (
-        <div className="balance-warning">
-          <p>Need {totalStake} ETB for {selectedCards.length} cards.</p>
-          <button className="btn-deposit-now" onClick={() => router.push('/deposit')}>
-            📥 Deposit Now
-          </button>
-        </div>
-      )}
+      <div className="balance-banner">
+        <div className="bal-l">Your Balance</div>
+        <div className="bal-v">{Number(user?.wallet?.balance || 0).toFixed(2)} ETB</div>
+      </div>
 
-      <div className="card-grid">
-        {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
-          <div
-            key={num}
-            className={`grid-item ${selectedCards.includes(num) ? 'selected' : ''}`}
-            onClick={() => toggleCard(num)}
+      <div className="cards-grid">
+        {[1, 2, 3].map((id) => (
+          <div 
+            key={id} 
+            className={`card-option ${selectedCard === id ? 'active' : ''}`}
+            onClick={() => setSelectedCard(id)}
           >
-            {num}
+            <div className="card-visual">
+               <Ticket size={40} className="t-icon" />
+               <div className="card-num">#{id}</div>
+            </div>
+            <div className="card-meta">
+              <span className="label">Cartela {id}</span>
+              {selectedCard === id && <CheckCircle2 size={20} className="check-icon" />}
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="previews-container">
-        {selectedCards.length > 0 ? (
-          <div className="previews-scroll">
-            {selectedCards.map((id) => (
-              <div key={id} className="hint-card-wrapper">
-                <div className="cartela-hint">
-                  <div className="hint-header">
-                    <span>B</span><span>I</span><span>N</span><span>G</span><span>O</span>
-                  </div>
-                  {(PREDEFINED_CARDS as any)[id].map((row: any[], ri: number) => (
-                    <div key={ri} className="hint-row">
-                      {row.map((cell, ci) => (
-                        <span key={ci} className={`hint-cell ${cell === '*' ? 'star' : ''}`}>
-                          {cell === '*' ? '⭐' : cell}
-                        </span>
-                      ))}
-                    </div>
-                  ))}
-                  <div className="hint-card-num">Card #{id}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="preview-placeholder">Select up to 3 lucky cards</div>
-        )}
+      <div className="info-box">
+        <Info size={16} />
+        <p>You can choose your favorite card number. The game will start automatically when the room is full.</p>
       </div>
 
-      <div className="action-bar">
+      <div className="action-footer">
         <button 
-          className={`btn-start ${selectedCards.length === 0 || !hasBalance || loading ? 'disabled' : ''}`}
-          onClick={handleStart}
-          disabled={loading}
+          className={`btn-confirm ${joining ? 'loading' : ''}`}
+          onClick={handleJoin}
+          disabled={joining || (user?.wallet?.balance || 0) < Number(ticketPrice)}
         >
-          {loading ? 'Joining...' : selectedCards.length > 1 ? `PLAY ${selectedCards.length} CARDS` : 'START BINGO'}
+          {joining ? 'JOINING...' : `CONFIRM & JOIN (${ticketPrice} ETB)`}
         </button>
-        <button className="btn-reset" onClick={() => setSelectedCards([])}>Reset Selection</button>
       </div>
-
-      <Navbar />
 
       <style jsx>{`
-        .select-container { min-height: 100vh; background: #F5E6BE; padding: 16px; padding-bottom: 100px; color: #000; }
-        .connection-status { text-align: center; color: #4B3621; font-weight: 800; font-size: 13px; margin-bottom: 12px; opacity: 0.8; }
-        .live-dot { display: inline-block; width: 6px; height: 6px; background: #22c55e; border-radius: 50%; margin-right: 4px; }
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        .select-container { min-height: 100vh; background: var(--bg-main); padding: 20px 16px 120px; color: var(--text-main); }
+        
+        .select-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; margin-top: 10px; }
+        .btn-back { background: var(--bg-card); border: 1px solid var(--border-light); color: var(--text-main); width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        
+        .header-info h1 { font-size: 20px; font-weight: 900; color: var(--text-main); margin: 0; }
+        .header-info p { font-size: 13px; font-weight: 700; opacity: 0.6; margin: 0; }
 
-        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
-        .stat-capsule { background: #FFF9E6; border-radius: 12px; padding: 10px 4px; text-align: center; border: 1px solid #E6D5A8; }
-        .stat-capsule .lbl { font-size: 9px; color: #6F4E37; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
-        .stat-capsule .val { font-size: 13px; color: #4B3621; font-weight: 900; }
+        .balance-banner { background: var(--bg-nav); color: white; padding: 16px 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .bal-l { font-size: 12px; font-weight: 800; opacity: 0.8; text-transform: uppercase; }
+        .bal-v { font-size: 18px; font-weight: 900; }
 
-        .card-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; background: rgba(75, 54, 33, 0.05); padding: 8px; border-radius: 12px; margin-bottom: 20px; }
-        .grid-item { aspect-ratio: 1; background: #FFF9E6; border: 1px solid #E6D5A8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #4B3621; cursor: pointer; transition: all 0.2s; }
-        .grid-item.selected { background: #22c55e; color: #ffffff; transform: scale(1.05); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); border: 2px solid #ffffff; }
+        .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 30px; }
+        
+        .card-option { background: var(--bg-card); border: 2px solid var(--border-light); border-radius: 24px; padding: 20px; text-align: center; transition: 0.3s; cursor: pointer; position: relative; }
+        .card-option.active { border-color: #22c55e; background: rgba(34, 197, 94, 0.05); transform: translateY(-4px); box-shadow: 0 10px 20px rgba(34, 197, 94, 0.1); }
+        
+        .card-visual { height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-main); opacity: 0.3; }
+        .active .card-visual { color: #22c55e; opacity: 1; }
+        .card-num { font-size: 18px; font-weight: 900; }
 
-        .previews-container { margin-bottom: 20px; min-height: 140px; }
-        .previews-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 4px; padding-bottom: 12px; }
-        .hint-card-wrapper { flex: 0 0 130px; }
-        .preview-placeholder { text-align: center; color: #6F4E37; font-size: 12px; font-weight: 700; padding-top: 50px; opacity: 0.5; }
+        .card-meta { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; }
+        .card-meta .label { font-size: 14px; font-weight: 800; }
+        .check-icon { color: #22c55e; }
 
-        .cartela-hint { background: white; padding: 8px; border-radius: 12px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 8px 20px rgba(75, 54, 33, 0.15); border: 1px solid #eee; }
-        .hint-header { display: flex; gap: 2px; justify-content: center; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
-        .hint-header span { width: 20px; font-size: 10px; font-weight: 900; color: #6F4E37; text-align: center; }
-        .hint-row { display: flex; gap: 2px; justify-content: center; }
-        .hint-cell { width: 20px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #333; }
-        .hint-cell.star { font-size: 10px; }
-        .hint-card-num { font-size: 8px; color: #999; text-align: center; margin-top: 4px; font-weight: 700; }
+        .info-box { display: flex; gap: 12px; background: var(--jackpot-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-light); }
+        .info-box p { font-size: 12px; font-weight: 700; opacity: 0.6; line-height: 1.5; margin: 0; }
 
-        .action-bar { display: flex; flex-direction: column; gap: 10px; }
-        .btn-start { background: #4B3621; color: #F5E6BE; border: none; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 20px; box-shadow: 0 6px 0 #2a1e12; cursor: pointer; letter-spacing: 0.5px; }
-        .btn-start.disabled { background: #E6D5A8; color: #6F4E37; box-shadow: none; opacity: 0.5; cursor: not-allowed; }
-        .btn-reset { background: transparent; border: 1px solid #E6D5A8; color: #6F4E37; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+        .action-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 16px; background: var(--bg-main); border-top: 1px solid var(--border-light); display: flex; justify-content: center; }
+        .btn-confirm { width: 100%; max-width: 400px; background: #22c55e; color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px; box-shadow: 0 8px 0 #15803d; cursor: pointer; transition: 0.2s; }
+        .btn-confirm:active { transform: translateY(2px); box-shadow: 0 4px 0 #15803d; }
+        .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
       `}</style>
     </div>
   );
 }
 
-export default function SelectCardPage() {
+export default function TicketSelectPage() {
   return (
-    <Suspense fallback={<div className="loading">Loading...</div>}>
-      <SelectCardInner />
+    <Suspense fallback={<div className="loading"><div className="spinner" /><span>LOADING...</span></div>}>
+      <TicketContent />
     </Suspense>
   );
 }

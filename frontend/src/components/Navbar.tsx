@@ -33,17 +33,18 @@ export default function Navbar() {
       <style jsx>{`
         .bottom-nav {
           position: fixed; bottom: 0; left: 0; right: 0;
-          height: 75px; background: #6F4E37; border-top: 2.5px solid rgba(0, 0, 0, 0.2);
+          height: 75px; background: var(--bg-nav); border-top: 1px solid var(--border-light);
           display: flex; justify-content: center; align-items: center;
           padding-bottom: env(safe-area-inset-bottom); z-index: 9999;
           box-shadow: 0 -10px 40px rgba(0,0,0,0.4);
+          transition: background-color 0.3s;
         }
         .nav-inner {
           display: flex; width: 100%; max-width: 500px; justify-content: space-around; align-items: center;
         }
         .nav-item {
           display: flex; flex-direction: column; align-items: center;
-          color: #000000 !important; text-decoration: none;
+          color: var(--text-main) !important; text-decoration: none;
           flex: 1; transition: all 0.3s ease;
           position: relative; opacity: 0.5;
         }
@@ -59,8 +60,8 @@ export default function Navbar() {
         
         .active-indicator {
           position: absolute; bottom: -10px; width: 8px; height: 8px;
-          background: #facc15; border-radius: 50%;
-          box-shadow: 0 0 12px #facc15;
+          background: var(--gold-accent); border-radius: 50%;
+          box-shadow: 0 0 12px var(--gold-accent);
           animation: popIn 0.3s forwards;
         }
         
