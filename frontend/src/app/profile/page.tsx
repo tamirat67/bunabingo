@@ -4,12 +4,14 @@ import { getWallet } from '../../lib/api';
 import { initTelegram, getTgUser } from '../../lib/telegram';
 import Navbar from '../../components/Navbar';
 import { useToast } from '../../components/Toast';
-import { User, Settings, Volume2, VolumeX, Moon, Sun, ShieldCheck } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { User, Settings, Volume2, VolumeX, Moon, Sun, ShieldCheck, UserPlus, ChevronRight } from 'lucide-react';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [wallet, setWallet] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   
   // Settings State
   const [soundOn, setSoundOn] = useState(true);
@@ -46,8 +48,14 @@ export default function ProfilePage() {
     const newVal = theme === 'gold' ? 'dark' : 'gold';
     setTheme(newVal);
     localStorage.setItem('buna-theme', newVal);
-    show(`Theme set to ${newVal === 'gold' ? 'Light Gold' : 'Dark Gray'}`, 'info');
-    document.body.className = newVal === 'dark' ? 'theme-dark' : '';
+    show(`Theme set to ${newVal === 'gold' ? 'Royal Gold' : 'Dark Gray'}`, 'info');
+    
+    // Global Update
+    if (newVal === 'dark') {
+      document.body.classList.add('theme-dark');
+    } else {
+      document.body.classList.remove('theme-dark');
+    }
   };
 
   if (loading) return <div className="loading"><div className="spinner" /><span>LOADING BUNA...</span></div>;
@@ -95,6 +103,20 @@ export default function ProfilePage() {
           </div>
           <div className="toggle-btn-mini">Switch</div>
         </div>
+
+        {/* Invite Friends Shortcut */}
+        <div className="setting-toggle-row" onClick={() => router.push('/invite')}>
+          <div className="toggle-left">
+            <div className="icon-wrap invite">
+              <UserPlus size={20} />
+            </div>
+            <div className="toggle-info">
+              <div className="title">Invite & Earn</div>
+              <div className="desc">Get bonus for every friend</div>
+            </div>
+          </div>
+          <ChevronRight size={18} opacity={0.5} />
+        </div>
       </div>
 
       <div className="stats-header">Performance Stats</div>
@@ -131,7 +153,9 @@ export default function ProfilePage() {
         
         .toggle-left { display: flex; align-items: center; gap: 16px; }
         .icon-wrap { width: 40px; height: 40px; background: rgba(107, 33, 168, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #6b21a8; }
+        .icon-wrap.invite { background: rgba(45, 106, 79, 0.1); color: #2d6a4f; }
         .dark .icon-wrap { background: rgba(255,255,255,0.05); color: #c9d1d9; }
+        .dark .icon-wrap.invite { color: #4ade80; }
         
         .toggle-info .title { font-size: 15px; font-weight: 800; }
         .toggle-info .desc { font-size: 11px; opacity: 0.5; font-weight: 600; margin-top: 2px; }

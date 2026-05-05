@@ -1,23 +1,28 @@
-import type { Metadata } from 'next';
-import './globals.css';
+'use client';
+import { useEffect } from 'react';
 import { ToastProvider } from '../components/Toast';
-
-export const metadata: Metadata = {
-  title: 'BunaBingo — Play & Win',
-  description: 'Automated Bingo platform — Deposit, Play, Win instantly.',
-};
+import '../globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Apply theme on initial load
+    const savedTheme = localStorage.getItem('buna-theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('theme-dark');
+    } else {
+      document.body.classList.remove('theme-dark');
+    }
+  }, []);
+
   return (
     <html lang="en">
       <head>
+        <title>Buna Bingo</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <meta name="theme-color" content="#2d1b4d" />
-        <script src="https://telegram.org/js/telegram-web-app.js" async />
       </head>
       <body>
         <ToastProvider>
-          <div className="app">{children}</div>
+          {children}
         </ToastProvider>
       </body>
     </html>
