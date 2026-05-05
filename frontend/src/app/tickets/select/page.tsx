@@ -169,7 +169,7 @@ function TicketContent() {
       </div>
 
       <style jsx>{`
-        .bingo-selection-container { min-height: 100vh; background: var(--bg-main); color: var(--text-main); padding-bottom: 160px; transition: 0.3s; position: relative; }
+        .bingo-selection-container { min-height: 100vh; background: var(--bg-main); color: var(--text-main); padding-bottom: 220px; transition: 0.3s; position: relative; }
         
         .top-header-nav { display: flex; align-items: center; padding: 16px; gap: 16px; background: var(--bg-nav); color: white; }
         .btn-back-nav { background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -206,9 +206,9 @@ function TicketContent() {
         /* INLINE ACTION ZONE */
         .inline-action-zone { 
            position: fixed; bottom: 0; left: 0; right: 0; 
-           background: var(--bg-main); border-top: 2px solid var(--gold-accent);
-           padding: 16px; display: grid; grid-template-columns: 140px 1fr; gap: 16px;
-           box-shadow: 0 -10px 30px rgba(0,0,0,0.1); z-index: 1000;
+           background: var(--bg-main); border-top: 1px solid var(--border-light);
+           padding: 12px 16px 24px; display: grid; grid-template-columns: 130px 1fr; gap: 12px;
+           box-shadow: 0 -10px 30px rgba(0,0,0,0.05); z-index: 1000;
         }
         
         .preview-column { display: flex; flex-direction: column; justify-content: center; }
