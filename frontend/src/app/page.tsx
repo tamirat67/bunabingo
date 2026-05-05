@@ -1,8 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getRooms, getWallet, getMe } from '../lib/api';
+import { getRooms, getWallet, getMe, register } from '../lib/api';
 import Navbar from '../components/Navbar';
-import Onboarding from '../components/Onboarding';
 import Splash from '../components/Splash';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../components/Toast';

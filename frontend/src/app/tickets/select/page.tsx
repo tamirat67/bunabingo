@@ -2,7 +2,6 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getMe, joinGame } from '../../../lib/api';
-import Onboarding from '../../../components/Onboarding';
 import { ChevronLeft, Info, CheckCircle2, Ticket } from 'lucide-react';
 
 function TicketContent() {
