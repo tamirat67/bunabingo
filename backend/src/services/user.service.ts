@@ -29,8 +29,8 @@ export async function findOrCreateUser(
       },
     });
 
-    // Create wallet with 1000 ETB for test purposes
-    await prisma.wallet.create({ data: { userId: user.id, balance: 1000 } });
+    // Create wallet with 10 ETB welcome gift (one free game)
+    await prisma.wallet.create({ data: { userId: user.id, balance: 10 } });
 
     if (user.referredById) {
       await prisma.user.update({
@@ -50,12 +50,12 @@ export async function findOrCreateUser(
       },
     });
 
-    // For testing purposes: ensure all users have at least 1000 ETB
+    // For testing/onboarding: ensure all users have at least 10 ETB (one free game)
     const wallet = await prisma.wallet.findUnique({ where: { userId: user.id } });
     if (wallet && Number(wallet.balance) === 0) {
       await prisma.wallet.update({
         where: { userId: user.id },
-        data: { balance: 1000 }
+        data: { balance: 10 }
       });
     }
   }
