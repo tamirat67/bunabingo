@@ -27,7 +27,7 @@ export default function Navbar() {
                   strokeWidth={isActive ? 2.2 : 1.8}
                 />
               </div>
-              <span className="tab-label">{label}</span>
+
               {isActive && <span className="active-bar" />}
             </Link>
           );
@@ -97,19 +97,7 @@ export default function Navbar() {
           color: #C98A1A;
         }
 
-        /* Label text */
-        .tab-label {
-          font-size: 11px;
-          font-weight: 500;
-          color: #5C3D1E;
-          letter-spacing: 0.2px;
-          transition: font-weight 0.2s;
-        }
 
-        .active .tab-label {
-          font-weight: 700;
-          color: #3B2208;
-        }
 
         /* Golden underline indicator */
         .active-bar {
