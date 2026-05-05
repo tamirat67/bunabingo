@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import Onboarding from '../components/Onboarding';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../components/Toast';
-import { Target, Trophy, Play, Dices, Gift, Wallet, Zap, Sparkles, ChevronRight } from 'lucide-react';
+import { Target, Trophy, Play, Dices, Gift, Wallet, Zap, Sparkles } from 'lucide-react';
 
 interface Room {
   id: string;
@@ -56,112 +56,117 @@ export default function LobbyPage() {
     <div className="lobby-container">
       {showOnboarding && <Onboarding onSuccess={loadData} />}
 
-      <div className="lobby-nav">
-        <div className="nav-left">
-          <span className="live-dot pulse"></span>
-          <span className="live-lbl">Live</span>
+      <div className="lobby-nav-top">
+        <div className="top-left">
+           <span className="live-dot pulse"></span>
+           <span className="live-txt">Live</span>
         </div>
-        <div className="nav-title">BUNA BINGO</div>
-        <div className="nav-right">
-          <div className="nav-stat">
-             <Gift size={16} className="yellow" />
-             <span className="val">0</span>
-          </div>
-          <div className="nav-stat">
-             <Wallet size={16} />
-             <span className="val">{Number(wallet?.balance || 0).toFixed(0)}</span>
-          </div>
+        <div className="top-right">
+           <div className="top-stat">
+              <Gift size={16} className="gold-icon" />
+              <span className="lbl">Bonus:</span>
+              <span className="val yellow">0.00</span>
+           </div>
+           <div className="top-stat">
+              <Wallet size={16} className="gold-icon" />
+              <span className="lbl">Balance:</span>
+              <span className="val">{(wallet?.balance || 0).toFixed(2)}</span>
+           </div>
         </div>
       </div>
 
-      <div className="section-header">
-        <Target size={20} className="coffee-icon" />
-        <span className="title">BINGO GAMES</span>
+      <div className="section-header-simple">
+        <Target size={18} className="icon-coffee" />
+        <span>BINGO GAMES</span>
       </div>
 
-      <div className="column-headers">
-        <span>BET</span>
-        <span>WIN/PLAYER</span>
-        <span>STATUS & JOIN</span>
+      <div className="table-headers">
+        <div className="h-bet">BET</div>
+        <div className="h-win">WIN/PLAYER</div>
+        <div className="h-status">STATUS & JOIN</div>
       </div>
 
-      <div className="game-list">
-        {[10, 20, 50, 100].map((price) => (
-          <div key={`bingo-${price}`}>
-            <div className="room-row">
-              <div className="col-bet">
+      <div className="rooms-stack">
+        {[10, 20, 50, 100].map((price, idx) => (
+          <div key={`bingo-${price}`} className="room-item-wrapper">
+            {idx > 0 && <div className="jackpot-divider">JACKPOT 0 / 1000</div>}
+            <div className="room-row-simple">
+              <div className="col-bet-simple">
                 <div className="v">{price}</div>
                 <div className="l">ETB</div>
               </div>
-              <div className="col-win">
-                <div className="win-main">
-                  <Trophy size={28} className="trophy-gold" />
-                  <div className="win-stack">
-                    <div className="win-val">{price * 8}</div>
-                    <div className="win-count">0 players</div>
-                  </div>
+              
+              <div className="col-win-simple">
+                <Trophy size={20} className="trophy-gold" />
+                <div className="win-info">
+                   <div className="v yellow">{price * 8}</div>
+                   <div className="p">0 players</div>
                 </div>
               </div>
-              <div className="col-status">
-                <div className="badge active">ACTIVE 0</div>
-                <button className="btn-join" onClick={() => handleJoin('STANDARD', price.toString())}>JOIN</button>
+
+              <div className="col-action-simple">
+                <div className="badges-stack">
+                  <div className="badge-active">ACTIVE 0</div>
+                  <div className="badge-ready">READY</div>
+                </div>
+                <button className="btn-join-simple" onClick={() => handleJoin('STANDARD', price.toString())}>JOIN</button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* EXACT DEMO ROW LAYOUT FROM SCREENSHOT */}
-      <div className="demo-standalone-row">
-        <div className="jackpot-mini-bar">JACKPOT 0 / 1000</div>
-        <div className="demo-premium-row" onClick={() => handleJoin('CASUAL', '0')}>
-          <div className="demo-left">
-            <div className="f-txt">FREE</div>
-            <div className="d-txt">DEMO</div>
-          </div>
-          
-          <div className="demo-mid">
-            <Play size={20} className="play-icon" />
-            <div className="mid-txt">
-               <div className="t">Practice Mode</div>
-               <div className="s">No real money</div>
-            </div>
-          </div>
-
-          <div className="demo-right">
-             <button className="btn-open-mini">OPEN</button>
-             <button className="btn-try-mini">TRY</button>
-          </div>
+      {/* DEMO ROW */}
+      <div className="demo-section-simple">
+        <div className="jackpot-divider">JACKPOT 0 / 1000</div>
+        <div className="demo-row-simple" onClick={() => handleJoin('CASUAL', '0')}>
+           <div className="demo-left">
+              <div className="f">FREE</div>
+              <div className="d">DEMO</div>
+           </div>
+           <div className="demo-mid">
+              <Play size={18} className="p-icon" />
+              <div className="m-info">
+                 <div className="t">Practice Mode</div>
+                 <div className="s">No real money</div>
+              </div>
+           </div>
+           <div className="demo-right">
+              <button className="btn-open-mini">OPEN</button>
+              <button className="btn-try-mini">TRY</button>
+           </div>
         </div>
       </div>
 
-      <div className="section-header sp-mt">
-        <Dices size={20} className="coffee-icon" />
-        <span className="title">SPIN GAMES</span>
+      <div className="section-header-simple mt-20">
+        <Dices size={18} className="icon-coffee" />
+        <span>SPIN GAMES</span>
       </div>
 
-      <div className="game-list">
-        {[10, 20, 50, 100].map((price) => (
-          <div key={`spin-${price}`}>
-            <div className="room-row">
-              <div className="col-bet">
-                <div className="v">{price}</div>
-                <div className="l">ETB</div>
-              </div>
-              <div className="col-win">
-                <div className="win-main">
-                  <Trophy size={28} className="trophy-muted" />
-                  <div className="win-stack">
-                    <div className="win-val">0</div>
-                    <div className="win-count">0 players</div>
+      <div className="rooms-stack">
+        {[10, 20, 50].map((price, idx) => (
+          <div key={`spin-${price}`} className="room-item-wrapper">
+             {idx > 0 && <div className="jackpot-divider">JACKPOT 0 / 1000</div>}
+             <div className="room-row-simple">
+                <div className="col-bet-simple">
+                  <div className="v">{price}</div>
+                  <div className="l">ETB</div>
+                </div>
+                <div className="col-win-simple">
+                  <Trophy size={20} className="trophy-muted" />
+                  <div className="win-info">
+                     <div className="v">0</div>
+                     <div className="p">0 players</div>
                   </div>
                 </div>
-              </div>
-              <div className="col-status">
-                <div className="badge active">ACTIVE 0</div>
-                <button className="btn-join outline" onClick={() => show(`Spin coming soon!`, 'info')}>JOIN</button>
-              </div>
-            </div>
+                <div className="col-action-simple">
+                  <div className="badges-stack">
+                    <div className="badge-active">ACTIVE 0</div>
+                    <div className="badge-ready">READY</div>
+                  </div>
+                  <button className="btn-join-simple outline" onClick={() => show('Coming soon!', 'info')}>JOIN</button>
+                </div>
+             </div>
           </div>
         ))}
       </div>
@@ -169,63 +174,60 @@ export default function LobbyPage() {
       <Navbar />
 
       <style jsx>{`
-        .lobby-container { min-height: 100vh; background: #F5E6BE; padding-bottom: 90px; color: #000; }
+        .lobby-container { min-height: 100vh; background: #F5E6BE; padding-bottom: 100px; color: #4B3621; }
         
-        .lobby-nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #6F4E37; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .nav-left { display: flex; align-items: center; gap: 6px; }
-        .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+        .lobby-nav-top { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #6F4E37; color: white; }
+        .top-left { display: flex; align-items: center; gap: 6px; }
+        .live-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; }
+        .live-txt { font-size: 12px; font-weight: 800; opacity: 0.8; }
         .pulse { animation: pulse 2s infinite; }
-        .nav-title { font-weight: 900; letter-spacing: 1.5px; font-size: 14px; text-transform: uppercase; }
-
-        .nav-right { display: flex; gap: 14px; }
-        .nav-stat { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 900; }
-        .yellow { color: #facc15; }
-
-        .section-header { padding: 24px 16px 12px; display: flex; align-items: center; gap: 8px; }
-        .section-header .title { font-size: 16px; font-weight: 900; color: #6F4E37; letter-spacing: 0.5px; }
-        .coffee-icon { color: #6F4E37; }
-        .sp-mt { margin-top: 10px; }
-
-        .column-headers { display: grid; grid-template-columns: 80px 1fr 100px; padding: 0 16px 8px; font-size: 11px; font-weight: 800; opacity: 0.5; color: #000; }
-
-        .room-row { display: grid; grid-template-columns: 80px 1fr 100px; background: #FFF9E6; padding: 14px 16px; align-items: center; border-bottom: 1px solid #E6D5A8; }
         
-        .col-bet { text-align: center; border-right: 1px solid #E6D5A8; color: #4B3621; }
-        .col-bet .v { font-size: 26px; font-weight: 900; line-height: 1; }
-        .col-bet .l { font-size: 10px; opacity: 0.8; font-weight: 800; margin-top: 2px; }
+        .top-right { display: flex; gap: 15px; }
+        .top-stat { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 900; }
+        .gold-icon { color: #facc15; opacity: 0.8; }
+        .yellow { color: #facc15; }
+        .lbl { opacity: 0.6; font-size: 11px; }
 
-        .col-win { padding: 0 16px; }
-        .win-main { display: flex; align-items: center; gap: 12px; }
+        .section-header-simple { padding: 20px 16px 10px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 900; color: #6F4E37; letter-spacing: 0.5px; }
+        .mt-20 { margin-top: 10px; }
+        
+        .table-headers { display: grid; grid-template-columns: 80px 1fr 120px; padding: 0 16px 8px; font-size: 11px; font-weight: 800; opacity: 0.4; }
+        
+        .room-row-simple { display: grid; grid-template-columns: 80px 1fr 120px; padding: 16px; align-items: center; border-bottom: 1px solid rgba(111, 78, 55, 0.1); }
+        .col-bet-simple { text-align: left; }
+        .col-bet-simple .v { font-size: 28px; font-weight: 900; line-height: 1; }
+        .col-bet-simple .l { font-size: 10px; font-weight: 800; opacity: 0.6; }
+
+        .col-win-simple { display: flex; align-items: center; gap: 10px; padding: 0 10px; }
+        .win-info .v { font-size: 20px; font-weight: 900; line-height: 1; }
+        .win-info .p { font-size: 10px; opacity: 0.5; font-weight: 700; }
         .trophy-gold { color: #D4AF37; }
         .trophy-muted { color: #ccc; }
-        .win-stack { display: flex; flex-direction: column; }
-        .win-val { font-size: 22px; font-weight: 900; color: #000; line-height: 1.1; }
-        .win-count { font-size: 11px; opacity: 0.6; font-weight: 700; }
 
-        .col-status { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .badge.active { background: #22c55e; color: white; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 99px; }
-        
-        .btn-join { width: 100%; border: none; padding: 9px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.2s; background: #22c55e; color: white; box-shadow: 0 4px 0 #16a34a; }
-        .btn-join.outline { background: transparent; color: #22c55e; border: 2.5px solid #22c55e; box-shadow: none; padding: 6.5px; }
-        .btn-join:active { transform: translateY(2px); box-shadow: none; }
+        .col-action-simple { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+        .badges-stack { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .badge-active { background: #3b82f6; color: white; font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; }
+        .badge-ready { background: rgba(0,0,0,0.1); color: #22c55e; font-size: 9px; font-weight: 900; padding: 4px 8px; border-radius: 6px; }
 
-        /* EXACT DEMO ROW STYLES */
-        .demo-standalone-row { margin-top: 20px; background: #6F4E37; padding-bottom: 4px; }
-        .jackpot-mini-bar { background: rgba(0,0,0,0.2); color: #F5E6BE; font-size: 10px; font-weight: 800; text-align: center; padding: 4px; letter-spacing: 1px; }
-        .demo-premium-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 16px; background: #6F4E37; color: #F5E6BE; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        
-        .demo-left { text-align: left; }
-        .demo-left .f-txt { font-size: 24px; font-weight: 900; line-height: 1; }
-        .demo-left .d-txt { font-size: 10px; font-weight: 800; opacity: 0.6; letter-spacing: 2px; }
+        .btn-join-simple { background: #22c55e; color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 0 #16a34a; }
+        .btn-join-simple.outline { background: transparent; color: #22c55e; border: 2px solid #22c55e; box-shadow: none; padding: 8px 16px; }
+        .btn-join-simple:active { transform: translateY(2px); box-shadow: none; }
 
-        .demo-mid { display: flex; align-items: center; gap: 12px; }
-        .play-icon { opacity: 0.4; }
-        .mid-txt .t { font-size: 16px; font-weight: 900; }
-        .mid-txt .s { font-size: 11px; font-weight: 600; opacity: 0.6; }
+        .jackpot-divider { background: rgba(111, 78, 55, 0.05); color: #6F4E37; font-size: 9px; font-weight: 900; text-align: center; padding: 3px; letter-spacing: 1px; border-top: 1px solid rgba(111, 78, 55, 0.1); border-bottom: 1px solid rgba(111, 78, 55, 0.1); }
 
-        .demo-right { display: flex; gap: 8px; }
-        .btn-open-mini { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #F5E6BE; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 900; }
-        .btn-try-mini { background: #4B3621; border: none; color: white; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 900; box-shadow: 0 4px 0 #2a1e12; }
+        /* DEMO SIMPLE */
+        .demo-row-simple { display: flex; align-items: center; justify-content: space-between; padding: 20px 16px; background: #6F4E37; color: #F5E6BE; cursor: pointer; }
+        .demo-left .f { font-size: 24px; font-weight: 900; line-height: 1; }
+        .demo-left .d { font-size: 10px; opacity: 0.6; letter-spacing: 2px; }
+        .demo-mid { display: flex; align-items: center; gap: 10px; }
+        .p-icon { opacity: 0.5; }
+        .m-info .t { font-size: 15px; font-weight: 900; }
+        .m-info .s { font-size: 10px; opacity: 0.6; font-weight: 700; }
+        .demo-right { display: flex; gap: 6px; }
+        .btn-open-mini { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #F5E6BE; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 900; }
+        .btn-try-mini { background: #4B3621; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 900; box-shadow: 0 4px 0 #2a1e12; }
+
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
       `}</style>
     </div>
   );
