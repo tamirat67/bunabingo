@@ -212,7 +212,7 @@ function TicketContent() {
             </button>
             <button 
               className={`btn-start-inline ${(joining || isLowBalance || selectedCards.length === 0) ? 'locked' : ''}`}
-              onClick={handleJoin}
+              onClick={() => handleJoin()}
               disabled={joining || isLowBalance || selectedCards.length === 0}
             >
               <Play size={18} />
