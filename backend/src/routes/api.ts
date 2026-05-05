@@ -4,53 +4,14 @@ import { depositLimiter, withdrawLimiter, joinGameLimiter } from '../middleware/
 import { getOrCreateWallet } from '../services/wallet.service';
 import { getUserDeposits, createDepositRequest, getPendingDeposits, approveDeposit, rejectDeposit } from '../services/deposit.service';
 import { getUserWithdrawals, createWithdrawalRequest, getPendingWithdrawals, approveWithdrawal, rejectWithdrawal } from '../services/withdrawal.service';
-import { getRooms, getRoomWithActiveGame } from '../game/room.manager';
+import { getRooms, getRoomWithActiveGame, initializeRooms } from '../game/room.manager';
 import { joinGame } from '../game/engine';
-import { getAllUsers, suspendUser, banUser } from '../services/user.service';
+import { getAllUsers, suspendUser, banUser, findOrCreateUser } from '../services/user.service';
 import prisma from '../lib/prisma';
 import multer from 'multer';
 import path from 'path';
 import { config } from '../config';
-// Wallet Audit & Consistency
-router.get('/me/wallet/audit', async (req: Request, res: Response) => {
-  const user = (req as any).user;
-  try {
-    const wallet = await getOrCreateWallet(user.id);
-    
-    // Calculate True Balance from all completed transactions
-    const audit = await prisma.transaction.groupBy({
-      where: { walletId: wallet.id, status: 'COMPLETED' },
-      by: ['type'],
-      _sum: { amount: true }
-    });
-
-    const sums: Record<string, number> = {};
-    audit.forEach(item => { sums[item.type] = Number(item._sum.amount || 0); });
-
-    const trueBalance = 
-      (sums['DEPOSIT'] || 0) + 
-      (sums['WINNING'] || 0) - 
-      (sums['BET'] || 0) - 
-      (sums['WITHDRAWAL'] || 0);
-
-    // If there is a mismatch, normalize it (Update wallet to match audit)
-    if (Math.abs(Number(wallet.balance) - trueBalance) > 0.01) {
-      await prisma.wallet.update({
-        where: { id: wallet.id },
-        data: { balance: trueBalance }
-      });
-    }
-
-    res.json({
-      mainBalance: trueBalance,
-      bonusBalance: Number(wallet.bonusBalance),
-      coins: sums['WINNING'] || 0, // In this system, winning amounts are treated as 'coins' for conversion
-      walletId: wallet.id
-    });
-  } catch (err) {
-    res.status(500).json({ error: 'Wallet audit failed' });
-  }
-});
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -97,23 +58,65 @@ router.post('/auth/register', async (req: Request, res: Response) => {
 // ─── User / Wallet ────────────────────────────────────────────
 router.get('/me', async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    let user = (req as any).user;
+    const tgUser = (req as any).tgUser;
+
+    // Auto-register: if Telegram sent us user data but they aren't in the DB yet, create them now
+    if (!user && tgUser) {
+      user = await findOrCreateUser({
+        id: tgUser.id,
+        username: tgUser.username,
+        first_name: tgUser.first_name,
+        last_name: tgUser.last_name,
+      }, tgUser.startParam);
+    }
+
     if (!user) return res.status(401).json({ error: 'Not registered' });
-    
+
+    // Ensure wallet exists with test bankroll
     let wallet = await prisma.wallet.findUnique({ where: { userId: user.id } });
     if (!wallet) {
       wallet = await prisma.wallet.create({ data: { userId: user.id, balance: 1000 } });
-    } else if (new Decimal(wallet.balance).lessThan(100)) {
+    } else if (Number(wallet.balance) < 100) {
       wallet = await prisma.wallet.update({
         where: { userId: user.id },
         data: { balance: 1000 }
       });
     }
-    
-    res.json({ ...user, wallet });
+
+    res.json({
+      id: user.id,
+      firstName: user.firstName,
+      telegramId: user.telegramId?.toString(),
+      telegramUsername: user.telegramUsername,
+      isAdmin: user.isAdmin,
+      wallet
+    });
   } catch (err) {
     logger.error('Wallet sync error:', err);
     res.status(500).json({ error: 'Failed to sync wallet balance' });
+  }
+});
+
+// ─── Wallet Audit & Consistency ──────────────────────────────
+router.get('/me/wallet/audit', async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  try {
+    const wallet = await getOrCreateWallet(user.id);
+    const audit = await prisma.transaction.groupBy({
+      where: { walletId: wallet.id, status: 'COMPLETED' },
+      by: ['type'],
+      _sum: { amount: true }
+    });
+    const sums: Record<string, number> = {};
+    audit.forEach(item => { sums[item.type] = Number(item._sum.amount || 0); });
+    const trueBalance = (sums['DEPOSIT'] || 0) + (sums['WINNING'] || 0) - (sums['BET'] || 0) - (sums['WITHDRAWAL'] || 0);
+    if (Math.abs(Number(wallet.balance) - trueBalance) > 0.01) {
+      await prisma.wallet.update({ where: { id: wallet.id }, data: { balance: trueBalance } });
+    }
+    res.json({ mainBalance: trueBalance, bonusBalance: Number(wallet.bonusBalance), coins: sums['WINNING'] || 0, walletId: wallet.id });
+  } catch (err) {
+    res.status(500).json({ error: 'Wallet audit failed' });
   }
 });
 
