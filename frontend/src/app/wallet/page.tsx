@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { initTelegram, getTgUser } from '../lib/telegram';
-import { getTransactions, getWalletAudit } from '../lib/api';
-import Navbar from '../components/Navbar';
+import { initTelegram, getTgUser } from '../../lib/telegram';
+import { getTransactions, getWalletAudit } from '../../lib/api';
+import Navbar from '../../components/Navbar';
 import Link from 'next/link';
 import { ShieldCheck, RefreshCw, ArrowDownToLine, ArrowUpFromLine, Coins, Gift, History } from 'lucide-react';
 

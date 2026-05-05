@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getWallet, updateProfile } from '../lib/api';
-import { initTelegram, getTgUser } from '../lib/telegram';
-import Navbar from '../components/Navbar';
-import { useToast } from '../components/Toast';
+import { getWallet, updateProfile } from '../../lib/api';
+import { initTelegram, getTgUser } from '../../lib/telegram';
+import Navbar from '../../components/Navbar';
+import { useToast } from '../../components/Toast';
 import { User, Phone, Settings, Volume2, VolumeX, Moon, Sun, Save, ChevronRight } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -51,7 +51,6 @@ export default function ProfilePage() {
     setTheme(newVal);
     localStorage.setItem('buna-theme', newVal);
     show(`Theme set to ${newVal === 'gold' ? 'Light Gold' : 'Dark Gray'}`, 'info');
-    // Global class update for CSS
     document.body.className = newVal === 'dark' ? 'theme-dark' : '';
   };
 
@@ -155,16 +154,13 @@ export default function ProfilePage() {
         .profile-container { min-height: 100vh; padding: 20px 16px 100px; transition: all 0.3s; }
         .profile-container.gold { background: #F5E6BE; color: #000; }
         .profile-container.dark { background: #0d1117; color: #c9d1d9; }
-
         .profile-header { text-align: center; margin-bottom: 30px; padding: 20px 0; }
         .avatar-circle { width: 100px; height: 100px; background: rgba(0,0,0,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; border: 3px solid #4B3621; }
         .dark .avatar-circle { background: #161b22; border-color: #30363d; }
         .user-name { font-size: 24px; font-weight: 900; margin: 0; }
         .user-id { font-size: 11px; opacity: 0.5; font-weight: 800; margin-top: 4px; font-family: monospace; }
-
         .section-title { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #6F4E37; }
         .dark .section-title { color: #8b949e; }
-
         .input-group { background: #FFF9E6; border-radius: 20px; padding: 8px; border: 1px solid #E6D5A8; margin-bottom: 24px; }
         .dark .input-group { background: #161b22; border-color: #30363d; }
         .input-row { display: flex; align-items: center; gap: 16px; padding: 16px; border-bottom: 1px solid rgba(0,0,0,0.05); }
@@ -173,23 +169,18 @@ export default function ProfilePage() {
         .input-wrap label { font-size: 10px; font-weight: 800; opacity: 0.5; text-transform: uppercase; }
         .input-wrap span { font-size: 16px; font-weight: 700; }
         .input-wrap input { background: transparent; border: 1px solid #E6D5A8; padding: 8px; border-radius: 8px; font-size: 16px; font-weight: 700; color: inherit; }
-
         .btn-action { width: 100%; background: #4B3621; color: #F5E6BE; border: none; padding: 14px; border-radius: 12px; margin-top: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .dark .btn-action { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
-
         .setting-toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #FFF9E6; border-radius: 16px; margin-bottom: 12px; border: 1px solid #E6D5A8; cursor: pointer; }
         .dark .setting-toggle-row { background: #161b22; border-color: #30363d; }
         .toggle-left { display: flex; align-items: center; gap: 16px; }
         .toggle-info .title { font-size: 15px; font-weight: 800; }
         .toggle-info .desc { font-size: 11px; opacity: 0.5; font-weight: 600; }
-
         .toggle-switch { width: 44px; height: 24px; background: #ccc; border-radius: 99px; position: relative; transition: 0.3s; }
         .toggle-switch.on { background: #2d6a4f; }
         .toggle-switch::after { content: ""; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s; }
         .toggle-switch.on::after { left: 23px; }
-
         .toggle-btn-mini { font-size: 11px; font-weight: 800; padding: 4px 10px; background: rgba(0,0,0,0.05); border-radius: 6px; }
-
         .stats-mini-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
         .mini-card { background: rgba(0,0,0,0.03); padding: 16px; border-radius: 16px; text-align: center; }
         .mini-card .l { font-size: 10px; font-weight: 800; opacity: 0.5; text-transform: uppercase; }
