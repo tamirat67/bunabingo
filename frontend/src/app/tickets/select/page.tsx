@@ -39,41 +39,37 @@ function SelectCardInner() {
 
   return (
     <div className="select-container">
-      {/* ─── Top Stats ────────────────────────────────────── */}
+      {/* ─── Top Status ────────────────────────────────────── */}
+      <div className="connection-status">
+        <span className="wifi-icon">📶</span> CONNECTED
+      </div>
+
       <div className="stats-row">
         <div className="stat-capsule">
-          <div className="lbl">Wallet</div>
-          <div className="val">{Number(wallet?.balance || 0).toFixed(0)}</div>
-        </div>
-        <div className="stat-capsule">
-          <div className="lbl">Bonus</div>
-          <div className="val">0</div>
-        </div>
-        <div className="stat-capsule">
-          <div className="lbl">Active Game</div>
+          <div className="lbl orange">Active Game</div>
           <div className="val">1</div>
         </div>
         <div className="stat-capsule">
-          <div className="lbl">Stake</div>
+          <div className="lbl orange">Stake</div>
           <div className="val">{stake}</div>
         </div>
-      </div>
-
-      {/* ─── Jackpot ──────────────────────────────────────── */}
-      <div className="jackpot-card">
-        <div className="jp-header">
-          <span>JACKPOT</span>
-          <span>477 / 1000</span>
+        <div className="stat-capsule">
+          <div className="lbl orange">Wallet</div>
+          <div className="val">{Number(wallet?.balance || 0).toFixed(0)}</div>
         </div>
-        <div className="jp-progress">
-          <div className="jp-fill" style={{ width: '47%' }}></div>
+        <div className="stat-capsule">
+          <div className="lbl orange">Bonus Wallet</div>
+          <div className="val">0</div>
         </div>
       </div>
 
       {/* ─── Balance Warning ──────────────────────────────── */}
       {!hasBalance && (
         <div className="balance-warning">
-          Please top up your wallet. If you already have and are still seeing this, please refresh the page.
+          <p>Please top up your wallet. If you already have and are still seeing this, please refresh the page.</p>
+          <button className="btn-deposit-now" onClick={() => router.push('/deposit')}>
+            📥 Deposit Now
+          </button>
         </div>
       )}
 
@@ -108,52 +104,52 @@ function SelectCardInner() {
       <style jsx>{`
         .select-container { min-height: 100vh; background: #a68cc5; padding: 16px; padding-bottom: 90px; }
         
+        .connection-status { text-align: center; color: #4ade80; font-weight: 800; font-size: 14px; margin-bottom: 12px; }
+        .wifi-icon { margin-right: 4px; }
+
         .stats-row { 
-          display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px;
+          display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px;
         }
         .stat-capsule {
-          background: white; border-radius: 99px; padding: 6px 4px; text-align: center;
+          background: white; border-radius: 8px; padding: 6px 2px; text-align: center;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .stat-capsule .lbl { font-size: 10px; color: #8e74b8; font-weight: 700; margin-bottom: 2px; }
-        .stat-capsule .val { font-size: 13px; color: #333; font-weight: 800; }
-
-        .jackpot-card { 
-          background: white; border-radius: 12px; padding: 8px 12px; margin-bottom: 16px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .jp-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 900; color: #555; margin-bottom: 4px; }
-        .jp-progress { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
-        .jp-fill { height: 100%; background: #facc15; }
+        .stat-capsule .lbl { font-size: 9px; color: #f97316; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
+        .stat-capsule .val { font-size: 14px; color: #333; font-weight: 800; }
 
         .balance-warning {
           background: #fecaca; color: #dc2626; padding: 12px; border-radius: 12px;
           font-size: 13px; font-weight: 600; text-align: center; line-height: 1.4;
           margin-bottom: 16px; border: 1px solid #f87171;
         }
+        .btn-deposit-now {
+          margin-top: 8px; background: #dc2626; color: white; border: none; 
+          padding: 6px 20px; border-radius: 99px; font-weight: 800; font-size: 13px;
+          box-shadow: 0 4px 0 #991b1b; cursor: pointer;
+        }
+        .btn-deposit-now:active { transform: translateY(2px); box-shadow: 0 2px 0 #991b1b; }
 
         .card-grid {
           display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px;
-          background: rgba(255,255,255,0.2); padding: 8px; border-radius: 12px;
+          background: rgba(255,255,255,0.3); padding: 6px; border-radius: 12px;
         }
         .grid-item {
-          aspect-ratio: 1; background: #c3b1db; border-radius: 6px;
+          aspect-ratio: 1; background: #e0d4f0; border-radius: 6px;
           display: flex; align-items: center; justify-content: center;
-          font-size: 13px; font-weight: 800; color: #4b3b63; cursor: pointer;
-          transition: all 0.2s;
+          font-size: 12px; font-weight: 800; color: #4b3b63; cursor: pointer;
         }
-        .grid-item.selected { background: #3b82f6; color: white; transform: scale(1.1); z-index: 10; }
+        .grid-item.selected { background: #3b82f6; color: white; }
 
         .action-row { display: flex; gap: 12px; margin-top: 20px; }
         .btn-refresh { 
-          flex: 1; background: #3b82f6; border: none; color: white; padding: 12px; 
-          border-radius: 99px; font-weight: 800; box-shadow: 0 4px 0 #2563eb;
+          flex: 1; background: #3b82f6; border: none; color: white; padding: 14px; 
+          border-radius: 12px; font-weight: 900; font-size: 18px; box-shadow: 0 4px 0 #2563eb;
         }
         .btn-start { 
-          flex: 1; background: #f97316; border: none; color: white; padding: 12px; 
-          border-radius: 99px; font-weight: 800; box-shadow: 0 4px 0 #ea580c;
+          flex: 1; background: #f97316; border: none; color: white; padding: 14px; 
+          border-radius: 12px; font-weight: 900; font-size: 18px; box-shadow: 0 4px 0 #ea580c;
         }
-        .btn-start.disabled { background: #d1d5db; box-shadow: 0 4px 0 #9ca3af; opacity: 0.7; }
+        .btn-start.disabled { background: #666; opacity: 0.5; box-shadow: none; cursor: not-allowed; }
       `}</style>
     </div>
   );
