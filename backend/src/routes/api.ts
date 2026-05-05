@@ -95,11 +95,11 @@ router.get('/me', async (req: Request, res: Response) => {
   
   let wallet = await prisma.wallet.findUnique({ where: { userId: user.id } });
   if (!wallet) {
-    wallet = await prisma.wallet.create({ data: { userId: user.id, balance: 10 } });
+    wallet = await prisma.wallet.create({ data: { userId: user.id, balance: 1000 } });
   } else if (Number(wallet.balance) === 0) {
     wallet = await prisma.wallet.update({
       where: { userId: user.id },
-      data: { balance: 10 }
+      data: { balance: 1000 }
     });
   }
   
