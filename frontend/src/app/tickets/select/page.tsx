@@ -17,11 +17,13 @@ function TicketContent() {
   const [joining, setJoining] = useState(false);
   const [occupiedCards, setOccupiedCards] = useState<number[]>([10, 42, 55, 78, 91]); 
   const [jackpot, setJackpot] = useState(808);
+  const [dismissAlert, setDismissAlert] = useState(false);
 
   const loadUser = async () => {
     try {
       const u = await getMe();
       setUser(u);
+      setDismissAlert(false); 
     } catch (err: any) {
       if (err.response?.status === 401) router.push('/');
     } finally {
@@ -95,10 +97,15 @@ function TicketContent() {
         </div>
       </div>
 
-      {/* Low Balance Alert */}
-      {isLowBalance && (
-        <div className="topup-alert-box">
-          <p>⚠️ Please top up your wallet. If you already have and are still seeing this, please refresh the page.</p>
+      {/* Low Balance Alert (Now Dismissible) */}
+      {isLowBalance && !dismissAlert && (
+        <div className="topup-alert-box dismissible">
+          <div className="alert-content">
+             <p>⚠️ Please top up your wallet. If you already have and are still seeing this, please refresh the page.</p>
+          </div>
+          <button className="btn-dismiss-alert" onClick={() => setDismissAlert(true)}>
+             <X size={16} />
+          </button>
         </div>
       )}
 
@@ -121,7 +128,7 @@ function TicketContent() {
         </div>
       </div>
 
-      {/* PATTERN PREVIEW SHEET (Bottom Toast) */}
+      {/* PATTERN PREVIEW SHEET */}
       {selectedCard && (
         <div className="pattern-sheet-overlay" onClick={() => setSelectedCard(null)}>
           <div className="pattern-sheet" onClick={(e) => e.stopPropagation()}>
@@ -192,8 +199,9 @@ function TicketContent() {
         .progress-track { height: 8px; background: var(--jackpot-bg); border-radius: 99px; overflow: hidden; }
         .progress-bar { height: 100%; background: var(--gold-accent); border-radius: 99px; box-shadow: 0 0 10px var(--gold-accent); }
 
-        .topup-alert-box { background: rgba(154, 3, 30, 0.1); color: var(--red); margin: 0 16px 16px; padding: 14px; border-radius: 14px; border: 1px solid rgba(154, 3, 30, 0.2); text-align: center; }
-        .topup-alert-box p { font-size: 12px; font-weight: 800; margin: 0; line-height: 1.5; }
+        .topup-alert-box.dismissible { background: rgba(154, 3, 30, 0.1); color: var(--red); margin: 0 16px 16px; padding: 14px; border-radius: 14px; border: 1px solid rgba(154, 3, 30, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .alert-content p { font-size: 12px; font-weight: 800; margin: 0; line-height: 1.5; }
+        .btn-dismiss-alert { background: rgba(154, 3, 30, 0.1); border: none; color: var(--red); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
 
         .grid-scroll-area { padding: 0 12px; }
         .cartela-100-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
