@@ -59,7 +59,8 @@ function TicketContent() {
   };
 
   const totalCost = selectedCards.length * Number(ticketPrice);
-  const isLowBalance = (user?.wallet?.balance || 0) < totalCost;
+  const balance = Number(user?.wallet?.balance || 0);
+  const isLowBalance = balance < totalCost && totalCost > 0;
 
   if (loading) return <div className="loading"><div className="spinner" /><span>PREPARING CARTELAS...</span></div>;
 
