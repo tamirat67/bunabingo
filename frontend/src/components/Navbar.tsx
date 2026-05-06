@@ -20,7 +20,7 @@ export default function Navbar() {
         {navItems.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href;
           return (
-            <Link key={label} href={href} className={`nav-tab ${isActive ? 'active' : ''}`}>
+            <a key={label} href={href} className={`nav-tab ${isActive ? 'active' : ''}`}>
               <div className={`icon-wrap ${isActive ? 'icon-active' : ''}`}>
                 <Icon
                   size={24}
@@ -29,7 +29,7 @@ export default function Navbar() {
               </div>
 
               {isActive && <span className="active-bar" />}
-            </Link>
+            </a>
           );
         })}
       </div>
