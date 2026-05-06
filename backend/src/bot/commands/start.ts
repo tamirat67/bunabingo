@@ -18,17 +18,19 @@ export async function handleStart(ctx: Context) {
     await getOrCreateWallet(user.id);
 
     const isNewUser = (Date.now() - user.registeredAt.getTime()) < 5000;
-    const greeting = isNewUser ? '🎉 Welcome to BunaBingo!' : `👋 Welcome back, ${user.firstName}!`;
+    const greeting = isNewUser ? '🎉 Welcome to BunaBingo!' : `👋 Welcome back, <b>${user.firstName}</b>!`;
 
+    logger.info(`[Bot] Sending start message to ${user.id} (${user.firstName})`);
+    
     await ctx.reply(
       `${greeting}\n\n` +
-      `🎰 *BunaBingo* — Fully Automated Bingo Platform\n\n` +
+      `🎰 <b>BunaBingo</b> — Fully Automated Bingo Platform\n\n` +
       `🎮 Games start automatically when players join\n` +
       `💰 Win instantly — prizes sent to your wallet\n` +
       `🔐 Secure · Fair · 100% Automated\n\n` +
       `Use the buttons below or open the Mini App 👇`,
       {
-        parse_mode: 'Markdown',
+        parse_mode: 'HTML',
         ...Markup.inlineKeyboard([
           [Markup.button.webApp('🎮 Open Mini App', config.bot.miniAppUrl)],
           [
@@ -47,8 +49,9 @@ export async function handleStart(ctx: Context) {
         ]),
       }
     );
+    logger.info(`[Bot] Start message sent successfully to ${user.id}`);
   } catch (err: any) {
-    logger.error('Error in handleStart:', err);
+    logger.error('[Bot] FATAL ERROR in handleStart:', err);
     await ctx.reply('❌ Something went wrong. Please try again.');
   }
 }
