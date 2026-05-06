@@ -55,11 +55,14 @@ export default function BunaLobbyPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     loadData();
     if (!sessionStorage.getItem('buna-splash-shown')) setShowSplash(true);
     const twa = (window as any).Telegram?.WebApp;
     if (twa) { twa.ready(); twa.expand(); }
   }, []);
+
+  if (!mounted) return <div style={{ background: '#6F4E37', minHeight: '100vh' }} />;
 
   const handleToggleCard = (num: number) => {
     setSelectedCards(prev => {
