@@ -55,14 +55,19 @@ export default function BunaLobbyPage() {
   };
 
   useEffect(() => {
+    const twa = (window as any).Telegram?.WebApp;
+    if (twa) { twa.ready(); twa.expand(); }
+    
     setMounted(true);
     loadData();
     if (!sessionStorage.getItem('buna-splash-shown')) setShowSplash(true);
-    const twa = (window as any).Telegram?.WebApp;
-    if (twa) { twa.ready(); twa.expand(); }
   }, []);
 
-  if (!mounted) return <div style={{ background: '#6F4E37', minHeight: '100vh' }} />;
+  if (!mounted) return (
+    <div style={{ background: '#6F4E37', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyCenter: 'center', color: 'white', fontWeight: '900' }}>
+       BUNA BINGO LOADING...
+    </div>
+  );
 
   const handleToggleCard = (num: number) => {
     setSelectedCards(prev => {
