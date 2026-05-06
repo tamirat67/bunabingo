@@ -32,5 +32,20 @@ export function startJobs(): void {
     }
   });
 
-  logger.info('✅ Background jobs started (fraud scan every 30min, cleanup every 1h)');
+  // DB keep-alive ping every 4 minutes to prevent Neon idle connection drops
+  cron.schedule('*/4 * * * *', async () => {
+    try {
+      const { prisma } = await import('../lib/prisma');
+      await prisma.$queryRaw`SELECT 1`;
+    } catch (err) {
+      logger.warn('[Jobs] DB keep-alive ping failed, reconnecting...');
+      try {
+        const { prisma } = await import('../lib/prisma');
+        await prisma.$disconnect();
+        await prisma.$connect();
+      } catch (_) {}
+    }
+  });
+
+  logger.info('✅ Background jobs started (fraud scan every 30min, cleanup every 1h, DB ping every 4min)');
 }
