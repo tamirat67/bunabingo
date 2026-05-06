@@ -13,50 +13,59 @@ export async function findOrCreateUser(
   phoneNumber?: string
 ) {
   const telegramId = BigInt(telegramUser.id);
+  logger.info(`[Auth] findOrCreateUser triggered for TG ID: ${telegramId.toString()}`);
 
-  let user = await prisma.user.findUnique({ where: { telegramId } });
+  try {
+    logger.info(`[Auth] Checking DB for user ${telegramId.toString()}...`);
+    let user = await prisma.user.findUnique({ where: { telegramId } });
 
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        telegramId,
-        telegramUsername: telegramUser.username,
-        firstName: telegramUser.first_name,
-        lastName: telegramUser.last_name,
-        isAdmin: config.bot.adminIds.includes(telegramUser.id.toString()),
-        referredById: referredById && referredById.length > 20 ? referredById : undefined,
-        phoneNumber: phoneNumber || undefined,
-      },
-    });
+    if (!user) {
+      logger.info(`[Auth] User not found. Creating new user record...`);
+      user = await prisma.user.create({
+        data: {
+          telegramId,
+          telegramUsername: telegramUser.username,
+          firstName: telegramUser.first_name,
+          lastName: telegramUser.last_name,
+          isAdmin: config.bot.adminIds.includes(telegramUser.id.toString()),
+          referredById: referredById && referredById.length > 20 ? referredById : undefined,
+          phoneNumber: phoneNumber || undefined,
+        },
+      });
+      logger.info(`[Auth] User record created: ${user.id}`);
 
-    // Create wallet with 1000 ETB for testing with friends (robust upsert)
-    await prisma.wallet.upsert({
-      where: { userId: user.id },
-      create: { userId: user.id, balance: 1000 },
-      update: {}, // Don't overwrite if it exists
-    });
+      logger.info(`[Auth] Initializing wallet for user ${user.id}...`);
+      await prisma.wallet.upsert({
+        where: { userId: user.id },
+        create: { userId: user.id, balance: 1000 },
+        update: {},
+      });
+      logger.info(`[Auth] Wallet initialized for user ${user.id}`);
 
-    if (user.referredById) {
-      await prisma.user.update({
-        where: { id: user.referredById },
-        data: { referralCount: { increment: 1 } }
+      if (user.referredById) {
+        logger.info(`[Auth] Processing referral for parent ${user.referredById}...`);
+        await prisma.user.update({
+          where: { id: user.referredById },
+          data: { referralCount: { increment: 1 } }
+        });
+      }
+      logger.info(`🎉 [Auth] New user registered: ${user.firstName} (TG: ${telegramId})`);
+    } else {
+      logger.info(`[Auth] Returning existing user: ${user.firstName} (ID: ${user.id})`);
+      // Ensure they have a wallet (robustness)
+      await prisma.wallet.upsert({
+        where: { userId: user.id },
+        create: { userId: user.id, balance: 1000 },
+        update: {},
       });
     }
 
-    logger.info(`New user registered: ${user.firstName} (TG: ${telegramUser.id})`);
-  } else {
-    // Update last active & username
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        lastActiveAt: new Date(),
-        telegramUsername: telegramUser.username ?? user.telegramUsername,
-      },
-    });
-
-    // For testing/onboarding: ensure all users have at least 1000 ETB (test bankroll)
-    const wallet = await prisma.wallet.findUnique({ where: { userId: user.id } });
-    if (wallet && Number(wallet.balance) === 0) {
+    return user;
+  } catch (err: any) {
+    logger.error(`[Auth] FATAL ERROR in findOrCreateUser for TG ${telegramId}:`, err);
+    throw err;
+  }
+}
       await prisma.wallet.update({
         where: { userId: user.id },
         data: { balance: 1000 }
