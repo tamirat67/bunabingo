@@ -143,7 +143,7 @@ export default function LobbyPage() {
                   <div className="badge-ready">READY</div>
                 </div>
                 <a 
-                  href={`/tickets/select?type=${room.type}&price=${room.price}`}
+                  href={`https://bunabingo.vercel.app/tickets/select?type=${room.type}&price=${room.price}`}
                   className="btn-join-simple"
                   onClick={() => setLoadingJoin(room.type)}
                 >
