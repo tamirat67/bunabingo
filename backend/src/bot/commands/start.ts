@@ -2,6 +2,7 @@ import { Context, Markup } from 'telegraf';
 import { findOrCreateUser } from '../../services/user.service';
 import { getOrCreateWallet } from '../../services/wallet.service';
 import { config } from '../../config';
+import { logger } from '../../lib/logger';
 
 export async function handleStart(ctx: Context) {
   const tgUser = ctx.from!;
