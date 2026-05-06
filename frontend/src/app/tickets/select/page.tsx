@@ -209,7 +209,7 @@ function TicketContent() {
          </div>
 
          <div className="actions-column">
-            <button className="btn-refresh-inline" onClick={loadUser}>
+            <button className="btn-refresh-inline" onClick={() => loadUser()}>
               <RefreshCw size={18} />
               <span>Refresh</span>
             </button>
