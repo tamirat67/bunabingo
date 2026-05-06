@@ -5,6 +5,7 @@ import { triggerGameEvent, triggerUserEvent, triggerAdminEvent } from '../lib/pu
 import { generateBingoCard, checkWin, BingoCard } from './card.generator';
 import { Decimal } from '@prisma/client/runtime/library';
 import { RoomType, GameStatus } from '@prisma/client';
+import { PREDEFINED_CARDS } from '../lib/predefinedCards';
 
 interface ActiveGame {
   gameId: string;
@@ -351,9 +352,6 @@ export async function createWaitingGame(roomId: string): Promise<string> {
   return game.id;
 }
 
-import { PREDEFINED_CARDS } from '../lib/predefinedCards';
-
-// ... existing code ...
 
 // ─── Join Game ────────────────────────────────────────────────
 export async function joinGame(
@@ -450,6 +448,12 @@ export async function joinGame(
         totalPrize: new Decimal(game.totalPrize).add(totalPrizeContribution),
         houseEdge: new Decimal(game.houseEdge).add(totalHouseEdge),
       },
+    });
+
+    // 5. Update Room player count
+    await tx.room.update({
+      where: { id: game.roomId },
+      data: { currentPlayers: { increment: numTickets } }
     });
 
     return { tickets, updatedWallet };
