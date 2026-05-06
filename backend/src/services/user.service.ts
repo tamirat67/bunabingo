@@ -52,6 +52,17 @@ export async function findOrCreateUser(
       logger.info(`🎉 [Auth] New user registered: ${user.firstName} (TG: ${telegramId})`);
     } else {
       logger.info(`[Auth] Returning existing user: ${user.firstName} (ID: ${user.id})`);
+      
+      // LIVE SYNC: Update name and username in case they changed in Telegram
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          telegramUsername: telegramUser.username || user.telegramUsername,
+          firstName: telegramUser.first_name || user.firstName,
+          lastName: telegramUser.last_name || user.lastName,
+        }
+      });
+
       // Ensure they have a test bankroll (refill if < 100)
       const wallet = await prisma.wallet.findUnique({ where: { userId: user.id } });
       if (!wallet || Number(wallet.balance) < 100) {
