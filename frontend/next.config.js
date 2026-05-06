@@ -1,23 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false, // Reduced strictness for better compatibility
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: "frame-ancestors *;"
-          },
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*'
-          }
-        ],
-      },
-    ];
-  },
+  reactStrictMode: false, 
   env: {
     NEXT_PUBLIC_API_URL: 'https://bunabingo.onrender.com',
     NEXT_PUBLIC_PUSHER_KEY: '13890cf18bf6ba41dc0d',
