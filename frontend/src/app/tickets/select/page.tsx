@@ -19,17 +19,26 @@ function TicketContent() {
   const [jackpot, setJackpot] = useState(808);
   const [dismissAlert, setDismissAlert] = useState(false);
 
-  const loadUser = async () => {
-    setLoading(true);
-    setSelectedCards([]); // Clear all selections on refresh
+  const loadUser = async (retryCount = 0) => {
+    if (retryCount === 0) setLoading(true);
+    setSelectedCards([]); 
     try {
       const u = await getMe();
       setUser(u);
       setDismissAlert(false); 
-    } catch (err: any) {
-      if (err.response?.status === 401) router.push('/');
-    } finally {
       setLoading(false);
+    } catch (err: any) {
+      console.error('Ticket load failed', err);
+      if (err.response?.status === 401) {
+        router.push('/');
+        return;
+      }
+      if (retryCount < 5) {
+        setTimeout(() => loadUser(retryCount + 1), 2000);
+      } else {
+        // Emergency fallback: show the grid anyway
+        setLoading(false);
+      }
     }
   };
 
