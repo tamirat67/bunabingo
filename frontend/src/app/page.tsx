@@ -142,13 +142,13 @@ export default function LobbyPage() {
                   <div className="badge-active">ACTIVE 0</div>
                   <div className="badge-ready">READY</div>
                 </div>
-                <button 
-                  className={`btn-join-simple ${loadingJoin === room.type ? 'loading-btn' : ''}`} 
-                  onClick={() => handleJoin(room.type, room.price)}
-                  disabled={!!loadingJoin}
+                <a 
+                  href={`/tickets/select?type=${room.type}&price=${room.price}`}
+                  className="btn-join-simple"
+                  onClick={() => setLoadingJoin(room.type)}
                 >
                   {loadingJoin === room.type ? 'WAIT...' : 'JOIN'}
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -250,7 +250,7 @@ export default function LobbyPage() {
         .badge-active { background: #3b82f6; color: white; font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; }
         .badge-ready { background: var(--jackpot-bg); color: #22c55e; font-size: 9px; font-weight: 900; padding: 4px 8px; border-radius: 6px; }
 
-        .btn-join-simple { background: #22c55e; color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 0 #16a34a; }
+        .btn-join-simple { background: #22c55e; color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 0 #16a34a; text-decoration: none; display: flex; align-items: center; justify-content: center; min-width: 80px; }
         .btn-join-simple.outline { background: transparent; color: #22c55e; border: 2px solid #22c55e; box-shadow: none; padding: 8px 16px; }
         .btn-join-simple:active { transform: translateY(2px); box-shadow: none; }
 
