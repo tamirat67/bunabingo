@@ -83,7 +83,9 @@ function TicketContent() {
 
   const totalCost = selectedCards.length * Number(ticketPrice);
   const balance = Number(user?.wallet?.balance || 0);
-  const isLowBalance = balance < totalCost && totalCost > 0;
+  // We allow joining even with low balance to trigger backend auto-refill (test mode)
+  const isLowBalance = false; 
+  const showsLowBalanceHint = balance < totalCost && totalCost > 0;
 
   if (loading) return <div className="loading"><div className="spinner" /><span>PREPARING CARTELAS...</span></div>;
 
@@ -135,10 +137,10 @@ function TicketContent() {
       </div>
 
       {/* Low Balance Alert */}
-      {isLowBalance && !dismissAlert && (
+      {showsLowBalanceHint && !dismissAlert && (
         <div className="topup-alert-box dismissible">
           <div className="alert-content">
-             <p>⚠️ Please top up your wallet. Total cost: {totalCost} ETB.</p>
+             <p>✨ Testing mode: You will receive 1,000 ETB free bankroll when you join!</p>
           </div>
           <button className="btn-dismiss-alert" onClick={() => setDismissAlert(true)}>
              <X size={16} />

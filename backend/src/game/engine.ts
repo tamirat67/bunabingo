@@ -402,7 +402,32 @@ export async function joinGame(
   const totalPrice = new Decimal(unitPrice).mul(numTickets);
 
   if (new Decimal(wallet.balance).lessThan(totalPrice)) {
-    throw new Error(`Insufficient balance. Need ${totalPrice.toFixed(2)}, have ${wallet.balance.toFixed(2)}`);
+    // AUTO-REFILL for testing: If user is broke, give them 1000 ETB
+    logger.info(`[Wallet] Auto-refilling user ${userId} with 1000 ETB test bankroll`);
+    const refillAmount = 1000;
+    
+    await prisma.wallet.update({
+      where: { userId },
+      data: { balance: refillAmount }
+    });
+
+    await prisma.transaction.create({
+      data: {
+        userId,
+        type: 'DEPOSIT',
+        amount: refillAmount,
+        balanceBefore: wallet.balance,
+        balanceAfter: refillAmount,
+        status: 'COMPLETED',
+        description: 'Free test bankroll for first-comers',
+      },
+    });
+
+    // Re-fetch wallet for subsequent calculations
+    const updatedWallet = await prisma.wallet.findUnique({ where: { userId } });
+    if (!updatedWallet) throw new Error('Wallet sync error after refill');
+    wallet.balance = updatedWallet.balance;
+    wallet.totalSpent = updatedWallet.totalSpent;
   }
 
   // Deduct balance and update game prize

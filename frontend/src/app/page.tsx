@@ -57,10 +57,7 @@ export default function LobbyPage() {
   }, []);
 
   const handleJoin = (type: string, price: number) => {
-    const currentBalance = wallet?.balance || 0;
-    if (currentBalance < price && type !== 'CASUAL_FREE') {
-      show(`Insufficient Balance. Please top up to join the ${price} ETB room.`, 'error');
-    }
+    // We removed the local balance check so the backend can auto-refill testing bankrolls
     router.push(`/tickets/select?type=${type}&price=${price}`);
   };
 
