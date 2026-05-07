@@ -148,8 +148,6 @@ export default function LobbyPage() {
       <div className="rooms-stack">
         {spinRooms.map(r => renderGameRow(r, true))}
       </div>
-
-      <Navbar />
     </div>
   );
 }

@@ -80,7 +80,6 @@ export default function WalletPage() {
 
       <div style={{textAlign: 'center', opacity: 0.3, fontSize: '10px', marginTop: 'auto'}}>© Addis Bingo</div>
 
-      <Navbar />
     </div>
   );
 }

@@ -173,8 +173,6 @@ function GameContent() {
         <button className="btn-small btn-red" onClick={() => router.push('/')}><LogOut size={14} /> Leave</button>
         <button className="btn-small btn-orange"><PlusCircle size={14} /> Add Board</button>
       </div>
-
-      <Navbar />
     </div>
   );
 }

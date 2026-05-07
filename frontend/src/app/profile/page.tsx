@@ -76,7 +76,6 @@ export default function ProfilePage() {
 
       <div style={{opacity: 0.3, fontSize: '10px', marginTop: '20px'}}>© Addis Bingo</div>
       
-      <Navbar />
     </div>
   );
 }

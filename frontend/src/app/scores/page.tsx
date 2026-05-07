@@ -68,10 +68,8 @@ export default function ScoresPage() {
             <div className="leader-score">{p.wins || 0}</div>
           </div>
         ))}
-        {players.length === 0 && <div className="empty-state">No rankings yet</div>}
+        {players.length === 0 && <div className="empty-state">Loading leaderboard...</div>}
       </div>
-
-      <Navbar />
     </div>
   );
 }

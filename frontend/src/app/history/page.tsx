@@ -46,8 +46,6 @@ export default function HistoryPage() {
         ))}
         {history.length === 0 && <div className="empty-state">No game history yet</div>}
       </div>
-
-      <Navbar />
     </div>
   );
 }

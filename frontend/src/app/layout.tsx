@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import { Suspense } from 'react';
+import Navbar from '../components/Navbar';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -21,7 +23,12 @@ export default function RootLayout({
           strategy="beforeInteractive" 
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <Suspense fallback={null}>
+          {children}
+        </Suspense>
+        <Navbar />
+      </body>
     </html>
   );
 }
