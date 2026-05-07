@@ -9,7 +9,7 @@ import { apiLimiter } from './middleware/rateLimit';
 import apiRoutes from './routes/api';
 import { logger } from './lib/logger';
 import { config } from './config';
-import prisma from './lib/prisma';
+import prisma, { withRetry } from './lib/prisma';
 import { startJobs } from './jobs';
 
 const bot = createBot();
