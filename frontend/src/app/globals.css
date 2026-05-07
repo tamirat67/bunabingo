@@ -238,19 +238,230 @@ body {
   padding: 6px 12px;
   border-radius: 8px;
   font-size: 12px;
+  font-weight: bold;/* Game Page Styles */
+.game-screen-container {
+  background: #2D1B14;
+  min-height: 100vh;
+  padding: 10px;
+  color: white;
+}
+
+.game-info-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.info-box {
+  background: #3D2B24;
+  padding: 4px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.info-box .label {
+  font-size: 8px;
+  color: #8D6E63;
+  text-transform: uppercase;
+}
+
+.info-box .val {
+  font-size: 10px;
   font-weight: bold;
 }
 
-.nav-item {
+.game-main-layout {
+  display: flex;
+  gap: 10px;
+}
+
+.calling-board-card {
+  flex: 1;
+  background: #3D2B24;
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.board-header {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.board-header .h {
+  font-weight: 900;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.board-header .b { background: #FF9800; }
+.board-header .i { background: #4CAF50; }
+.board-header .n { background: #2196F3; }
+.board-header .g { background: #F44336; }
+.board-header .o { background: #9C27B0; }
+
+.board-numbers {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+}
+
+.n-cell {
+  background: rgba(0,0,0,0.2);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border-radius: 2px;
+  color: rgba(255,255,255,0.3);
+}
+
+.n-cell.active {
+  background: var(--gold);
+  color: #3E2723;
+  font-weight: bold;
+}
+
+.game-right-side {
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-card {
+  background: #1A0F0A;
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.status-card .l {
+  font-size: 10px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.status-card .v {
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.call-display {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-decoration: none;
-  color: #a1887f;
-  font-size: 11px;
-  font-weight: 700;
-  gap: 4px;
-  transition: all 0.2s;
+}
+
+.call-circle {
+  width: 60px;
+  height: 60px;
+  background: #FF5722;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 900;
+  box-shadow: 0 0 20px rgba(255,87,34,0.4);
+}
+
+.player-bingo-card {
+  background: #3D2B24;
+  padding: 8px;
+  border-radius: 12px;
+}
+
+.card-header {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.card-header .h {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+}
+
+.card-cell {
+  background: #EAEAEA;
+  color: #3E2723;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 4px;
+}
+
+.card-cell.star {
+  background: #4CAF50;
+}
+
+.board-label {
+  text-align: center;
+  font-size: 8px;
+  color: #8D6E63;
+  margin-top: 4px;
+}
+
+.game-actions-footer {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-bingo-main {
+  width: 100%;
+  padding: 16px;
+  background: #888;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.secondary-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-refresh-game {
+  flex: 1;
+  background: #FF5722;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
+.btn-leave-game {
+  flex: 2;
+  background: #E91E63;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: bold;
 }
 
 /* Selection Page Enhancements */
