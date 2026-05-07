@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getRooms, getWallet } from '../lib/api';
+import { getRooms, getWallet, getMe } from '../lib/api';
 import { initTelegram } from '../lib/telegram';
 import Navbar from '../components/Navbar';
+import RegistrationOverlay from '../components/RegistrationOverlay';
 import { Trophy, Gift, Wallet as WalletIcon, Target, PlayCircle, Dices } from 'lucide-react';
 
 interface Room {
@@ -15,6 +16,7 @@ interface Room {
 }
 
 export default function LobbyPage() {
+  const [user, setUser] = useState<any>(null);
   const [wallet, setWallet] = useState<any>(null);
   const [rooms, setRooms] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
@@ -22,11 +24,16 @@ export default function LobbyPage() {
   useEffect(() => {
     setMounted(true);
     initTelegram();
+    getMe().then(setUser);
     getWallet().then(setWallet).catch(() => {});
     getRooms().then(setRooms).catch(() => {});
   }, []);
 
   if (!mounted) return null;
+
+  if (user && !user.phoneNumber) {
+    return <RegistrationOverlay onComplete={() => getMe().then(setUser)} />;
+  }
 
   const bingoRooms: Room[] = [
     { type: 'STANDARD', price: 10, win: 592, players: 74, active: 0, isBonus: true },
