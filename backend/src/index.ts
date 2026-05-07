@@ -12,8 +12,9 @@ import { config } from './config';
 import prisma from './lib/prisma';
 import { startJobs } from './jobs';
 
+const bot = createBot();
+
 async function main() {
-  const bot = createBot();
   // Global BigInt JSON serialization fix
   (BigInt.prototype as any).toJSON = function() {
     return this.toString();
