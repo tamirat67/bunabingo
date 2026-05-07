@@ -238,7 +238,42 @@ body {
   padding: 6px 12px;
   border-radius: 8px;
   font-size: 12px;
-  font-weight: bold;/* Game Page Styles */
+  font-weight: bold;/* Premium Game UI */
+.calling-board-card-premium { flex: 1; background: #3D2B24; border-radius: 16px; padding: 10px; }
+.board-header-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin-bottom: 8px; }
+.h-sq { height: 30px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; border-radius: 4px; }
+.h-sq.b { background: #FF9800; }
+.h-sq.i { background: #4CAF50; }
+.h-sq.n { background: #2196F3; }
+.h-sq.g { background: #F44336; }
+.h-sq.o { background: #9C27B0; }
+.board-numbers-block { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+.n-cell-fit { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; background: rgba(0,0,0,0.2); border-radius: 4px; color: #8D6E63; }
+.n-cell-fit.active { background: white; color: #3E2723; }
+.game-right-side-premium { width: 150px; display: flex; flex-direction: column; gap: 12px; }
+.status-container-dark { background: #1A0F0A; border-radius: 16px; padding: 12px; }
+.label-row { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 11px; }
+.count-val { font-size: 24px; font-weight: 900; }
+.call-center { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.label-top { font-size: 11px; font-weight: bold; margin-bottom: 8px; }
+.call-circle-xl { width: 70px; height: 70px; background: #FF5722; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; box-shadow: 0 0 30px rgba(255,87,34,0.5); }
+.player-bingo-card-premium { background: #3D2B24; padding: 10px; border-radius: 16px; }
+.card-header-circles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 8px; }
+.card-header-circles .c { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white; font-weight: 900; font-size: 10px; }
+.card-header-circles .b { background: #FF9800; }
+.card-header-circles .i { background: #4CAF50; }
+.card-header-circles .n { background: #2196F3; }
+.card-header-circles .g { background: #F44336; }
+.card-header-circles .o { background: #9C27B0; }
+.card-grid-fit { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+.card-cell-fit { background: #EAEAEA; color: #3E2723; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; border-radius: 4px; }
+.card-cell-fit.star-gold { background: #FF9800; }
+.board-id-footer { text-align: center; font-size: 10px; color: #8D6E63; margin-top: 8px; font-weight: bold; }
+.game-actions-row-premium { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+.btn-bingo-huge { background: #888; color: white; border: none; border-radius: 30px; padding: 18px; font-size: 24px; font-weight: 900; letter-spacing: 2px; }
+.game-bottom-btns { display: flex; gap: 12px; }
+.btn-refresh-orange { background: #FF5722; color: white; border: none; flex: 1; padding: 14px; border-radius: 30px; font-weight: bold; font-size: 16px; }
+.btn-leave-pink { background: #E91E63; color: white; border: none; flex: 2; padding: 14px; border-radius: 30px; font-weight: bold; font-size: 16px; }
 .game-screen-container {
   background: #2D1B14;
   min-height: 100vh;

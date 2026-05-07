@@ -71,19 +71,19 @@ export default function GamePage() {
 
       <div className="game-main-layout">
         {/* Left: Calling Board */}
-        <div className="calling-board-card">
-          <div className="board-header">
-            <div className="h b">B</div>
-            <div className="h i">I</div>
-            <div className="h n">N</div>
-            <div className="h g">G</div>
-            <div className="h o">O</div>
+        <div className="calling-board-card-premium">
+          <div className="board-header-row">
+            <div className="h-sq b">B</div>
+            <div className="h-sq i">I</div>
+            <div className="h-sq n">N</div>
+            <div className="h-sq g">G</div>
+            <div className="h-sq o">O</div>
           </div>
-          <div className="board-numbers">
+          <div className="board-numbers-block">
             {Object.entries(bingoColumns).map(([col, nums]) => (
-              <div key={col} className="col-strip">
+              <div key={col} className="col-strip-fit">
                 {nums.map(n => (
-                  <div key={n} className={`n-cell ${calledNumbers.includes(n) ? 'active' : ''}`}>
+                  <div key={n} className={`n-cell-fit ${calledNumbers.includes(n) ? 'active' : ''}`}>
                     {n}
                   </div>
                 ))}
@@ -93,47 +93,49 @@ export default function GamePage() {
         </div>
 
         {/* Right: Stats and Card */}
-        <div className="game-right-side">
-          <div className="status-card countdown">
-            <div className="l">COUNT DOWN</div>
-            <div className="v">{countdown}</div>
+        <div className="game-right-side-premium">
+          <div className="status-container-dark">
+            <div className="label-row">
+              <span>COUNT DOWN</span>
+              <span className="count-val">{countdown}</span>
+            </div>
           </div>
 
-          <div className="status-card call-display">
-            <div className="l">CURRENT CALL</div>
-            <div className="call-circle">
+          <div className="status-container-dark call-center">
+            <div className="label-top">CURRENT CALL</div>
+            <div className="call-circle-xl">
               {currentCall || '-'}
             </div>
           </div>
 
-          <div className="player-bingo-card">
-            <div className="card-header">
-              <div className="h b">B</div>
-              <div className="h i">I</div>
-              <div className="h n">N</div>
-              <div className="h g">G</div>
-              <div className="h o">O</div>
+          <div className="player-bingo-card-premium">
+            <div className="card-header-circles">
+              <div className="c b">B</div>
+              <div className="c i">I</div>
+              <div className="c n">N</div>
+              <div className="c g">G</div>
+              <div className="c o">O</div>
             </div>
-            <div className="card-grid">
+            <div className="card-grid-fit">
               {playerCard.map((row, ri) => (
                 row.map((val, ci) => (
-                  <div key={`${ri}-${ci}`} className={`card-cell ${val === null ? 'star' : ''}`}>
-                    {val === null ? <Star size={16} fill="var(--gold)" color="var(--gold)" /> : val}
+                  <div key={`${ri}-${ci}`} className={`card-cell-fit ${val === null ? 'star-gold' : ''}`}>
+                    {val === null ? <Star size={14} fill="#D4AF37" color="#D4AF37" /> : val}
                   </div>
                 ))
               ))}
             </div>
-            <div className="board-label">BOARD NUMBER 79</div>
+            <div className="board-id-footer">BOARD NUMBER 79</div>
           </div>
         </div>
       </div>
 
       {/* Footer Actions */}
-      <div className="game-actions-footer">
-        <button className="btn-bingo-main disabled">BINGO!</button>
-        <div className="secondary-btns">
-          <button className="btn-refresh-game"><RefreshCw size={18} /> Refresh</button>
-          <button className="btn-leave-game" onClick={() => router.push('/')}><LogOut size={18} /> Leave</button>
+      <div className="game-actions-row-premium">
+        <button className="btn-bingo-huge disabled">BINGO!</button>
+        <div className="game-bottom-btns">
+          <button className="btn-refresh-orange">Refresh</button>
+          <button className="btn-leave-pink" onClick={() => router.push('/')}>Leave</button>
         </div>
       </div>
     </div>
