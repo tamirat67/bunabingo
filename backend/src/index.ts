@@ -39,8 +39,9 @@ async function main() {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  app.listen(config.server.port, () => {
-    logger.info(`🚀 API server running on port ${config.server.port}`);
+  const host = '0.0.0.0';
+  app.listen(config.server.port, host, () => {
+    logger.info(`🚀 API server running on ${host}:${config.server.port}`);
   });
 
   // ─── Database ────────────────────────────────────────────
