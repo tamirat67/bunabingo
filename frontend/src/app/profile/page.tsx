@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getMe, getProfile } from '../lib/api';
-import Navbar from '../components/Navbar';
+import { getMe, getProfile } from '../../lib/api';
+import Navbar from '../../components/Navbar';
 import { Check, Volume2, Moon, Users, ChevronRight } from 'lucide-react';
 
 export default function ProfilePage() {

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getLeaderboard } from '../lib/api';
-import Navbar from '../components/Navbar';
+import { getLeaderboard } from '../../lib/api';
+import Navbar from '../../components/Navbar';
 
 export default function ScoresPage() {
   const [board, setBoard] = useState('score');

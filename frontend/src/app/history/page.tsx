@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getHistory } from '../lib/api';
-import Navbar from '../components/Navbar';
+import { getHistory } from '../../lib/api';
+import Navbar from '../../components/Navbar';
 import { History as HistoryIcon, ChevronRight, Trophy, Ban } from 'lucide-react';
 
 export default function HistoryPage() {
