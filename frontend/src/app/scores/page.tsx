@@ -1,20 +1,30 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { getLeaderboard } from '../lib/api';
 import Navbar from '../components/Navbar';
-
-const PLAYERS = [
-  { name: 'HI 5', phone: '25198**50501', score: 39, color: '#ffa726', initial: 'H5' },
-  { name: 'Medu', phone: '25192**31677', score: 21, color: '#66bb6a', initial: 'M' },
-  { name: 'Ablel', phone: '25198**40848', score: 20, color: '#42a5f5', initial: 'A' },
-  { name: 'Abdi Boru', phone: '25191**94528', score: 20, color: '#ef5350', initial: 'AB' },
-  { name: 'Nafi', phone: '25191**50260', score: 18, color: '#ab47bc', initial: 'N' },
-  { name: 'tebedaBaby', phone: '25171**59746', score: 17, color: '#ffa726', initial: 'T' },
-  { name: 'Eliad', phone: '25192**89711', score: 15, color: '#66bb6a', initial: 'E' },
-];
 
 export default function ScoresPage() {
   const [board, setBoard] = useState('score');
   const [time, setTime] = useState('today');
+  const [players, setPlayers] = useState<any[]>([]);
+
+  useEffect(() => {
+    getLeaderboard(time).then(setPlayers).catch(() => {
+      // Fallback to demo data if API fails
+      setPlayers([
+        { firstName: 'HI 5', phoneNumber: '251981234501', wins: 39 },
+        { firstName: 'Medu', phoneNumber: '251921234677', wins: 21 },
+        { firstName: 'Ablel', phoneNumber: '251981234848', wins: 20 },
+      ]);
+    });
+  }, [time]);
+
+  const maskPhone = (phone: string) => {
+    if (!phone) return '****';
+    return `${phone.slice(0, 5)}**${phone.slice(-5)}`;
+  };
+
+  const colors = ['#ffa726', '#66bb6a', '#42a5f5', '#ef5350', '#ab47bc'];
 
   return (
     <div className="scores-container">
@@ -30,26 +40,31 @@ export default function ScoresPage() {
       </div>
 
       <div className="top-avatars">
-        {PLAYERS.slice(0, 5).map((p, i) => (
-          <div key={i} className="mini-avatar">{p.initial}</div>
+        {players.slice(0, 5).map((p, i) => (
+          <div key={i} className="mini-avatar" style={{background: colors[i % colors.length]}}>
+            {p.firstName?.slice(0, 2).toUpperCase() || 'P'}
+          </div>
         ))}
       </div>
 
       <div style={{textAlign: 'center', fontSize: '13px', fontWeight: 'bold', margin: '10px 0'}}>Top Players (100)</div>
 
       <div className="leader-list">
-        {PLAYERS.map((p, i) => (
+        {players.map((p, i) => (
           <div key={i} className="leader-row">
             <div className="leader-info">
-              <div className="row-avatar" style={{background: p.color}}>{p.initial}</div>
+              <div className="row-avatar" style={{background: colors[i % colors.length]}}>
+                {p.firstName?.slice(0, 2).toUpperCase() || 'P'}
+              </div>
               <div className="leader-name">
-                <span className="name-txt">{p.name}</span>
-                <span className="phone-sub">{p.phone}</span>
+                <span className="name-txt">{p.firstName}</span>
+                <span className="phone-sub">{maskPhone(p.phoneNumber)}</span>
               </div>
             </div>
-            <div className="leader-score">{p.score}</div>
+            <div className="leader-score">{p.wins || 0}</div>
           </div>
         ))}
+        {players.length === 0 && <div className="empty-state">No rankings yet</div>}
       </div>
 
       <Navbar />
