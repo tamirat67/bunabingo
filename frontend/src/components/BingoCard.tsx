@@ -25,8 +25,8 @@ export default function BingoCard({ card, drawnNumbers, highlightMode }: Props) 
 
       {/* Grid */}
       <div className="bingo-grid">
-        {card.map((row, r) =>
-          row.map((cell, c) => {
+        {card && card.map ? card.map((row, r) =>
+          row && row.map ? row.map((cell, c) => {
             const marked = isMarked(cell);
             const isFree = cell === 'FREE';
             return (
@@ -38,13 +38,13 @@ export default function BingoCard({ card, drawnNumbers, highlightMode }: Props) 
                 {isFree ? '⭐' : cell}
               </div>
             );
-          })
-        )}
+          }) : null
+        ) : <div className="loading-card">Loading Card...</div>}
       </div>
 
       {/* Progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontSize: 12, color: 'var(--txt2)' }}>
-        <span>Marked: {card.flat().filter(c => isMarked(c)).length} / 25</span>
+        <span>Marked: {card && card.flat ? card.flat().filter(c => isMarked(c)).length : 0} / 25</span>
         <span>Numbers drawn: {drawnNumbers.length}</span>
       </div>
     </div>

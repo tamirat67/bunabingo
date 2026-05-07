@@ -70,8 +70,16 @@ export default function GameInner() {
 
   useEffect(() => {
     if (!gameId) return;
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
+    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+
+    if (!pusherKey || !pusherCluster) {
+      console.error('Pusher configuration missing!');
+      return;
+    }
+
+    const pusher = new Pusher(pusherKey, {
+      cluster: pusherCluster,
       authorizer: channel => ({
         authorize: async (socketId, cb) => {
           try { cb(null, await pusherAuth(socketId, channel.name)); }
@@ -107,7 +115,7 @@ export default function GameInner() {
 
       <div className="game-hdr">
         <div className="hdr-left">
-          <h1 className="room-title">Buna {game?.room.type}</h1>
+          <h1 className="room-title">Buna {game?.room?.type || '...'}</h1>
           <div className="status-lbl">
              <span className="dot pulse"></span> LIVE DRAW
           </div>

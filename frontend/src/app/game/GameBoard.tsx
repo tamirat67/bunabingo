@@ -43,8 +43,16 @@ export default function GameBoard({ gameId, onExit }: GameBoardProps) {
   useEffect(() => {
     loadData();
 
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
+    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+
+    if (!pusherKey || !pusherCluster) {
+      console.error('Pusher configuration missing!');
+      return;
+    }
+
+    const pusher = new Pusher(pusherKey, {
+      cluster: pusherCluster,
       authorizer: (channel) => ({
         authorize: (socketId, callback) => {
           pusherAuth(socketId, channel.name)
@@ -119,13 +127,13 @@ export default function GameBoard({ gameId, onExit }: GameBoardProps) {
                <div className="card-header">
                   {columns.map(c => <span key={c.label} style={{color:c.color}}>{c.label}</span>)}
                </div>
-               <div className="card-grid">
-                  {t.card.rows.map((row:any[], ri:number) => row.map((n:any, ci:number) => (
-                    <div key={`${ri}-${ci}`} className={`c-cell ${n==='FREE'?'free':(isMarked(n)?'marked':'')}`}>
-                       {n==='FREE' ? <Star size={10} fill="#D4AF37" /> : n}
-                    </div>
-                  )))}
-               </div>
+                <div className="card-grid">
+                   {t.card && t.card.rows ? t.card.rows.map((row:any[], ri:number) => row.map((n:any, ci:number) => (
+                     <div key={`${ri}-${ci}`} className={`c-cell ${n==='FREE'?'free':(isMarked(n)?'marked':'')}`}>
+                        {n==='FREE' ? <Star size={10} fill="#D4AF37" /> : n}
+                     </div>
+                   ))) : <div className="loading-card">Loading...</div>}
+                </div>
             </div>
          ))}
       </div>
