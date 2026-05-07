@@ -2,11 +2,11 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Gamepad2, Trophy, History, Wallet, User } from 'lucide-react';
+import { Home, Trophy, History, Wallet, User } from 'lucide-react';
 
 const navItems = [
-  { label: 'Game',    href: '/',        icon: Gamepad2 },
-  { label: 'Scores',  href: '/scores',  icon: Trophy   },
+  { label: 'Home',    href: '/',        icon: Home },
+  { label: 'Games',   href: '/scores',  icon: Trophy   },
   { label: 'History', href: '/history', icon: History  },
   { label: 'Wallet',  href: '/wallet',  icon: Wallet   },
   { label: 'Profile', href: '/profile', icon: User     },
@@ -21,8 +21,11 @@ function NavContent() {
         const isActive = pathname === href;
         return (
           <Link key={label} href={href} className={`nav-item ${isActive ? 'active' : ''}`}>
-            <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+            <div className="nav-icon-wrapper">
+              <Icon size={24} />
+            </div>
             <span>{label}</span>
+            {isActive && <div className="nav-indicator-line" />}
           </Link>
         );
       })}
