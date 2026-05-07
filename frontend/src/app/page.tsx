@@ -17,12 +17,16 @@ interface Room {
 export default function LobbyPage() {
   const [wallet, setWallet] = useState<any>(null);
   const [rooms, setRooms] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     initTelegram();
     getWallet().then(setWallet).catch(() => {});
     getRooms().then(setRooms).catch(() => {});
   }, []);
+
+  if (!mounted) return null;
 
   const bingoRooms: Room[] = [
     { type: 'STANDARD', price: 10, win: 592, players: 74, active: 0, isBonus: true },

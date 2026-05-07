@@ -16,8 +16,10 @@ function GameContent() {
   const [drawn, setDrawn] = useState<number[]>([]);
   const [lastBall, setLastBall] = useState<number | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (!gameId) return;
 
     // Initial Data
@@ -76,7 +78,9 @@ function GameContent() {
         pusher.disconnect();
       }
     };
-  }, [gameId]);
+  }, [gameId, mounted]);
+
+  if (!mounted) return null;
 
   const handleBingo = async () => {
     if (!gameId) return;

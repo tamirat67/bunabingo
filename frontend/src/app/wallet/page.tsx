@@ -7,10 +7,14 @@ import { RefreshCw, User, CheckCircle, Wallet as WalletIcon, Coins, Download } f
 export default function WalletPage() {
   const [user, setUser] = useState<any>(null);
   const [tab, setTab] = useState('balance');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     getMe().then(setUser).catch(() => {});
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="wallet-container">
