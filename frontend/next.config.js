@@ -18,11 +18,8 @@ const nextConfig = {
       },
     ];
   },
-  env: {
-    NEXT_PUBLIC_API_URL: 'https://bunabingo.onrender.com',
-    NEXT_PUBLIC_PUSHER_KEY: '13890cf18bf6ba41dc0d',
-    NEXT_PUBLIC_PUSHER_CLUSTER: 'ap2',
-  },
+  // DO NOT hardcode env vars here — use Vercel Dashboard environment variables
+  // so they can be updated without a code change.
 };
 
 module.exports = nextConfig;
