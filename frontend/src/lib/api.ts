@@ -1,57 +1,26 @@
 import axios from 'axios';
 import { getTgInitData } from './telegram';
 
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'https://bunabingo.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bunabingo.onrender.com';
 
-const api = axios.create({ baseURL: `${BASE}/api` });
-
-api.interceptors.request.use(cfg => {
-  const initData = getTgInitData();
-  if (initData) cfg.headers['x-telegram-init-data'] = initData;
-  return cfg;
+const api = axios.create({
+  baseURL: `${API_URL}/api`,
 });
 
-// Auth
-export const getMe = () => api.get('/me').then(r => r.data);
-export const register = (data: { phoneNumber: string; referredById?: string }) => api.post('/auth/register', data).then(r => r.data);
-export const getProfile = () => api.get('/me/profile').then(r => r.data);
-export const updateProfile = (data: { firstName: string; phoneNumber: string }) => api.post('/me/profile', data).then(r => r.data);
-export const getWallet = () => api.get('/wallet').then(r => r.data);
-export const getWalletAudit = () => api.get('/me/wallet/audit').then(r => r.data);
-export const getTransactions = (page = 1) => api.get(`/transactions?page=${page}`).then(r => r.data);
+api.interceptors.request.use((config) => {
+  const initData = getTgInitData();
+  if (initData) {
+    config.headers['x-telegram-init-data'] = initData;
+  }
+  return config;
+});
 
-// Deposits
-export const getDeposits = () => api.get('/deposits').then(r => r.data);
-export const createDeposit = (data: FormData) =>
-  api.post('/deposits', data, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data);
-
-// Withdrawals
-export const getWithdrawals = () => api.get('/withdrawals').then(r => r.data);
-export const createWithdrawal = (data: { amount: number; accountName: string; accountNumber: string; bankName: string }) =>
-  api.post('/withdrawals', data).then(r => r.data);
-
-// Rooms & Games
-export const getRooms = () => api.get('/rooms').then(r => r.data);
-export const joinGame = (roomType: string, cardIds: number[]) => api.post('/games/join', { roomType, cardIds }).then(r => r.data);
-export const getGame = (gameId: string) => api.get(`/games/${gameId}`).then(r => r.data);
-export const getMyCard = (gameId: string) => api.get(`/games/${gameId}/mycard`).then(r => r.data);
-export const getMyTickets = () => api.get('/mytickets').then(r => r.data);
-export const getHistory = () => api.get('/history').then(r => r.data);
-export const getLeaderboard = (timeframe: string) => api.get(`/leaderboard?timeframe=${timeframe}`).then(r => r.data);
-
-// Pusher auth
-export const pusherAuth = (socketId: string, channelName: string) =>
-  api.post('/pusher/auth', { socket_id: socketId, channel_name: channelName }).then(r => r.data);
-
-// Admin
-export const adminAnalytics = () => api.get('/admin/analytics').then(r => r.data);
-export const adminPendingDeposits = () => api.get('/admin/deposits/pending').then(r => r.data);
-export const adminApproveDeposit = (id: string) => api.post(`/admin/deposits/${id}/approve`).then(r => r.data);
-export const adminRejectDeposit = (id: string, reason: string) => api.post(`/admin/deposits/${id}/reject`, { reason }).then(r => r.data);
-export const adminPendingWithdrawals = () => api.get('/admin/withdrawals/pending').then(r => r.data);
-export const adminApproveWithdrawal = (id: string) => api.post(`/admin/withdrawals/${id}/approve`).then(r => r.data);
-export const adminRejectWithdrawal = (id: string, reason: string) => api.post(`/admin/withdrawals/${id}/reject`, { reason }).then(r => r.data);
-export const adminUsers = (page = 1) => api.get(`/admin/users?page=${page}`).then(r => r.data);
-export const adminActiveGames = () => api.get('/admin/games/active').then(r => r.data);
+export const getRooms = () => api.get('/rooms').then(res => res.data);
+export const getMe = () => api.get('/me').then(res => res.data);
+export const getWallet = () => api.get('/wallet').then(res => res.data);
+export const joinGame = (roomType: string, cardIds: number[]) => api.post('/games/join', { roomType, cardIds }).then(res => res.data);
+export const getGame = (id: string) => api.get(`/games/${id}`).then(res => res.data);
+export const getMyCard = (id: string) => api.get(`/games/${id}/mycard`).then(res => res.data);
+export const pusherAuth = (socketId: string, channelName: string) => api.post('/pusher/auth', { socket_id: socketId, channel_name: channelName }).then(res => res.data);
 
 export default api;
