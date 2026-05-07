@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Home, Trophy, History, Wallet, UserCircle } from 'lucide-react';
 
 export default function Navbar() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
 
   const navItems = [
     { label: 'Play',    href: '/',        icon: Home,       active: pathname === '/' || pathname.startsWith('/game') || pathname.startsWith('/tickets') },
