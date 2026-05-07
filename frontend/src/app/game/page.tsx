@@ -50,6 +50,12 @@ function GameContent() {
       setLastBall(data.number);
       setDrawn(prev => [...prev, data.number]);
       setCountdown(null);
+      // Voice Announcer
+      if ('speechSynthesis' in window) {
+        const msg = new SpeechSynthesisUtterance(`${data.number}`);
+        msg.rate = 1.1;
+        window.speechSynthesis.speak(msg);
+      }
     });
 
     channel.bind('countdown-start', (data: { seconds: number }) => {
@@ -61,6 +67,16 @@ function GameContent() {
       pusher.disconnect();
     };
   }, [gameId]);
+
+  const handleBingo = async () => {
+    if (!gameId) return;
+    try {
+      await claimBingo(gameId);
+      alert('BINGO CLAIMED! CHECKING...');
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'No Bingo yet!');
+    }
+  };
 
   const isCalled = (num: number) => drawn.includes(num);
 
@@ -135,7 +151,7 @@ function GameContent() {
         </div>
       </div>
 
-      <button className="btn-bingo-main">BINGO!</button>
+      <button className="btn-bingo-main" onClick={handleBingo}>BINGO!</button>
 
       <div className="small-actions">
         <button className="btn-small btn-blue"><RefreshCw size={14} /> Refresh</button>
