@@ -46,9 +46,13 @@ function GameContent() {
   useEffect(() => {
     loadData();
 
-    // Initialize Pusher
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    // Initialize Pusher — only if keys are available
+    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
+    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+    if (!pusherKey || !pusherCluster || !gameId) return;
+
+    const pusher = new Pusher(pusherKey, {
+      cluster: pusherCluster,
       authorizer: (channel) => ({
         authorize: (socketId, callback) => {
           pusherAuth(socketId, channel.name)
@@ -83,6 +87,7 @@ function GameContent() {
     return () => {
       if (pusherRef.current) {
         pusherRef.current.unsubscribe(`private-game-${gameId}`);
+        pusherRef.current.disconnect();
       }
     };
   }, [gameId]);
@@ -102,6 +107,7 @@ function GameContent() {
   }, [countdown]);
 
   const playAnnouncer = (num: number) => {
+    if (typeof window === 'undefined') return;
     const msg = new SpeechSynthesisUtterance(num.toString());
     msg.rate = 1.2;
     window.speechSynthesis.speak(msg);
@@ -188,15 +194,15 @@ function GameContent() {
                          <span key={l} style={{ color: columns[i].color }}>{l}</span>
                        ))}
                     </div>
-                    <div className="mini-card-grid">
-                       {ticket.card.rows.map((row: any[], ri: number) => (
-                         row.map((num: any, ci: number) => (
-                           <div key={`${ri}-${ci}`} className={`mini-cell ${num === 'FREE' ? 'free' : (isMarked(num) ? 'marked' : '')}`}>
-                              {num === 'FREE' ? <Star size={10} fill="#D4AF37" color="#D4AF37" /> : num}
-                           </div>
-                         ))
-                       ))}
-                    </div>
+                     <div className="mini-card-grid">
+                        {ticket?.card?.rows ? ticket.card.rows.map((row: any[], ri: number) => (
+                          row.map((num: any, ci: number) => (
+                            <div key={`${ri}-${ci}`} className={`mini-cell ${num === 'FREE' ? 'free' : (isMarked(num) ? 'marked' : '')}`}>
+                               {num === 'FREE' ? <Star size={10} fill="#D4AF37" color="#D4AF37" /> : num}
+                            </div>
+                          ))
+                        )) : <div className="loading-card">Loading...</div>}
+                     </div>
                     <div className="mini-card-footer">BOARD NUMBER {tIdx + 1}</div>
                  </div>
                ))}
