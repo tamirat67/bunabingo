@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import { Suspense } from 'react';
 import Navbar from '../components/Navbar';
+import DebugOverlay from '../components/DebugOverlay';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -28,6 +29,7 @@ export default function RootLayout({
           {children}
         </Suspense>
         <Navbar />
+        <DebugOverlay />
       </body>
     </html>
   );
