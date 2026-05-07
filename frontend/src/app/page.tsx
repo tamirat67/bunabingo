@@ -48,7 +48,12 @@ export default function LobbyPage() {
   ];
 
   const handleJoinRoom = (room: Room) => {
-    if (room.isBonus && room.price === 0) return; // Demo handled separately
+    // Demo room can be joined without phone verification if you want, 
+    // but usually better to have one flow. Let's allow Demo always.
+    if (room.price === 0) {
+      router.push(`/tickets/select?type=${room.type}&stake=${room.price}`);
+      return;
+    }
     
     if (!user?.phoneNumber) {
       const app = (window as any).Telegram?.WebApp;
@@ -64,8 +69,6 @@ export default function LobbyPage() {
             }
           }
         });
-      } else {
-        alert('Please open in Telegram to play.');
       }
       return;
     }
@@ -96,11 +99,8 @@ export default function LobbyPage() {
             <span className="badge badge-active">ACTIVE {room.active}</span>
             <span className="badge badge-ready">READY</span>
           </div>
-          <button 
-            className={`btn-join ${isSpin ? 'purple' : ''}`}
-            onClick={() => window.location.href = `/tickets/select?type=${room.type}&price=${room.price}`}
-          >
-            {room.isBonus ? '🎁 BONUS JOIN' : 'JOIN'}
+          <button className={`btn-join ${isSpin ? 'purple' : ''}`}>
+            {room.price === 0 ? 'PLAY FREE' : room.isBonus ? '🎁 BONUS JOIN' : 'JOIN'}
           </button>
         </div>
       </div>
