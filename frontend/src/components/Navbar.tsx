@@ -31,6 +31,13 @@ function NavContent() {
 }
 
 export default function Navbar() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
     <nav className="bottom-navbar">
       <Suspense fallback={null}>
