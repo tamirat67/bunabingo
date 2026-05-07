@@ -20,13 +20,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <title>Buna Bingo</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        {/* Telegram Web App Script */}
-        <Script 
-          src="https://telegram.org/js/telegram-web-app.js" 
-          strategy="beforeInteractive"
-        />
       </head>
       <body>
+        {/*
+          Load Telegram WebApp SDK AFTER page renders.
+          Inside Telegram WebView the object is already injected natively;
+          this script is only needed when testing in a regular browser.
+          beforeInteractive would block rendering and cause Telegram to show
+          "This page couldn't load".
+        */}
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="afterInteractive"
+        />
         <ToastProvider>
           {children}
         </ToastProvider>
