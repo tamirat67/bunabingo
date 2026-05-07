@@ -31,40 +31,50 @@ function GameContent() {
     }).catch(console.error);
 
     // Real-time Sync
-    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
-    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
-    if (!pusherKey || !pusherCluster) return;
+    let pusher: Pusher | null = null;
+    try {
+      const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
+      const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+      
+      if (pusherKey && pusherCluster) {
+        pusher = new Pusher(pusherKey, {
+          cluster: pusherCluster,
+          authorizer: (channel) => ({
+            authorize: (socketId, cb) => {
+              pusherAuth(socketId, channel.name).then(data => cb(null, data)).catch(err => cb(err, null));
+            }
+          })
+        });
 
-    const pusher = new Pusher(pusherKey, {
-      cluster: pusherCluster,
-      authorizer: (channel) => ({
-        authorize: (socketId, cb) => {
-          pusherAuth(socketId, channel.name).then(data => cb(null, data)).catch(err => cb(err, null));
-        }
-      })
-    });
+        const channel = pusher.subscribe(`private-game-${gameId}`);
+        
+        channel.bind('number-drawn', (data: { number: number }) => {
+          setLastBall(data.number);
+          setDrawn(prev => [...prev, data.number]);
+          setCountdown(null);
+          // Voice Announcer
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            try {
+              const msg = new SpeechSynthesisUtterance(`${data.number}`);
+              msg.rate = 1.1;
+              window.speechSynthesis.speak(msg);
+            } catch (vErr) { console.error('Voice error:', vErr); }
+          }
+        });
 
-    const channel = pusher.subscribe(`private-game-${gameId}`);
-    
-    channel.bind('number-drawn', (data: { number: number }) => {
-      setLastBall(data.number);
-      setDrawn(prev => [...prev, data.number]);
-      setCountdown(null);
-      // Voice Announcer
-      if ('speechSynthesis' in window) {
-        const msg = new SpeechSynthesisUtterance(`${data.number}`);
-        msg.rate = 1.1;
-        window.speechSynthesis.speak(msg);
+        channel.bind('countdown-start', (data: { seconds: number }) => {
+          setCountdown(data.seconds);
+        });
       }
-    });
-
-    channel.bind('countdown-start', (data: { seconds: number }) => {
-      setCountdown(data.seconds);
-    });
+    } catch (pErr) {
+      console.error('Pusher init error:', pErr);
+    }
 
     return () => {
-      pusher.unsubscribe(`private-game-${gameId}`);
-      pusher.disconnect();
+      if (pusher) {
+        pusher.unsubscribe(`private-game-${gameId}`);
+        pusher.disconnect();
+      }
     };
   }, [gameId]);
 
@@ -132,21 +142,22 @@ function GameContent() {
 
           {/* Cards Stack */}
           <div style={{display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', maxHeight: '400px'}}>
-            {tickets.map((t, idx) => (
-              <div key={t.id} className="personal-card">
+            {tickets?.map?.((t: any, idx: number) => (
+              <div key={t.id || idx} className="personal-card">
                 <div className="mb-header" style={{marginBottom: '8px'}}>
                   {COLUMNS.map(c => <div key={c.label} className="mb-h-cell" style={{background: c.color, width: '24px', height: '24px', fontSize: '10px'}}>{c.label}</div>)}
                 </div>
                 <div className="pc-grid">
-                  {t.card.rows.map((row: any[]) => row.map((cell: any, ci: number) => (
-                    <div key={ci} className={`pc-cell ${cell === 'FREE' ? 'star' : (isCalled(cell) ? 'marked' : '')}`}>
-                      {cell === 'FREE' ? '*' : cell}
+                  {t.card?.rows?.map?.((row: any[], ri: number) => row?.map?.((cell: any, ci: number) => (
+                    <div key={`${ri}-${ci}`} className={`pc-cell ${cell === 'FREE' || cell === 0 ? 'star' : (isCalled(cell) ? 'marked' : '')}`}>
+                      {cell === 'FREE' || cell === 0 ? '*' : cell}
                     </div>
                   )))}
                 </div>
                 <div style={{textAlign: 'center', fontSize: '10px', marginTop: '4px', opacity: 0.6}}>Board number {idx + 1}</div>
               </div>
             ))}
+            {(!tickets || tickets.length === 0) && <div className="empty-state">No tickets found</div>}
           </div>
         </div>
       </div>
