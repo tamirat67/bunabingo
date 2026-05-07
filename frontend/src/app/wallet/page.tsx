@@ -40,7 +40,7 @@ export default function WalletPage() {
           <div className="main-balance-card">
             <div className="balance-row main">
               <span className="label">Main Balance</span>
-              <span className="value">{(user?.wallet?.balance || 0).toFixed(0)} Birr</span>
+              <span className="value">{(user?.wallet?.balance ?? 0).toFixed(0)} Birr</span>
             </div>
 
             <div className="sub-balance-box">

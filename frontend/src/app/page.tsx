@@ -86,7 +86,7 @@ export default function LobbyPage() {
           </div>
           <div className="stat-item balance">
             <WalletIcon size={14} />
-            <span>Balance: {(wallet?.balance || 0).toFixed(2)}</span>
+            <span>Balance: {(wallet?.balance ?? 0).toFixed(2)}</span>
           </div>
         </div>
       </div>
