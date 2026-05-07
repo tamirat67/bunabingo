@@ -68,6 +68,26 @@ router.post('/auth/register', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/auth/verify-phone', async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { contact } = req.body;
+  if (!user) return res.status(401).json({ error: 'Not authorized' });
+  
+  const phoneNumber = contact?.phoneNumber || contact?.phone_number;
+  if (!phoneNumber) return res.status(400).json({ error: 'No phone number provided' });
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: { phoneNumber }
+    });
+    res.json({ success: true, user: updatedUser });
+  } catch (err) {
+    logger.error('Phone verification failed:', err);
+    res.status(500).json({ error: 'Verification failed' });
+  }
+});
+
 // ─── User / Wallet ────────────────────────────────────────────
 router.get('/me', async (req: Request, res: Response) => {
   try {
