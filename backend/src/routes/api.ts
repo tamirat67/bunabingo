@@ -25,8 +25,19 @@ const upload = multer({
   },
 });
 
+// ─── PUBLIC Routes (no auth needed) ──────────────────────────
+router.get('/rooms', async (_req: Request, res: Response) => {
+  try {
+    const rooms = await getRooms();
+    res.json(rooms);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to load rooms' });
+  }
+});
+
 // ─── Auth for all routes ──────────────────────────────────────
 router.use(telegramAuthMiddleware);
+
 
 // ─── Registration (Manual / Auto) ───────────────────────────
 router.post('/auth/register', async (req: Request, res: Response) => {
@@ -234,11 +245,6 @@ router.get('/withdrawals', async (req: Request, res: Response) => {
 });
 
 // ─── Games / Rooms ────────────────────────────────────────────
-router.get('/rooms', async (_req: Request, res: Response) => {
-  const rooms = await getRooms();
-  res.json(rooms);
-});
-
 router.post('/games/join', joinGameLimiter, async (req: Request, res: Response) => {
   const user = (req as any).user;
   if (!user) return res.status(401).json({ error: 'Verification required to play' });

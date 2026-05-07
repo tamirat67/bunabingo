@@ -29,33 +29,41 @@ export default function LobbyPage() {
 
   const loadData = async () => {
     try {
-      let u;
-      try {
-        u = await getMe();
-      } catch (err: any) {
-        if (err.response?.status === 401) {
-          const twa = (window as any).Telegram?.WebApp;
-          const startParam = twa ? new URLSearchParams(twa.initData || '').get('start_param') : null;
-          try {
-            u = await register({ phoneNumber: '', referredById: startParam || undefined });
-          } catch (regErr: any) {
-            setAuthError(regErr.response?.data?.error || 'Registration failed. Please open from Telegram.');
-            return;
-          }
-        } else {
-          setAuthError(err.response?.data?.error || 'Server connection failed.');
-          return;
-        }
-      }
+      // Step 1: Always load rooms (public endpoint - no auth needed)
+      const r = await getRooms();
+      setRooms(r);
 
-      if (u) {
-        const [r, w] = await Promise.all([getRooms(), getWallet()]);
-        setRooms(r);
-        setWallet(w);
-        setAuthError(null);
+      // Step 2: Try to authenticate and get wallet (may fail in browser/no Telegram)
+      try {
+        let u = await getMe();
+        if (u) {
+          const w = await getWallet();
+          setWallet(w);
+        }
+      } catch (authErr: any) {
+        if (authErr.response?.status === 401) {
+          // Try auto-register for new Telegram users
+          const twa = (window as any).Telegram?.WebApp;
+          if (twa?.initData) {
+            const startParam = new URLSearchParams(twa.initData || '').get('start_param');
+            try {
+              const u = await register({ phoneNumber: '', referredById: startParam || undefined });
+              if (u) {
+                const w = await getWallet();
+                setWallet(w);
+              }
+            } catch (_) {
+              // Registration failed silently - user sees lobby in guest mode
+            }
+          }
+          // No Telegram context (Chrome) - just show lobby without wallet
+        }
+        // Any other auth error: silently ignore, show guest lobby
       }
+      setAuthError(null);
     } catch (err: any) {
       console.error('Lobby load failed', err);
+      // Rooms failed to load - show error
       setAuthError('Failed to connect to server. Please check your connection.');
     } finally {
       setLoading(false);
