@@ -56,7 +56,7 @@ function SelectionContent() {
       </div>
 
       <div className="stats-row-brown">
-        <div className="capsule-brown"><div className="l">Wallet</div><div className="v">{balance.toFixed(0)}</div></div>
+        <div className="capsule-brown"><div className="l">Wallet</div><div className="v">{Number(balance).toFixed(0)}</div></div>
         <div className="capsule-brown"><div className="l">Bonus</div><div className="v">0</div></div>
         <div className="capsule-brown"><div className="l">Cards</div><div className="v">{selected.length} / 5</div></div>
         <div className="capsule-brown total"><div className="l">Total</div><div className="v">{totalCost}</div></div>

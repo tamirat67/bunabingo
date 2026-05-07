@@ -27,7 +27,7 @@ export default function ProfilePage() {
       <div className="profile-stats-grid">
         <div className="stat-card">
           <div className="label">Balance</div>
-          <div className="value">{(user?.wallet?.balance ?? 0).toFixed(0)} Birr</div>
+          <div className="value">{Number(user?.wallet?.balance ?? 0).toFixed(0)} Birr</div>
         </div>
         <div className="stat-card">
           <div className="label">Bonus Wallet</div>
