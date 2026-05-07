@@ -2,18 +2,19 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getMe, joinGame } from '../../../lib/api';
-import Navbar from '../../../components/Navbar';
-import { Wifi } from 'lucide-react';
+import { PREDEFINED_CARDS } from '../../../lib/predefinedCards';
+import { ChevronLeft, RefreshCw, Zap, X } from 'lucide-react';
 
 function SelectionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const roomType = searchParams.get('type') || 'STANDARD';
-  const price = searchParams.get('price') || '10';
+  const roomType = searchParams.get('type') || 'CASUAL';
+  const stake = parseInt(searchParams.get('price') || '10');
 
   const [user, setUser] = useState<any>(null);
   const [selected, setSelected] = useState<number[]>([]);
   const [joining, setJoining] = useState(false);
+  const [showAlert, setShowAlert] = useState(true);
 
   useEffect(() => {
     getMe().then(setUser).catch(() => {});
@@ -22,7 +23,7 @@ function SelectionContent() {
   const toggleSelect = (num: number) => {
     setSelected(prev => {
       if (prev.includes(num)) return prev.filter(n => n !== num);
-      if (prev.length >= 3) return prev;
+      if (prev.length >= 5) return prev;
       return [...prev, num];
     });
   };
@@ -40,62 +41,91 @@ function SelectionContent() {
     }
   };
 
+  const totalCost = selected.length * stake;
+  const balance = user?.wallet?.balance || 0;
+  const isInsufficient = balance < totalCost;
+
   return (
-    <div className="selection-container">
-      <div className="connected-status">
-        <Wifi size={16} fill="#4caf50" />
-        <span>CONNECTED</span>
-      </div>
-
-      <div className="stats-capsules">
-        <div className="capsule">
-          <span className="label">Active Game</span>
-          <span className="value">0</span>
-        </div>
-        <div className="capsule">
-          <span className="label">Stake</span>
-          <span className="value">{price}</span>
-        </div>
-        <div className="capsule">
-          <span className="label">Wallet</span>
-          <span className="value">{(user?.wallet?.balance || 0).toFixed(0)}</span>
-        </div>
-        <div className="capsule">
-          <span className="label">Bonus Wallet</span>
-          <span className="value">0</span>
+    <div className="selection-container brown">
+      <div className="selection-header-top">
+        <button className="btn-back" onClick={() => router.push('/')}><ChevronLeft size={20} /></button>
+        <div className="header-text">
+          <h1>Buna Bingo</h1>
+          <p>{roomType} • STAKE {stake}</p>
         </div>
       </div>
 
-      <div className="alert-box">
-        Please top up your wallet. If you already have and are still seeing this, please refresh the page.
+      <div className="stats-row-brown">
+        <div className="capsule-brown"><div className="l">Wallet</div><div className="v">{balance.toFixed(0)}</div></div>
+        <div className="capsule-brown"><div className="l">Bonus</div><div className="v">0</div></div>
+        <div className="capsule-brown"><div className="l">Cards</div><div className="v">{selected.length} / 5</div></div>
+        <div className="capsule-brown total"><div className="l">Total</div><div className="v">{totalCost}</div></div>
       </div>
 
-      <div className="cartela-grid-container">
-        <div className="cartela-grid">
-          {Array.from({ length: 100 }, (_, i) => i + 1).map(num => (
-            <div 
-              key={num} 
-              className={`cartela-num ${selected.includes(num) ? 'selected' : ''}`}
-              onClick={() => toggleSelect(num)}
-            >
-              {num}
-            </div>
-          ))}
+      <div className="jackpot-meter">
+        <div className="jm-top">
+          <div style={{display: 'flex', alignItems: 'center', gap: '4px'}}><Zap size={12} /> JACKPOT</div>
+          <div>808 / 1000</div>
+        </div>
+        <div className="jm-bar-bg"><div className="jm-bar-fill"></div></div>
+      </div>
+
+      {showAlert && isInsufficient && (
+        <div className="alert-box" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffebee', border: '1px solid #ffcdd2', color: '#c62828', borderRadius: '12px', padding: '12px', marginBottom: '12px'}}>
+          <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+            <span>⚠️ Please top up your wallet. Total cost: {totalCost} ETB.</span>
+          </div>
+          <X size={16} onClick={() => setShowAlert(false)} />
+        </div>
+      )}
+
+      <div className="grid-brown">
+        {Array.from({ length: 100 }, (_, i) => i + 1).map(num => (
+          <div 
+            key={num} 
+            className={`num-brown ${selected.includes(num) ? 'selected' : ''}`}
+            onClick={() => toggleSelect(num)}
+          >
+            {num}
+          </div>
+        ))}
+      </div>
+
+      <div style={{height: '140px'}}></div> {/* Spacer for fixed footer */}
+
+      <div className="selection-footer-smart">
+        <div className="card-previews">
+          {selected.map(num => {
+            const card = PREDEFINED_CARDS[num] || [];
+            return (
+              <div key={num} className="preview-card">
+                <div className="pc-num-tag">#{num}</div>
+                <div className="pc-mini-grid">
+                  {card.map((row, ri) => row.map((cell, ci) => (
+                    <div key={`${ri}-${ci}`} className={`pc-mini-cell ${cell === 0 ? 'star' : ''}`}>
+                      {cell === 0 ? '★' : cell}
+                    </div>
+                  )))}
+                </div>
+              </div>
+            );
+          })}
+          {selected.length === 0 && <div style={{opacity: 0.3, fontSize: '10px', display: 'flex', alignItems: 'center'}}>Select cards to preview...</div>}
+        </div>
+
+        <div className="footer-btns">
+          <button className="btn-refresh-blue" onClick={() => window.location.reload()}>
+            <RefreshCw size={16} /> Refresh
+          </button>
+          <button 
+            className={`btn-join-gold ${selected.length > 0 ? 'active' : ''}`}
+            disabled={selected.length === 0 || joining}
+            onClick={handleStart}
+          >
+            {joining ? '...' : `JOIN WITH ${selected.length} CARDS`}
+          </button>
         </div>
       </div>
-
-      <div className="selection-actions">
-        <button className="btn-refresh" onClick={() => window.location.reload()}>Refresh</button>
-        <button 
-          className={`btn-start ${selected.length > 0 ? 'active' : ''}`} 
-          onClick={handleStart}
-          disabled={selected.length === 0 || joining}
-        >
-          {joining ? 'Joining...' : 'Start Game'}
-        </button>
-      </div>
-
-      <Navbar />
     </div>
   );
 }
