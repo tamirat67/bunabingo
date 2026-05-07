@@ -1,0 +1,22 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    # Runs every 10 minutes — prevents Render free tier from sleeping
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend Health
+        run: |
+          echo "Pinging Render backend at $(date)"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://bunabingo.onrender.com/health)
+          echo "Response status: $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "✅ Backend is alive!"
+          else
+            echo "⚠️ Backend returned status $STATUS — it may be waking up"
+          fi

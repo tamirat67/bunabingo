@@ -34,21 +34,16 @@ async function main() {
   app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
   // Root route for testing
-  app.get('/', (req, res) => {
-    res.send('Buna Bingo API is running!');
+  app.get('/', (_req, res) => {
+    res.send('Buna Bingo API is running! ☕');
   });
 
-  app.use('/api', apiLimiter, apiRoutes);
-
-  // Request logging middleware
-  app.use((req, res, next) => {
-    logger.info(`${req.method} ${req.url}`);
-    next();
-  });
-
+  // Health endpoint — must be before rate limiters so keep-alive always responds
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
+
+  app.use('/api', apiLimiter, apiRoutes);
 
   const host = '0.0.0.0';
   const port = config.server.port;
