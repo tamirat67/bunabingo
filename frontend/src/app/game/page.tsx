@@ -234,69 +234,7 @@ function GameContent() {
         </div>
       )}
 
-      <style jsx>{`
-        .pro-game-board { min-height: 100vh; background: #2D1B14; color: #E5E7EB; display: flex; flex-direction: column; }
-        
-        .pro-top-bar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 12px; background: rgba(0,0,0,0.3); }
-        .stat-pill { background: #3E271F; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 2px; text-align: center; }
-        .stat-pill .l { display: block; font-size: 8px; font-weight: 800; opacity: 0.6; text-transform: uppercase; margin-bottom: 2px; }
-        .stat-pill .v { font-size: 11px; font-weight: 900; color: #D4AF37; }
-
-        .main-board-layout { flex: 1; display: grid; grid-template-columns: 40% 60%; padding: 10px; gap: 10px; overflow: hidden; }
-
-        /* MASTER BOARD */
-        .master-board-column { background: #1C110D; border-radius: 12px; padding: 8px; border: 1px solid rgba(255,255,255,0.05); }
-        .master-header-row { display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; font-size: 18px; font-weight: 900; margin-bottom: 8px; }
-        .master-numbers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-        .master-col { display: flex; flex-direction: column; gap: 2px; }
-        .m-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.02); border-radius: 4px; }
-        .m-cell.active { background: white; color: black; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
-
-        /* ACTION ZONE */
-        .action-column { display: flex; flex-direction: column; gap: 12px; }
-        .action-top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
-        .countdown-box { background: #1C110D; border-radius: 16px; padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .countdown-box .l { font-size: 11px; font-weight: 800; opacity: 0.6; margin-bottom: 5px; }
-        .countdown-box .v { font-size: 28px; font-weight: 900; color: white; }
-
-        .current-call-circle { background: #1C110D; border-radius: 16px; padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .current-call-circle .l { font-size: 9px; font-weight: 800; opacity: 0.6; margin-bottom: 2px; }
-        .call-num { width: 60px; height: 60px; background: #FF5722; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: white; position: relative; }
-        .pulse-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 3px solid #FF5722; animation: proPulse 2s infinite; }
-        @keyframes proPulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.6); opacity: 0; } }
-
-        /* USER CARDS */
-        .user-cards-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px; }
-        .user-cards-scroll::-webkit-scrollbar { display: none; }
-        
-        .mini-card-wrapper { background: #3E271F; border-radius: 16px; padding: 10px; border: 1px solid rgba(212, 175, 55, 0.3); }
-        .mini-card-header { display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; font-size: 14px; font-weight: 900; margin-bottom: 6px; }
-        .mini-card-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
-        .mini-cell { aspect-ratio: 1; background: rgba(0,0,0,0.2); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; border: 1px solid rgba(255,255,255,0.05); }
-        .mini-cell.marked { background: #22c55e; color: white; border-color: #16a34a; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
-        .mini-card-footer { font-size: 9px; font-weight: 800; text-align: center; margin-top: 8px; opacity: 0.5; letter-spacing: 1px; }
-
-        /* BOTTOM ACTIONS */
-        .pro-bottom-actions { padding: 12px; background: rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 10px; }
-        .btn-bingo-main { width: 100%; background: #6B7280; color: white; border: none; padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 900; letter-spacing: 2px; box-shadow: 0 5px 0 #4B5563; }
-        .aux-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-aux { border: none; border-radius: 12px; padding: 12px; color: white; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; cursor: pointer; }
-        .btn-aux.refresh { background: #F97316; box-shadow: 0 4px 0 #EA580C; }
-        .btn-aux.leave { background: #EF4444; box-shadow: 0 4px 0 #DC2626; }
-
-        /* OVERLAY */
-        .pro-overlay-winner { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .win-card { background: #3E271F; width: 85%; max-width: 350px; border-radius: 30px; padding: 40px 20px; text-align: center; border: 2px solid #D4AF37; animation: proPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes proPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .trophy-gold { color: #D4AF37; margin-bottom: 20px; filter: drop-shadow(0 0 15px #D4AF37); }
-        .win-card h2 { font-size: 24px; font-weight: 900; color: white; margin-bottom: 20px; }
-        .winner-stack { display: flex; flex-direction: column; gap: 8px; margin-bottom: 30px; }
-        .winner-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .winner-item .n { font-weight: 900; }
-        .winner-item .a { font-size: 11px; font-weight: 800; color: #D4AF37; }
-        .btn-back-home { width: 100%; background: #22c55e; color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 900; box-shadow: 0 5px 0 #16a34a; }
-      `}</style>
+      
     </div>
   );
 }
@@ -308,3 +246,4 @@ export default function GamePage() {
     </Suspense>
   );
 }
+

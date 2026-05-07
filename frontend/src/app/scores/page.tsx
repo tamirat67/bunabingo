@@ -116,50 +116,7 @@ function ScoresContent() {
 
       <Navbar />
 
-      <style jsx>{`
-        .buna-scores-container { min-height: 100vh; background: var(--bg-main); color: var(--text-main); padding-bottom: 90px; }
-        
-        .top-header-nav { display: flex; align-items: center; padding: 16px; gap: 16px; background: var(--bg-nav); color: white; }
-        .btn-back-nav { background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-        .title-stack h1 { font-size: 18px; font-weight: 900; margin: 0; }
-        .title-stack p { font-size: 11px; opacity: 0.7; font-weight: 700; margin: 0; text-transform: uppercase; }
-
-        .board-switcher { display: flex; padding: 16px; gap: 10px; }
-        .sw-item { flex: 1; padding: 14px; border-radius: 12px; border: none; background: var(--bg-card); color: var(--text-main); font-weight: 800; font-size: 13px; opacity: 0.5; transition: 0.2s; }
-        .sw-item.active { background: var(--gold-accent); color: black; opacity: 1; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2); }
-
-        .timeframe-filter { display: flex; padding: 0 16px 20px; gap: 10px; justify-content: space-between; }
-        .tf-btn { flex: 1; padding: 8px; border: none; background: transparent; color: var(--text-main); font-weight: 800; font-size: 12px; opacity: 0.4; border-radius: 99px; }
-        .tf-btn.active { background: rgba(111, 78, 55, 0.1); opacity: 1; color: var(--coffee-dark); }
-
-        .top-spotlight { display: flex; justify-content: center; align-items: flex-end; padding: 20px; gap: 15px; margin-bottom: 20px; }
-        .spot-item { display: flex; flex-direction: column; align-items: center; position: relative; }
-        .s1 { transform: translateY(-15px); }
-        
-        .avatar-circle { width: 60px; height: 60px; background: var(--bg-nav); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .avatar-circle.gold-border { width: 80px; height: 80px; font-size: 32px; border: 4px solid var(--gold-accent); }
-        
-        .rank-badge { position: absolute; bottom: 15px; right: -5px; width: 22px; height: 22px; background: #94a3b8; border-radius: 50%; color: white; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
-        .rank-badge.gold { background: var(--gold-accent); width: 28px; height: 28px; font-size: 14px; bottom: 25px; }
-        
-        .name { margin-top: 8px; font-size: 11px; font-weight: 800; opacity: 0.8; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        .ranking-list-section { padding: 0 16px; }
-        .list-hdr { font-size: 11px; font-weight: 800; opacity: 0.5; margin-bottom: 12px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .ranking-scroll { display: flex; flex-direction: column; gap: 8px; }
-        .rank-card { background: var(--bg-card); border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 16px; border: 1.5px solid var(--border-light); }
-        
-        .rank-initial { width: 40px; height: 40px; border-radius: 50%; background: #94a3b8; color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; }
-        .rank-initial.top { background: var(--gold-accent); color: black; }
-        
-        .player-details { flex: 1; }
-        .p-name { font-size: 15px; font-weight: 900; }
-        .p-id { font-size: 10px; font-weight: 700; opacity: 0.4; }
-        
-        .player-score { font-size: 18px; font-weight: 900; color: var(--coffee-dark); opacity: 0.8; }
-        .empty-scores { text-align: center; padding: 40px; opacity: 0.5; font-weight: 800; font-size: 14px; }
-      `}</style>
+      
     </div>
   );
 }
@@ -171,3 +128,4 @@ export default function ScoresPage() {
     </Suspense>
   );
 }
+

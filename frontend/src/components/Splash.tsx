@@ -42,3 +42,4 @@ export default function Splash({ onFinish, isLoading }: SplashProps) {
     </div>
   );
 }
+

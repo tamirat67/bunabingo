@@ -50,3 +50,4 @@ export default function BingoCard({ card, drawnNumbers, highlightMode }: Props) 
     </div>
   );
 }
+

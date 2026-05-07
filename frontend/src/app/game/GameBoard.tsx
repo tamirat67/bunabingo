@@ -143,26 +143,8 @@ export default function GameBoard({ gameId, onExit }: GameBoardProps) {
         </div>
       )}
 
-      <style jsx>{`
-        .game-board-view { height:100vh; background:#2D1B14; color:white; display:flex; flex-direction:column; overflow:hidden; }
-        .top-info { display:grid; grid-template-columns:1fr 1fr 1fr; padding:10px; background:rgba(0,0,0,0.3); font-size:10px; font-weight:900; }
-        .center-stage { padding:20px; display:flex; justify-content:center; }
-        .call-box { width:120px; height:120px; background:#FF5722; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 0 20px #FF5722; }
-        .call-box .l { font-size:9px; opacity:0.8; }
-        .call-box .v { font-size:48px; font-weight:900; }
-        .call-box .cd { font-size:10px; position:absolute; bottom:-30px; color:#facc15; }
-        .cards-stack { flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:15px; }
-        .game-card { background:#3E271F; border-radius:15px; padding:10px; border:1px solid rgba(212,175,55,0.3); }
-        .card-header { display:grid; grid-template-columns:repeat(5, 1fr); text-align:center; font-weight:900; margin-bottom:5px; }
-        .card-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:3px; }
-        .c-cell { aspect-ratio:1; background:rgba(0,0,0,0.2); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; border:1px solid rgba(255,255,255,0.05); }
-        .c-cell.marked { background:#22c55e; color:white; }
-        .bottom-nav { padding:15px; background:rgba(0,0,0,0.3); }
-        .btn-exit { width:100%; padding:12px; background:#EF4444; border:none; border-radius:10px; color:white; font-weight:900; }
-        .finish-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; }
-        .winner { padding:10px; font-weight:900; color:#facc15; }
-        .btn-back { margin-top:20px; padding:12px 30px; background:#22c55e; border:none; border-radius:10px; color:white; font-weight:900; }
-      `}</style>
+      
     </div>
   );
 }
+

@@ -148,39 +148,8 @@ export default function ProfilePage() {
 
       <Navbar />
 
-      <style jsx>{`
-        .profile-container { min-height: 100vh; padding: 24px 16px 100px; transition: all 0.3s; background: var(--bg-main); color: var(--text-main); }
-
-        .profile-header { text-align: center; margin-bottom: 35px; }
-        .avatar-circle { width: 90px; height: 90px; background: var(--bg-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; border: 3px solid var(--bg-nav); color: var(--text-main); }
-        
-        .user-name { font-size: 26px; font-weight: 900; margin: 0; }
-        .badge-verified { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: #22c55e; background: rgba(34, 197, 94, 0.1); padding: 4px 12px; border-radius: 99px; margin-top: 8px; }
-        .user-id { font-size: 11px; opacity: 0.5; font-weight: 800; margin-top: 12px; font-family: monospace; letter-spacing: 1px; }
-
-        .section-title { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; opacity: 0.7; }
-        .setting-toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 18px; background: var(--bg-card); border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--border-light); cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        
-        .toggle-left { display: flex; align-items: center; gap: 16px; }
-        .icon-wrap { width: 40px; height: 40px; background: var(--jackpot-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--gold-accent); }
-        .icon-wrap.invite { color: #22c55e; }
-        
-        .toggle-info .title { font-size: 15px; font-weight: 800; }
-        .toggle-info .desc { font-size: 11px; opacity: 0.5; font-weight: 600; margin-top: 2px; }
-
-        .toggle-switch { width: 46px; height: 26px; background: #e5e7eb; border-radius: 99px; position: relative; transition: 0.3s; }
-        .toggle-switch.on { background: #22c55e; }
-        .toggle-switch::after { content: ""; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .toggle-switch.on::after { left: 23px; }
-
-        .toggle-btn-mini { font-size: 11px; font-weight: 800; padding: 6px 12px; background: var(--jackpot-bg); border-radius: 8px; text-transform: uppercase; border: 1px solid var(--border-light); }
-
-        .stats-header { font-size: 14px; font-weight: 800; text-transform: uppercase; margin-top: 30px; margin-bottom: 12px; opacity: 0.7; }
-        .stats-mini-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .mini-card { background: var(--bg-card); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid var(--border-light); }
-        .mini-card .l { font-size: 10px; font-weight: 800; opacity: 0.5; text-transform: uppercase; margin-bottom: 4px; }
-        .mini-card .v { font-size: 22px; font-weight: 900; }
-      `}</style>
+      
     </div>
   );
 }
+

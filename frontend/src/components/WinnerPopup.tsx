@@ -56,3 +56,4 @@ export default function WinnerPopup({ winMode, amount, onClose }: Props) {
     </div>
   );
 }
+

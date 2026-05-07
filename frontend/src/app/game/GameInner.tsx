@@ -163,39 +163,8 @@ export default function GameInner() {
 
       <Navbar />
 
-      <style jsx>{`
-        .game-container { min-height: 100vh; padding: 16px; padding-bottom: 100px; transition: 0.3s; }
-        .game-container.gold { background: #F5E6BE; color: #000; }
-        .game-container.dark { background: #0d1117; color: #c9d1d9; }
-
-        .game-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .room-title { font-size: 20px; font-weight: 900; color: #4B3621; }
-        .dark .room-title { color: #facc15; }
-        .status-lbl { font-size: 11px; font-weight: 800; color: #2d6a4f; display: flex; align-items: center; gap: 4px; }
-        .dark .status-lbl { color: #4ade80; }
-
-        .prize-pill { background: #4B3621; color: #F5E6BE; padding: 8px 16px; border-radius: 99px; display: flex; align-items: center; gap: 8px; font-weight: 900; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .dark .prize-pill { background: #238636; color: white; }
-
-        .ball-master { background: white; border-radius: 24px; padding: 20px; text-align: center; margin-bottom: 20px; border: 2px solid #E6D5A8; box-shadow: 0 10px 30px rgba(75, 54, 33, 0.1); }
-        .dark .ball-master { background: #161b22; border-color: #30363d; }
-        .ball-header { font-size: 12px; font-weight: 800; opacity: 0.6; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 10px; }
-        .ball-main { width: 85px; height: 85px; background: #4B3621; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 44px; font-weight: 900; margin: 0 auto 16px; border: 4px solid #F5E6BE; }
-        .dark .ball-main { background: #1f6feb; border-color: #388bfd; }
-        .ball-mini { width: 34px; height: 34px; background: #FFF9E6; border: 1px solid #E6D5A8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; }
-        .dark .ball-mini { background: #0d1117; border-color: #30363d; }
-
-        .card-container { background: white; border-radius: 20px; overflow: hidden; border: 2.5px solid #4B3621; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .dark .card-container { border-color: #30363d; background: #0d1117; }
-        .card-top { background: #4B3621; padding: 12px; color: #F5E6BE; font-size: 12px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
-        .dark .card-top { background: #161b22; color: #8b949e; }
-
-        .switcher { display: flex; gap: 8px; margin-bottom: 12px; }
-        .sw-btn { flex: 1; padding: 12px; border-radius: 12px; background: #FFF9E6; border: 1px solid #E6D5A8; font-weight: 800; cursor: pointer; color: #4B3621; }
-        .sw-btn.on { background: #4B3621; color: #F5E6BE; border-color: #4B3621; }
-        .dark .sw-btn { background: #161b22; border-color: #30363d; color: #8b949e; }
-        .dark .sw-btn.on { background: #1f6feb; color: white; border-color: #1f6feb; }
-      `}</style>
+      
     </div>
   );
 }
+

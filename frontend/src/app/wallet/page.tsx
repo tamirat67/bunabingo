@@ -121,52 +121,8 @@ export default function WalletPage() {
 
       <Navbar />
 
-      <style jsx>{`
-        .wallet-container { min-height: 100vh; background: #F5E6BE; padding: 24px 16px 100px; color: #000; }
-        .vault-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-        .title { font-size: 26px; font-weight: 900; color: #4B3621; margin: 0; }
-        .audit-badge { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: #2d6a4f; margin-top: 4px; text-transform: uppercase; background: rgba(45, 106, 79, 0.1); padding: 4px 12px; border-radius: 99px; }
-        
-        .refresh-btn { background: #4B3621; border: none; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #F5E6BE; box-shadow: 0 4px 12px rgba(75, 54, 33, 0.2); }
-        .spinning { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .main-balance-card { background: #4B3621; color: #F5E6BE; border-radius: 28px; padding: 28px; margin-bottom: 24px; box-shadow: 0 20px 40px rgba(75, 54, 33, 0.25); }
-        .main-balance-card .label { font-size: 12px; font-weight: 800; opacity: 0.7; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .main-balance-card .value { font-size: 46px; font-weight: 900; letter-spacing: -1.5px; }
-        .main-balance-card .symbol { font-size: 20px; opacity: 0.4; margin-right: 4px; }
-        .id-row { font-size: 9px; font-family: monospace; opacity: 0.4; margin-top: 8px; margin-bottom: 28px; }
-
-        .action-row { display: flex; gap: 12px; }
-        .btn-vault { flex: 1; background: #F5E6BE; color: #4B3621; border: none; padding: 14px; border-radius: 14px; font-weight: 900; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-vault.outline { background: transparent; color: #F5E6BE; border: 1px solid rgba(245, 230, 190, 0.4); }
-
-        .audit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 35px; }
-        .audit-item { background: #FFF9E6; border-radius: 20px; padding: 18px; border: 1px solid #E6D5A8; }
-        .audit-item.full { grid-column: span 2; display: flex; justify-content: space-between; align-items: center; }
-        .albl { font-size: 10px; font-weight: 800; opacity: 0.6; text-transform: uppercase; margin-bottom: 8px; color: #6F4E37; }
-        .val-row { display: flex; align-items: center; gap: 8px; }
-        .aval { font-size: 20px; font-weight: 900; }
-        .green-icon { color: #2d6a4f; }
-        .coffee-icon { color: #4B3621; }
-        .aval.green { color: #2d6a4f; }
-        .aval.coffee { color: #4B3621; }
-
-        .ledger-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .hdr-left { display: flex; align-items: center; gap: 10px; }
-        .section-title { font-size: 19px; font-weight: 900; margin: 0; color: #4B3621; }
-        .view-all { font-size: 13px; font-weight: 800; color: #6F4E37; text-decoration: none; }
-
-        .txn-list { display: flex; flex-direction: column; gap: 1px; background: #E6D5A8; border-radius: 20px; overflow: hidden; border: 1px solid #E6D5A8; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
-        .txn-row { display: flex; justify-content: space-between; align-items: center; padding: 18px; background: #FFF9E6; }
-        .txn-left { display: flex; align-items: center; gap: 16px; }
-        .icon-box { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: #F5E6BE; color: #4B3621; }
-        .txn-info .type { font-size: 15px; font-weight: 800; color: #4B3621; }
-        .txn-info .date { font-size: 11px; opacity: 0.5; margin-top: 2px; }
-        .amt { font-size: 17px; font-weight: 900; }
-        .amt.pos { color: #2d6a4f; }
-        .amt.neg { color: #9a031e; opacity: 0.8; }
-      `}</style>
+      
     </div>
   );
 }
+

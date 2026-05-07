@@ -168,49 +168,8 @@ export default function LobbyPage() {
 
       <Navbar />
 
-      <style jsx>{`
-        .lobby-container { min-height: 100vh; background: #a68cc5; padding-bottom: 90px; color: white; }
-        .lobby-nav { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(0,0,0,0.1); }
-        .nav-left { display: flex; align-items: center; gap: 6px; }
-        .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-        .live-lbl { font-size: 13px; font-weight: 600; opacity: 0.8; }
-        .nav-right { display: flex; gap: 14px; }
-        .nav-stat { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; }
-        .yellow { color: #facc15; }
-        .green { color: #4ade80; }
-        .section-title { padding: 20px 16px 12px; font-size: 16px; font-weight: 900; letter-spacing: 0.5px; opacity: 0.9; }
-        .sp-mt { margin-top: 10px; }
-        .emoji { margin-right: 8px; }
-        .column-headers { display: grid; grid-template-columns: 80px 1fr 100px; padding: 0 16px 8px; font-size: 11px; font-weight: 800; opacity: 0.5; }
-        .room-row { display: grid; grid-template-columns: 80px 1fr 100px; background: rgba(255,255,255,0.15); padding: 14px 16px; align-items: center; position: relative; }
-        .room-row.demo { background: rgba(255,255,255,0.08); }
-        .col-bet { text-align: center; border-right: 1px solid rgba(255,255,255,0.1); }
-        .col-bet .v { font-size: 24px; font-weight: 900; line-height: 1; }
-        .col-bet .l { font-size: 10px; opacity: 0.6; font-weight: 700; margin-top: 4px; }
-        .col-win { padding: 0 16px; }
-        .win-main { display: flex; align-items: center; gap: 12px; }
-        .trophy { font-size: 26px; opacity: 0.8; }
-        .play-icon { font-size: 20px; opacity: 0.6; }
-        .win-stack { display: flex; flex-direction: column; }
-        .win-val { font-size: 20px; font-weight: 900; }
-        .win-count { font-size: 11px; opacity: 0.5; font-weight: 600; }
-        .demo-title { font-size: 16px; font-weight: 800; }
-        .col-status { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .badge.active { background: #3b82f6; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 99px; }
-        .ready-box { background: rgba(0,0,0,0.2); color: #4ade80; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
-        .open-lbl { font-size: 11px; font-weight: 900; opacity: 0.6; }
-        .join-wrap { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .bonus-tag { background: #facc15; color: #000; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 4px; margin-bottom: -4px; z-index: 2; border: 1px solid rgba(0,0,0,0.1); }
-        .btn-join { width: 100%; border: none; color: white; padding: 8px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 0 rgba(0,0,0,0.2); cursor: pointer; }
-        .btn-join.green { background: #22c55e; box-shadow: 0 4px 0 #15803d; }
-        .btn-join.outline { background: transparent; color: #6F4E37; border: 2.5px solid #6F4E37; box-shadow: none; }
-        .btn-join:active { transform: translateY(2px); box-shadow: none; }
-        .btn-try { background: #64748b; border: none; color: white; padding: 8px 24px; border-radius: 8px; font-weight: 900; font-size: 14px; box-shadow: 0 4px 0 #334155; cursor: pointer; }
-        .jackpot-divider { font-size: 9px; font-weight: 900; text-align: center; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 10px; padding: 0 16px; margin: 6px 0; }
-        .jackpot-divider::before, .jackpot-divider::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.2); }
-      `}</style>
+      
     </div>
   );
 }
+

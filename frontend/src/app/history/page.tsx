@@ -149,60 +149,7 @@ function HistoryContent() {
 
       <Navbar />
 
-      <style jsx>{`
-        .buna-history-container { min-height: 100vh; background: var(--bg-main); color: var(--text-main); padding-bottom: 90px; }
-        
-        .top-header-nav { display: flex; align-items: center; padding: 16px; gap: 16px; background: var(--bg-nav); color: white; }
-        .btn-back-nav { background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-        .title-stack h1 { font-size: 18px; font-weight: 900; margin: 0; }
-        .title-stack p { font-size: 11px; opacity: 0.7; font-weight: 700; margin: 0; text-transform: uppercase; }
-
-        .history-dashboard { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-        .main-stat-card { 
-          background: var(--bg-nav); color: white; border-radius: 20px; padding: 24px; 
-          box-shadow: 0 15px 30px rgba(111, 78, 55, 0.2); position: relative; overflow: hidden;
-        }
-        .main-stat-card::after { content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; background: rgba(212, 175, 55, 0.1); border-radius: 50%; }
-        .main-stat-card .l { font-size: 12px; font-weight: 800; opacity: 0.7; display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
-        .main-stat-card .v { font-size: 38px; font-weight: 900; }
-        .main-stat-card .v span { font-size: 14px; opacity: 0.6; }
-        .main-stat-card .b { font-size: 10px; font-weight: 800; opacity: 0.5; text-transform: uppercase; margin-top: 4px; }
-
-        .mini-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .mini-capsule { background: var(--bg-card); padding: 12px; border-radius: 16px; text-align: center; border: 1.5px solid var(--border-light); }
-        .mini-capsule .l { font-size: 8px; font-weight: 800; opacity: 0.5; text-transform: uppercase; margin-bottom: 2px; }
-        .mini-capsule .v { font-size: 16px; font-weight: 900; }
-        .mini-capsule .v.gold { color: var(--gold-accent); }
-
-        .pro-tab-bar { display: flex; padding: 0 16px; gap: 12px; margin: 10px 0 20px; }
-        .tab-item { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 14px; border: 2px solid var(--border-light); background: transparent; color: var(--text-main); font-weight: 800; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .tab-item.active { background: var(--gold-accent); border-color: var(--gold-accent); color: black; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2); }
-
-        .history-list-area { padding: 0 16px; }
-        .scroll-list { display: flex; flex-direction: column; gap: 10px; }
-        .empty-msg { text-align: center; padding: 40px; opacity: 0.5; font-weight: 800; font-size: 14px; }
-
-        .history-item { 
-          background: var(--bg-card); border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; 
-          border: 1.5px solid var(--border-light); transition: 0.2s;
-        }
-        .history-item.win-highlight { border-color: var(--gold-accent); background: rgba(212, 175, 55, 0.03); }
-        
-        .item-icon { width: 44px; height: 44px; background: var(--border-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
-        .item-icon.win { background: rgba(212, 175, 55, 0.1); color: var(--gold-accent); }
-        
-        .item-info { flex: 1; }
-        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .room-type { font-size: 14px; font-weight: 900; color: var(--text-main); text-transform: uppercase; }
-        .status-pill { font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; border: 1px solid; opacity: 0.8; }
-        
-        .row-bottom { display: flex; justify-content: space-between; align-items: center; }
-        .date-stamp { font-size: 11px; font-weight: 700; opacity: 0.5; display: flex; align-items: center; gap: 4px; }
-        .win-badge { font-size: 9px; font-weight: 900; color: #22c55e; }
-
-        .item-price { font-size: 18px; font-weight: 900; color: #22c55e; }
-        .item-price .plus { font-size: 12px; margin-right: 2px; }
-      `}</style>
+      
     </div>
   );
 }
@@ -214,3 +161,4 @@ export default function HistoryPage() {
     </Suspense>
   );
 }
+
