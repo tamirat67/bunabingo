@@ -130,55 +130,8 @@ export default function LobbyPage() {
             </button>
           </div>
         </div>
-      </div>
-    );
-  };
-
   return (
     <div className="lobby-container">
-      <div className="lobby-header">
-        <div className="live-indicator">
-          <span className="live-dot pulse"></span>
-          <span>Live</span>
-        </div>
-        <div className="stats-bar">
-          <div className="stat-item bonus">
-            <Gift size={14} />
-            <span>Bonus: 0.00</span>
-          </div>
-          <div className="stat-item balance">
-            <WalletIcon size={14} />
-            <span>Balance: {Number(wallet?.balance ?? 0).toFixed(2)}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="section-title">
-        <Target size={18} color="#ef5350" />
-        <span>BINGO GAMES</span>
-      </div>
-
-      <div className="table-headers" style={{ display: 'grid', gridTemplateColumns: '80px 1fr 100px', padding: '0 16px', fontSize: '10px', opacity: 0.6, fontWeight: 'bold', marginBottom: '8px' }}>
-        <div>BET</div>
-        <div>WIN/PLAYER</div>
-        <div style={{ textAlign: 'right' }}>STATUS & JOIN</div>
-      </div>
-
-      <div className="rooms-stack">
-        {bingoRooms.map(r => renderGameRow(r))}
-      </div>
-
-      <div className="demo-section" style={{ marginTop: '10px' }}>
-        <div className="jackpot-bar">JACKPOT 0 / 1000</div>
-        <div className="demo-row">
-          <div className="demo-info">
-            <div className="bet-col">
-              <span className="bet-amount">FREE</span>
-              <span className="bet-label">DEMO</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <PlayCircle size={20} opacity={0.5} />
-              <div>
                 <div className="demo-title">Practice Mode</div>
                 <div className="demo-sub">No real money</div>
               </div>

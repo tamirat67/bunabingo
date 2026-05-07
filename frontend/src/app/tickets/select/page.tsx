@@ -56,26 +56,26 @@ function SelectionContent() {
       </div>
 
       <div className="stats-row-brown">
-        <div className="capsule-brown"><div className="l">Wallet</div><div className="v">{Number(balance).toFixed(0)}</div></div>
-        <div className="capsule-brown"><div className="l">Bonus</div><div className="v">0</div></div>
-        <div className="capsule-brown"><div className="l">Cards</div><div className="v">{selected.length} / 5</div></div>
-        <div className="capsule-brown total"><div className="l">Total</div><div className="v">{totalCost}</div></div>
+        <div className="capsule-brown"><div className="l">WALLET</div><div className="v">{Number(balance).toFixed(0)}</div></div>
+        <div className="capsule-brown"><div className="l">BONUS</div><div className="v">0</div></div>
+        <div className="capsule-brown"><div className="l">CARDS</div><div className="v">{selected.length} / 5</div></div>
+        <div className="capsule-brown total-box"><div className="l">TOTAL</div><div className="v">{totalCost}</div></div>
       </div>
 
-      <div className="jackpot-meter">
-        <div className="jm-top">
-          <div style={{display: 'flex', alignItems: 'center', gap: '4px'}}><Zap size={12} /> JACKPOT</div>
-          <div>808 / 1000</div>
+      <div className="jackpot-section-mini">
+        <div className="jackpot-labels">
+          <div className="l"><Zap size={14} /> JACKPOT</div>
+          <div className="v">808 / 1000</div>
         </div>
-        <div className="jm-bar-bg"><div className="jm-bar-fill"></div></div>
+        <div className="jackpot-progress-bg">
+          <div className="jackpot-progress-fill" style={{ width: '80.8%' }}></div>
+        </div>
       </div>
 
-      {showAlert && isInsufficient && (
-        <div className="alert-box" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffebee', border: '1px solid #ffcdd2', color: '#c62828', borderRadius: '12px', padding: '12px', marginBottom: '12px'}}>
-          <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
-            <span>⚠️ Please top up your wallet. Total cost: {totalCost} ETB.</span>
-          </div>
-          <X size={16} onClick={() => setShowAlert(false)} />
+      {isInsufficient && (
+        <div className="warning-bar-red">
+          <span>⚠️ Please top up your wallet. Total cost: {totalCost} ETB.</span>
+          <X size={16} />
         </div>
       )}
 

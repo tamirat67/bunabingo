@@ -46,6 +46,201 @@ body {
   align-items: center;
 }
 
+/* Lobby UI Enhancements */
+.lobby-header-stats {
+  background: #4B3621;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.dot-green {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #4CAF50;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.stats-group {
+  display: flex;
+  gap: 12px;
+}
+
+.gold-text {
+  color: #D4AF37;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: #FDF5E6;
+}
+
+.title-gold {
+  color: #D4AF37;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.table-header-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 16px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #8D6E63;
+  background: #FDF5E6;
+}
+
+.bingo-row-fit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: white;
+}
+
+.bet-part .num {
+  font-size: 28px;
+  font-weight: 900;
+  color: #3E2723;
+  line-height: 1;
+}
+
+.bet-part .unit {
+  font-size: 12px;
+  font-weight: bold;
+  color: #3E2723;
+}
+
+.prize-part {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prize-part .val {
+  font-size: 20px;
+  font-weight: bold;
+  color: #D4AF37;
+  line-height: 1;
+}
+
+.prize-part .cnt {
+  font-size: 11px;
+  color: #8D6E63;
+}
+
+.action-part {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.b-active {
+  background: #4285F4;
+  color: white;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.b-ready {
+  background: #E8F5E9;
+  color: #4CAF50;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.btn-join-3d {
+  background: #2ECC71;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 16px;
+  box-shadow: 0 4px 0 #27AE60;
+}
+
+.jackpot-divider {
+  background: #EEE3D0;
+  text-align: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: #8D6E63;
+  padding: 2px 0;
+}
+
+.demo-row-premium {
+  background: #4B3621;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 16px;
+  margin: 10px 0;
+}
+
+.demo-left .f {
+  font-size: 24px;
+  font-weight: 900;
+  color: white;
+}
+
+.demo-left .d {
+  font-size: 12px;
+  color: #D7CCC8;
+}
+
+.demo-mid .p {
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.demo-mid .n {
+  font-size: 11px;
+  color: #D7CCC8;
+}
+
+.demo-right {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-open {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.btn-try {
+  background: #D4AF37;
+  color: #4B3621;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
 .nav-item {
   display: flex;
   flex-direction: column;
@@ -56,6 +251,121 @@ body {
   font-weight: 700;
   gap: 4px;
   transition: all 0.2s;
+}
+
+/* Selection Page Enhancements */
+.number-grid-10 {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  padding: 10px;
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.grid-num {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fdf5e6;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  position: relative;
+  color: var(--coffee-dark);
+}
+
+.grid-num.selected {
+  background: var(--gold);
+}
+
+.check-overlay {
+  position: absolute;
+  font-size: 10px;
+  top: 2px;
+  left: 2px;
+}
+
+.total-box {
+  background: #6F4E37 !important;
+  color: white !important;
+}
+
+.warning-bar-red {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #FFE5E5;
+  border: 1px solid #FFCCCC;
+  color: #B22222;
+  padding: 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.selection-bottom-panel {
+  background: #FDF5E6;
+  border-top: 1px solid #E9E9EB;
+  padding: 16px;
+  margin: 0 -20px -20px -20px;
+}
+
+.selection-actions-row {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-refresh-blue {
+  background: #4285F4;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+}
+
+.btn-join-final {
+  flex: 1;
+  background: #D4AF37;
+  color: #4B3621;
+  border: none;
+  border-radius: 12px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 0 #B8860B;
+}
+
+.jackpot-section-mini {
+  margin-bottom: 16px;
+}
+
+.jackpot-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.jackpot-progress-bg {
+  height: 8px;
+  background: #E9E9EB;
+  border-radius: 4px;
+}
+
+.jackpot-progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 4px;
 }
 
 /* Practice Mode (Demo) */
