@@ -228,64 +228,6 @@ export default function LobbyPage() {
 
       <Navbar />
 
-      <style jsx>{`
-        .lobby-container { min-height: 100vh; background: var(--bg-main); padding-bottom: 100px; color: var(--text-main); transition: all 0.3s; }
-        
-        .lobby-nav-top { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg-nav); color: white; border-bottom: 1px solid var(--border-light); }
-        .top-left { display: flex; align-items: center; gap: 6px; }
-        .live-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; }
-        .live-txt { font-size: 12px; font-weight: 800; opacity: 0.8; }
-        .pulse { animation: pulse 2s infinite; }
-        
-        .top-right { display: flex; gap: 15px; }
-        .top-stat { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 900; }
-        .gold-icon { color: #facc15; opacity: 0.8; }
-        .yellow { color: #facc15; }
-        .lbl { opacity: 0.6; font-size: 11px; }
-
-        .section-header-simple { padding: 20px 16px 10px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 900; color: var(--gold-accent); letter-spacing: 0.5px; }
-        .icon-coffee { color: var(--gold-accent); }
-        .mt-20 { margin-top: 10px; }
-        
-        .table-headers { display: grid; grid-template-columns: 80px 1fr 120px; padding: 0 16px 8px; font-size: 11px; font-weight: 800; opacity: 0.4; }
-        
-        .room-row-simple { display: grid; grid-template-columns: 80px 1fr 120px; padding: 16px; align-items: center; border-bottom: 1px solid var(--border-light); background: var(--bg-card); }
-        .col-bet-simple { text-align: left; }
-        .col-bet-simple .v { font-size: 28px; font-weight: 900; line-height: 1; color: var(--text-main); }
-        .col-bet-simple .l { font-size: 10px; font-weight: 800; opacity: 0.6; }
-        .room-tag { font-size: 9px; font-weight: 900; color: var(--gold-accent); text-transform: uppercase; margin-top: 4px; }
-
-        .col-win-simple { display: flex; align-items: center; gap: 10px; padding: 0 10px; }
-        .win-info .v { font-size: 20px; font-weight: 900; line-height: 1; }
-        .win-info .p { font-size: 10px; opacity: 0.5; font-weight: 700; }
-        .trophy-gold { color: #D4AF37; }
-        .trophy-muted { color: #ccc; }
-
-        .col-action-simple { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
-        .badges-stack { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-        .badge-active { background: #3b82f6; color: white; font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; }
-        .badge-ready { background: var(--jackpot-bg); color: #22c55e; font-size: 9px; font-weight: 900; padding: 4px 8px; border-radius: 6px; }
-
-        .btn-join-simple { background: #22c55e; color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 0 #16a34a; }
-        .btn-join-simple.outline { background: transparent; color: #22c55e; border: 2px solid #22c55e; box-shadow: none; padding: 8px 16px; }
-        .btn-join-simple:active { transform: translateY(2px); box-shadow: none; }
-
-        .jackpot-divider { background: var(--jackpot-bg); color: var(--text-main); font-size: 9px; font-weight: 900; text-align: center; padding: 3px; letter-spacing: 1px; border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); opacity: 0.8; }
-
-        /* DEMO SIMPLE */
-        .demo-row-simple { display: flex; align-items: center; justify-content: space-between; padding: 20px 16px; background: var(--bg-nav); color: white; cursor: pointer; border-bottom: 1px solid var(--border-light); }
-        .demo-left .f { font-size: 24px; font-weight: 900; line-height: 1; }
-        .demo-left .d { font-size: 10px; opacity: 0.6; letter-spacing: 2px; }
-        .demo-mid { display: flex; align-items: center; gap: 10px; }
-        .p-icon { opacity: 0.5; color: var(--gold-accent); }
-        .m-info .t { font-size: 15px; font-weight: 900; }
-        .m-info .s { font-size: 10px; opacity: 0.6; font-weight: 700; }
-        .demo-right { display: flex; gap: 6px; }
-        .btn-open-mini { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 900; }
-        .btn-try-mini { background: var(--gold-accent); border: none; color: black; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 900; box-shadow: 0 4px 0 #b8962f; }
-
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-      `}</style>
     </div>
   );
 }
