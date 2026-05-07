@@ -32,7 +32,7 @@ export default function LobbyPage() {
   if (!mounted) return null;
 
   if (user && !user.phoneNumber) {
-    return <RegistrationOverlay onComplete={() => getMe().then(setUser)} />;
+    return <RegistrationOverlay onComplete={(updatedUser: any) => setUser(updatedUser)} />;
   }
 
   const bingoRooms: Room[] = [

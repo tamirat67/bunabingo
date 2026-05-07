@@ -17,9 +17,9 @@ export default function RegistrationOverlay({ onComplete }: { onComplete: () => 
     setLoading(true);
     app.requestContact((ok: boolean, response: any) => {
       if (ok && response?.responseLine) {
-        // Telegram returns contact info
-        verifyPhone(response).then(() => {
-          onComplete();
+        verifyPhone(response).then((data: any) => {
+          // data.user contains the updated user with phoneNumber
+          onComplete(data.user);
         }).catch(err => {
           alert('Verification failed. Please try again.');
           console.error(err);
