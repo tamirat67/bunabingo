@@ -1,0 +1,4 @@
+# Plesk Node.js Passenger Configuration
+PassengerEnabled on
+PassengerAppType node
+PassengerStartupFile app.js

@@ -137,3 +137,10 @@ export async function banUser(userId: string, adminId: string, reason: string) {
 export async function isAdmin(telegramId: number): Promise<boolean> {
   return config.bot.adminIds.includes(telegramId.toString());
 }
+
+export async function updateUserPhone(telegramId: number, phoneNumber: string) {
+  return prisma.user.update({
+    where: { telegramId: BigInt(telegramId) },
+    data: { phoneNumber },
+  });
+}

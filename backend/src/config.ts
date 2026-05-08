@@ -41,11 +41,20 @@ export const config = {
       20: 5,   // 20+ players → 5s
     } as Record<number, number>,
     drawIntervalMs: 3000,         // 3 seconds between draws
-    houseEdgePercent: parseFloat(process.env.HOUSE_EDGE_PERCENT || '10'),
+    houseEdgePercent: parseFloat(process.env.HOUSE_EDGE_PERCENT || '25'),
     totalNumbers: 75,             // standard bingo 1-75
   },
   withdrawal: {
-    minAmount: parseFloat(process.env.MIN_WITHDRAWAL || '50'),
+    minAmount: parseFloat(process.env.MIN_WITHDRAWAL || '200'),
     maxAmount: parseFloat(process.env.MAX_WITHDRAWAL || '10000'),
+  },
+  payment: {
+    receiverName:  process.env.PAYMENT_RECEIVER_NAME   || 'Tame',
+    receiverPhone: process.env.PAYMENT_RECEIVER_PHONE  || '251966129707',
+    telebirrPhone: process.env.PAYMENT_TELEBIRR_PHONE  || '0997688294',
+    supportAgent1: process.env.PAYMENT_SUPPORT_AGENT1  || '@bunabingosupport',
+    supportAgent2: process.env.PAYMENT_SUPPORT_AGENT2  || '@bunabingosupport2',
+    bunaEngineHost: process.env.BUNA_ENGINE_HOST || '',
+    bunaEngineKey:  process.env.BUNA_ENGINE_KEY  || '',
   },
 };

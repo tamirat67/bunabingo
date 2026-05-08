@@ -33,6 +33,7 @@ export async function handleWithdraw(ctx: Context) {
 }
 
 export async function handleSupport(ctx: Context) {
+  if (ctx.callbackQuery) await ctx.answerCbQuery();
   await ctx.reply(
     `🆘 *Support*\n\n` +
     `Need help? Here's how to reach us:\n\n` +
@@ -46,7 +47,7 @@ export async function handleSupport(ctx: Context) {
     {
       parse_mode: 'Markdown',
       ...Markup.inlineKeyboard([
-        [Markup.button.webApp('🆘 Open Support', `${process.env.MINI_APP_URL}/support`)],
+        [Markup.button.webApp('🆘 Open Support', `${config.bot.miniAppUrl}/support`)],
       ]),
     }
   );

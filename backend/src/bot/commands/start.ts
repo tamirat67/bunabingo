@@ -17,37 +17,42 @@ export async function handleStart(ctx: Context) {
 
     await getOrCreateWallet(user.id);
 
-    const isNewUser = (Date.now() - user.registeredAt.getTime()) < 5000;
-    const greeting = isNewUser ? '🏆 <b>Buna Bingo — Wake Up to a Jackpot!</b> ☀️' : `👑 <b>Welcome back to The Royal Buna Way, ${user.firstName}!</b>`;
+    if (!user.phoneNumber) {
+      logger.info(`[Bot] User ${tgUser.id} has no phone. Requesting contact...`);
+      return ctx.reply(
+        `👋 Welcome, <b>${tgUser.first_name}</b>!\n\nTo ensure a secure experience and prevent multiple accounts, please share your phone number to continue.`,
+        {
+          parse_mode: 'HTML',
+          ...Markup.keyboard([
+            [Markup.button.contactRequest('📱 Share Phone Number')]
+          ]).oneTime().resize()
+        }
+      );
+    }
 
-    logger.info(`[Bot] Sending start message to ${user.id} (${user.firstName})`);
+    logger.info(`[Bot] Sending start message to ${tgUser.id} (${tgUser.first_name})`);
     
     await ctx.reply(
-      `${greeting}\n\n` +
-      `🎰 <b>Buna Bingo: Rich Flavor, Golden Wins.</b> ☕️💰\n\n` +
-      `✨ <i>The Perfect Blend of Luck and Luxury.</i> ✨\n\n` +
-      `🎮 Games start instantly when players join\n` +
-      `💰 Win automatically — prizes sent to your wallet\n` +
-      `🔐 Secure · Fair · 100% Automated\n\n` +
-      `Sip, Play, Win: The Royal Buna Way! 👇`,
+      `Welcome to Addis Bingo! Choose an option below.`,
       {
         parse_mode: 'HTML',
         ...Markup.inlineKeyboard([
-          [Markup.button.webApp('🎮 Open Mini App', config.bot.miniAppUrl)],
-          [Markup.button.url('🔗 Direct Link (Fallback)', config.bot.miniAppUrl)],
           [
-            Markup.button.callback('💰 Balance', 'cmd_balance'),
-            Markup.button.callback('🎫 Buy Ticket', 'cmd_buy'),
+            Markup.button.callback('Play Bingo 🎮', 'cmd_play_bingo'),
+            Markup.button.callback('Play Spin 🎮', 'cmd_play_spin'),
           ],
           [
-            Markup.button.callback('💳 Deposit', 'cmd_deposit'),
-            Markup.button.callback('💸 Withdraw', 'cmd_withdraw'),
+            Markup.button.webApp('Register 📝', config.bot.miniAppUrl),
+            Markup.button.callback('Deposit 💵', 'cmd_deposit'),
           ],
           [
-            Markup.button.callback('🃏 My Cards', 'cmd_cards'),
-            Markup.button.callback('📊 Results', 'cmd_results'),
+            Markup.button.callback('Check Balance 💰', 'cmd_balance'),
+            Markup.button.callback('Contact support 📞', 'cmd_support'),
           ],
-          [Markup.button.callback('🆘 Support', 'cmd_support')],
+          [
+            Markup.button.callback('Instruction 📖', 'cmd_instructions'),
+            Markup.button.url('Invite ✉️', `https://t.me/share/url?url=${encodeURIComponent(config.bot.miniAppUrl)}&text=${encodeURIComponent('Join me on Addis Bingo! 🎰☕️')}`),
+          ],
         ]),
       }
     );

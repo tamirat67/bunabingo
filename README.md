@@ -96,7 +96,7 @@ cd frontend && npm run dev
 | Four Corners | 15% |
 | Full House | 50% |
 
-House edge: 10% of ticket price.
+House edge: 25% of ticket price.
 
 ---
 
@@ -109,13 +109,12 @@ BOT_TOKEN=
 ADMIN_TELEGRAM_IDS=123456789
 MINI_APP_URL=https://your-frontend.vercel.app
 DATABASE_URL=postgresql://buna:bingo2024@localhost:5432/buna_bingo
-PORT=3001
-JWT_SECRET=
-PUSHER_APP_ID=
-PUSHER_KEY=
-PUSHER_SECRET=
-PUSHER_CLUSTER=mt1
-WEBHOOK_URL=https://your-backend.railway.app
+TICKET_PRICE_CASUAL=10
+TICKET_PRICE_STANDARD=20
+TICKET_PRICE_PRO=50
+TICKET_PRICE_JACKPOT=100
+MIN_WITHDRAWAL=200
+WEBHOOK_URL=https://bbot.aabte.com.et
 ```
 
 ### Frontend `.env.local`

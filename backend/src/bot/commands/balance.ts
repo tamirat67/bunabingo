@@ -9,6 +9,7 @@ export async function handleBalance(ctx: Context) {
     const user = await getUserByTelegramId(tgUser.id);
     if (!user) return ctx.reply('❌ Please /start first to register.');
 
+    if (ctx.callbackQuery) await ctx.answerCbQuery();
     const wallet = await getOrCreateWallet(user.id);
 
     await ctx.reply(
