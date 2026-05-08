@@ -48,6 +48,13 @@ export async function findOrCreateUser(
           where: { id: user.referredById },
           data: { referralCount: { increment: 1 } }
         });
+        
+        // Award referral bonus to parent wallet
+        await prisma.wallet.update({
+          where: { userId: user.referredById },
+          data: { balance: { increment: 2 } } // 2 ETB Bonus
+        });
+        logger.info(`[Auth] Referral bonus awarded to parent ${user.referredById}`);
       }
       logger.info(`🎉 [Auth] New user registered: ${user.firstName} (TG: ${telegramId})`);
     } else {

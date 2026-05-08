@@ -6,6 +6,7 @@ import { logger } from '../../lib/logger';
 
 export async function handleStart(ctx: Context) {
   const tgUser = ctx.from!;
+  const referrerId = (ctx as any).startPayload; // Deep link payload (e.g. from ?start=USER_ID)
 
   try {
     const user = await findOrCreateUser({
@@ -13,7 +14,7 @@ export async function handleStart(ctx: Context) {
       username: tgUser.username,
       first_name: tgUser.first_name,
       last_name: tgUser.last_name,
-    });
+    }, referrerId);
 
     await getOrCreateWallet(user.id);
 
@@ -29,6 +30,9 @@ export async function handleStart(ctx: Context) {
         }
       );
     }
+
+    const inviteLink = `https://t.me/${ctx.botInfo.username}?start=${user.id}`;
+    const shareText = encodeURIComponent(`Join me on Buna Bingo! 🎰☕️ Get 2 ETB bonus when you join!\n\nPlay here: ${inviteLink}`);
 
     logger.info(`[Bot] Sending start message to ${tgUser.id} (${tgUser.first_name})`);
     
@@ -51,11 +55,11 @@ export async function handleStart(ctx: Context) {
           ],
           [
             Markup.button.callback('Check Balance 💰', 'cmd_balance'),
-            Markup.button.callback('Contact support 📞', 'cmd_support'),
+            Markup.button.url('Contact support 📞', 'https://t.me/bunabingosupport'),
           ],
           [
             Markup.button.callback('Instruction 📖', 'cmd_instructions'),
-            Markup.button.url('Invite ✉️', `https://t.me/share/url?url=${encodeURIComponent(config.bot.miniAppUrl)}&text=${encodeURIComponent('Join me on Buna Bingo! 🎰☕️')}`),
+            Markup.button.url('Invite ✉️', `https://t.me/share/url?url=${inviteLink}&text=${shareText}`),
           ],
         ]),
       }

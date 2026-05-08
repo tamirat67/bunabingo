@@ -33,17 +33,10 @@ export async function handleWithdraw(ctx: Context) {
 }
 
 export async function handleSupport(ctx: Context) {
-  if (ctx.callbackQuery) await ctx.answerCbQuery();
   await ctx.reply(
-    `🆘 *Support*\n\n` +
-    `Need help? Here's how to reach us:\n\n` +
-    `📧 Issues: Use the Mini App support form\n` +
-    `⏱ Response time: Within 24 hours\n\n` +
-    `*Common Issues:*\n` +
-    `• Deposit not credited → Submit reference + screenshot\n` +
-    `• Can't join game → Check wallet balance (/balance)\n` +
-    `• Withdrawal pending → Allow up to 2 hours\n\n` +
-    `📱 For fastest support, use the Mini App 👇`,
+    `📞 <b>Customer Support</b>\n\n` +
+    `Need help? Our agents are available 24/7 to assist you with deposits, withdrawals, or game rules.\n\n` +
+    `💬 Contact us here: <b>@bunabingosupport</b>`,
     {
       parse_mode: 'Markdown',
       ...Markup.inlineKeyboard([
