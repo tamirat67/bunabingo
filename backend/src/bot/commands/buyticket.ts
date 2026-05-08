@@ -16,6 +16,18 @@ export async function handleBuyTicket(ctx: Context) {
   try {
     const user = await getUserByTelegramId(tgUser.id);
     if (!user) return ctx.reply('❌ Please /start first to register.');
+    
+    if (!user.phoneNumber) {
+      return ctx.reply(
+        `📱 <b>Phone Verification Required</b>\n\nPlease share your phone number using the button below before you can join a game.`,
+        {
+          parse_mode: 'HTML',
+          ...Markup.keyboard([
+            [Markup.button.contactRequest('📱 Share Phone Number')]
+          ]).oneTime().resize()
+        }
+      );
+    }
 
     const rooms = await getRooms();
 
@@ -58,6 +70,19 @@ export async function handleJoinRoom(ctx: Context, roomType: string) {
     if (!user) return ctx.answerCbQuery('❌ Please /start first.');
     if (user.status === 'BANNED') return ctx.answerCbQuery('❌ Account banned.');
     if (user.status === 'SUSPENDED') return ctx.answerCbQuery('❌ Account suspended.');
+    
+    if (!user.phoneNumber) {
+      await ctx.answerCbQuery('❌ Phone verification required!');
+      return ctx.reply(
+        `📱 <b>Phone Verification Required</b>\n\nPlease share your phone number to join games.`,
+        {
+          parse_mode: 'HTML',
+          ...Markup.keyboard([
+            [Markup.button.contactRequest('📱 Share Phone Number')]
+          ]).oneTime().resize()
+        }
+      );
+    }
 
     const { getRoomWithActiveGame } = await import('../../game/room.manager');
     const room = await getRoomWithActiveGame(roomType as any);
