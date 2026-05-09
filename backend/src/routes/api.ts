@@ -483,6 +483,18 @@ router.get('/history', async (req: Request, res: Response) => {
   res.json(winners);
 });
 
+router.get('/history/global', async (req: Request, res: Response) => {
+  const winners = await prisma.winner.findMany({
+    include: { 
+      game: { include: { room: true } },
+      user: { select: { firstName: true, telegramUsername: true } }
+    },
+    orderBy: { paidAt: 'desc' },
+    take: 50,
+  });
+  res.json(winners);
+});
+
 // ─── Public Leaderboard ───────────────────────────────────────
 router.get('/leaderboard', async (req: Request, res: Response) => {
   const timeframe = (req.query.timeframe as string) || 'today';

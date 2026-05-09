@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { getLeaderboard } from '../../lib/api';
-import Navbar from '../../components/Navbar';
 
 export default function ScoresPage() {
   const [board, setBoard] = useState('score');
@@ -12,63 +11,58 @@ export default function ScoresPage() {
   useEffect(() => {
     setMounted(true);
     getLeaderboard(time).then(setPlayers).catch(() => {
-      // Fallback to demo data if API fails
-      setPlayers([
-        { firstName: 'HI 5', phoneNumber: '251981234501', wins: 39 },
-        { firstName: 'Medu', phoneNumber: '251921234677', wins: 21 },
-        { firstName: 'Ablel', phoneNumber: '251981234848', wins: 20 },
-      ]);
+      // Fallback if API fails
+      setPlayers([]);
     });
-  }, [time, mounted]);
+  }, [time]);
 
   if (!mounted) return null;
 
-  const maskPhone = (phone: string) => {
-    if (!phone) return '****';
-    return `${phone.slice(0, 5)}**${phone.slice(-5)}`;
-  };
-
-  const colors = ['#ffa726', '#66bb6a', '#42a5f5', '#ef5350', '#ab47bc'];
+  const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'];
 
   return (
     <div className="scores-container">
-      <div className="board-toggle">
-        <div className={`toggle-pill ${board === 'score' ? 'active' : ''}`} onClick={() => setBoard('score')}>Score Board</div>
-        <div className={`toggle-pill ${board === 'bonus' ? 'active' : ''}`} onClick={() => setBoard('bonus')}>Bonus Board</div>
+      <div className="s-board-toggle">
+        <div className={`s-toggle-pill ${board === 'score' ? 'active' : ''}`} onClick={() => setBoard('score')}>Score Board</div>
+        <div className={`s-toggle-pill ${board === 'bonus' ? 'active' : ''}`} onClick={() => setBoard('bonus')}>Bonus Board</div>
       </div>
 
-      <div className="time-filters">
-        <div className={`time-pill ${time === 'today' ? 'active' : ''}`} onClick={() => setTime('today')}>Today</div>
-        <div className={`time-pill ${time === 'week' ? 'active' : ''}`} onClick={() => setTime('week')}>This Week</div>
-        <div className={`time-pill ${time === 'month' ? 'active' : ''}`} onClick={() => setTime('month')}>This Month</div>
+      <div className="s-time-filters">
+        <div className={`s-time-pill ${time === 'today' ? 'active' : ''}`} onClick={() => setTime('today')}>Today</div>
+        <div className={`s-time-pill ${time === 'week' ? 'active' : ''}`} onClick={() => setTime('week')}>This Week</div>
+        <div className={`s-time-pill ${time === 'month' ? 'active' : ''}`} onClick={() => setTime('month')}>This Month</div>
       </div>
 
-      <div className="top-avatars">
-        {players.slice(0, 5).map((p, i) => (
-          <div key={i} className="mini-avatar" style={{background: colors[i % colors.length]}}>
-            {p.firstName?.slice(0, 2).toUpperCase() || 'P'}
-          </div>
-        ))}
-      </div>
-
-      <div style={{textAlign: 'center', fontSize: '13px', fontWeight: 'bold', margin: '10px 0'}}>Top Players (100)</div>
-
-      <div className="leader-list">
-        {players.map((p, i) => (
-          <div key={i} className="leader-row">
-            <div className="leader-info">
-              <div className="row-avatar" style={{background: colors[i % colors.length]}}>
-                {p.firstName?.slice(0, 2).toUpperCase() || 'P'}
-              </div>
-              <div className="leader-name">
-                <span className="name-txt">{p.firstName}</span>
-                <span className="phone-sub">{maskPhone(p.phoneNumber)}</span>
-              </div>
+      <div className="s-top-avatars">
+        {players.slice(0, 5).map((p, i) => {
+          const initial = p.name?.substring(0, 2).toUpperCase() || 'P';
+          return (
+            <div key={i} className="s-mini-avatar" style={{ background: colors[i % colors.length] }}>
+              {initial}
             </div>
-            <div className="leader-score">{p.wins || 0}</div>
-          </div>
-        ))}
-        {players.length === 0 && <div className="empty-state">Loading leaderboard...</div>}
+          );
+        })}
+      </div>
+
+      <div className="s-top-title">Top Players ({players.length || 100})</div>
+
+      <div className="s-leader-list">
+        {players.map((p, i) => {
+          const initial = p.name?.substring(0, 2).toUpperCase() || 'P';
+          return (
+            <div key={i} className="s-leader-row">
+              <div className="s-row-avatar" style={{ background: colors[i % colors.length] }}>
+                {initial}
+              </div>
+              <div className="s-leader-info">
+                <span className="s-name">{p.name}</span>
+                <span className="s-phone">{p.tgId}</span>
+              </div>
+              <div className="s-score">{p.score}</div>
+            </div>
+          );
+        })}
+        {players.length === 0 && <div className="empty-state">No players found</div>}
       </div>
     </div>
   );
