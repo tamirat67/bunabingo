@@ -6,13 +6,13 @@ export async function handlePlayBingoMenu(ctx: Context) {
 
   const keyboard = Markup.inlineKeyboard([
     [
-      Markup.button.webApp('🎮 Play Bingo Lobby', `${config.bot.miniAppUrl}/play/bingo`),
+      Markup.button.webApp('🎮 Play Bingo Lobby', `${config.bot.miniAppUrl}/`),
     ],
     [
-      Markup.button.webApp('🎮 Start New Game', `${config.bot.miniAppUrl}/play/lobby`),
+      Markup.button.webApp('🎮 Check My Tickets', `${config.bot.miniAppUrl}/tickets`),
     ],
     [
-      Markup.button.webApp('🎮 Play Demo Mode', `${config.bot.miniAppUrl}/play/bingo?mode=demo`),
+      Markup.button.webApp('🎮 Play Demo Mode', `${config.bot.miniAppUrl}/game?mode=demo`),
     ],
   ]);
 
