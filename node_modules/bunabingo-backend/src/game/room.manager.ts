@@ -38,6 +38,30 @@ export async function initializeRooms(): Promise<void> {
       minPlayers: config.game.minPlayers.JACKPOT,
       maxPlayers: 500,
     },
+    {
+      type: RoomType.SPIN_10,
+      ticketPrice: 10,
+      minPlayers: 1,
+      maxPlayers: 1,
+    },
+    {
+      type: RoomType.SPIN_20,
+      ticketPrice: 20,
+      minPlayers: 1,
+      maxPlayers: 1,
+    },
+    {
+      type: RoomType.SPIN_50,
+      ticketPrice: 50,
+      minPlayers: 1,
+      maxPlayers: 1,
+    },
+    {
+      type: RoomType.SPIN_100,
+      ticketPrice: 100,
+      minPlayers: 1,
+      maxPlayers: 1,
+    },
   ];
 
   for (const roomData of rooms) {

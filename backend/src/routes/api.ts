@@ -302,6 +302,137 @@ router.post('/games/join', joinGameLimiter, async (req: Request, res: Response) 
   }
 });
 
+router.post('/games/:gameId/bingo', async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { gameId } = req.params;
+  const { checkWin } = await import('../game/card.generator');
+  
+  try {
+    const game = await prisma.game.findUnique({
+      where: { id: gameId },
+      include: { drawHistory: true }
+    });
+    
+    if (!game) return res.status(404).json({ error: 'Game not found' });
+    
+    const tickets = await prisma.ticket.findMany({
+      where: { userId: user.id, gameId }
+    });
+    
+    const drawnNumbers = game.drawHistory.map(d => d.number);
+    let won = false;
+    
+    for (const ticket of tickets) {
+      const result = checkWin(ticket.card as any, drawnNumbers);
+      if (result.won) {
+        won = true;
+        break;
+      }
+    }
+    
+    res.json({ success: true, won });
+  } catch (err) {
+    res.status(500).json({ error: 'Verification failed' });
+  }
+});
+
+router.post('/game/spin', async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { stake } = req.body;
+  const { Decimal } = await import('@prisma/client/runtime/library');
+  
+  if (!user) return res.status(401).json({ error: 'Not authorized' });
+  
+  try {
+    const wallet = await prisma.wallet.findUnique({ where: { userId: user.id } });
+    if (!wallet || Number(wallet.balance) < stake) {
+      return res.status(400).json({ error: 'Insufficient balance' });
+    }
+    
+    const prizes = [
+      { type: 'free', value: 0,   weight: 10 },
+      { type: 'win',  value: 5,   weight: 20 },
+      { type: 'win',  value: 10,  weight: 20 },
+      { type: 'win',  value: 20,  weight: 15 },
+      { type: 'win',  value: 30,  weight: 10 },
+      { type: 'win',  value: 40,  weight: 5 },
+      { type: 'lose', value: 0,   weight: 10 },
+      { type: 'win',  value: 50,  weight: 5 },
+      { type: 'win',  value: 70,  weight: 3 },
+      { type: 'win',  value: 100, weight: 2 },
+    ];
+    
+    const totalWeight = prizes.reduce((acc, p) => acc + p.weight, 0);
+    let random = Math.random() * totalWeight;
+    let winIdx = 0;
+    for (let i = 0; i < prizes.length; i++) {
+      if (random < prizes[i].weight) {
+        winIdx = i;
+        break;
+      }
+      random -= prizes[i].weight;
+    }
+    
+    const win = prizes[winIdx];
+    const prizeAmount = new Decimal(win.value);
+    
+    const result = await prisma.$transaction(async (tx) => {
+       await tx.wallet.update({
+         where: { userId: user.id },
+         data: { 
+           balance: { decrement: stake },
+           totalSpent: { increment: stake }
+         }
+       });
+       
+       await tx.transaction.create({
+         data: {
+           userId: user.id,
+           type: 'TICKET_PURCHASE',
+           amount: stake,
+           balanceBefore: wallet.balance,
+           balanceAfter: new Decimal(wallet.balance).sub(stake),
+           status: 'COMPLETED',
+           description: `Spin Game: ${stake} ETB`
+         }
+       });
+       
+       if (win.type === 'win' && win.value > 0) {
+         const midBalance = new Decimal(wallet.balance).sub(stake);
+         const finalBalance = midBalance.add(prizeAmount);
+         
+         await tx.wallet.update({
+           where: { userId: user.id },
+           data: { 
+             balance: finalBalance,
+             totalWon: { increment: prizeAmount }
+           }
+         });
+         
+         await tx.transaction.create({
+           data: {
+             userId: user.id,
+             type: 'PRIZE_WIN',
+             amount: prizeAmount,
+             balanceBefore: midBalance,
+             balanceAfter: finalBalance,
+             status: 'COMPLETED',
+             description: `Spin Win: ${win.value} ETB`
+           }
+         });
+       }
+       
+       return { winIdx, prizeAmount };
+    });
+    
+    res.json({ success: true, winIdx: result.winIdx, prizeAmount: result.prizeAmount });
+    
+  } catch (err: any) {
+    logger.error('Spin error:', err);
+    res.status(500).json({ error: 'Spin failed' });
+  }
+});
+
 router.get('/games/:gameId', async (req: Request, res: Response) => {
   const game = await prisma.game.findUnique({
     where: { id: req.params.gameId },

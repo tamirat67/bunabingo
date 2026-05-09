@@ -145,26 +145,29 @@ export default function LobbyPage() {
           <span style={{textAlign: 'right'}}>STATUS & JOIN</span>
         </div>
         
-        {/* Spin Row Match */}
-        <div className="bingo-row-fit" onClick={() => {}}>
-          <div className="bet-part">
-            <div className="num">10</div>
-            <div className="unit">ETB</div>
-          </div>
-          <div className="prize-part">
-            <Trophy size={24} color="#8D6E63" />
-            <div className="p-info">
-              <div className="val">0</div>
-              <div className="cnt">0 players</div>
+        <div className="games-list">
+          {[10, 20, 50, 100].map((stake) => (
+            <div key={stake} className="bingo-row-fit spin-row" onClick={() => router.push(`/play/spin?stake=${stake}`)}>
+              <div className="bet-part">
+                <div className="num">{stake}</div>
+                <div className="unit">ETB</div>
+              </div>
+              <div className="prize-part">
+                <Trophy size={24} color="#8D6E63" />
+                <div className="p-info">
+                  <div className="val">WHEEL</div>
+                  <div className="cnt">Instant Win</div>
+                </div>
+              </div>
+              <div className="action-part">
+                <div className="badges">
+                  <div className="b-active">LIVE 24/7</div>
+                  <div className="b-ready">READY</div>
+                </div>
+                <button className="btn-join-3d spin-btn">SPIN</button>
+              </div>
             </div>
-          </div>
-          <div className="action-part">
-            <div className="badges">
-              <div className="b-active">ACTIVE 0</div>
-              <div className="b-ready">READY</div>
-            </div>
-            <button className="btn-join-3d">JOIN</button>
-          </div>
+          ))}
         </div>
       </div>
       <Navbar />
