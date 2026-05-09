@@ -46,7 +46,7 @@ export async function handleStart(ctx: Context) {
         parse_mode: 'HTML',
         ...Markup.inlineKeyboard([
           [
-            Markup.button.webApp('Play Bingo 🎮', `${config.bot.miniAppUrl}/`),
+            Markup.button.webApp('Play Bingo 🎮', `${config.bot.miniAppUrl}/game`),
             Markup.button.webApp('Wallet 💰', `${config.bot.miniAppUrl}/wallet`),
           ],
           [
