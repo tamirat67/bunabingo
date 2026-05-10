@@ -9,17 +9,17 @@ export async function handlePlayBingoMenu(ctx: Context) {
     Markup.inlineKeyboard([
       // ── Row 1 ────────────────────────────────────────────────────────────────
       [
-        Markup.button.webApp('🎮 Play Bingo 10',  `${config.bot.miniAppUrl}/tickets/select?type=CASUAL&price=10`),
-        Markup.button.webApp('🎮 Play Bingo 20',  `${config.bot.miniAppUrl}/tickets/select?type=STANDARD&price=20`),
+        Markup.button.webApp('🎮 Play Bingo 10',   `${config.bot.miniAppUrl}/`),
+        Markup.button.webApp('🎮 Play Bingo 20',   `${config.bot.miniAppUrl}/`),
       ],
       // ── Row 2 ────────────────────────────────────────────────────────────────
       [
-        Markup.button.webApp('🎮 Play Bingo 50',  `${config.bot.miniAppUrl}/tickets/select?type=PRO&price=50`),
-        Markup.button.webApp('🎮 Play Bingo 100', `${config.bot.miniAppUrl}/tickets/select?type=JACKPOT&price=100`),
+        Markup.button.webApp('🎮 Play Bingo 50',   `${config.bot.miniAppUrl}/`),
+        Markup.button.webApp('🎮 Play Bingo 100',  `${config.bot.miniAppUrl}/`),
       ],
       // ── Row 3: Demo (full-width) ──────────────────────────────────────────────
       [
-        Markup.button.webApp('🎮 Play Bingo Demo', `${config.bot.miniAppUrl}/tickets/select?type=DEMO&price=0`),
+        Markup.button.webApp('🎮 Play Bingo Demo', `${config.bot.miniAppUrl}/`),
       ],
     ])
   );

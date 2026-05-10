@@ -9,17 +9,17 @@ export async function handlePlaySpinMenu(ctx: Context) {
     Markup.inlineKeyboard([
       // ── Row 1 ────────────────────────────────────────────────────────────────
       [
-        Markup.button.webApp('🎮 Play Spin 10',  `${config.bot.miniAppUrl}/tickets/select?type=SPIN_10&price=10`),
-        Markup.button.webApp('🎮 Play Spin 20',  `${config.bot.miniAppUrl}/tickets/select?type=SPIN_20&price=20`),
+        Markup.button.webApp('🎮 Play Spin 10',   `${config.bot.miniAppUrl}/`),
+        Markup.button.webApp('🎮 Play Spin 20',   `${config.bot.miniAppUrl}/`),
       ],
       // ── Row 2 ────────────────────────────────────────────────────────────────
       [
-        Markup.button.webApp('🎮 Play Spin 50',  `${config.bot.miniAppUrl}/tickets/select?type=SPIN_50&price=50`),
-        Markup.button.webApp('🎮 Play Spin 100', `${config.bot.miniAppUrl}/tickets/select?type=SPIN_100&price=100`),
+        Markup.button.webApp('🎮 Play Spin 50',   `${config.bot.miniAppUrl}/`),
+        Markup.button.webApp('🎮 Play Spin 100',  `${config.bot.miniAppUrl}/`),
       ],
       // ── Row 3: Demo (full-width) ──────────────────────────────────────────────
       [
-        Markup.button.webApp('🎮 Play Spin Demo', `${config.bot.miniAppUrl}/tickets/select?type=DEMO&price=0`),
+        Markup.button.webApp('🎮 Play Spin Demo', `${config.bot.miniAppUrl}/`),
       ],
     ])
   );
