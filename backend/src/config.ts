@@ -41,7 +41,7 @@ export const config = {
       20: 5,   // 20+ players → 5s
     } as Record<number, number>,
     drawIntervalMs: 3000,         // 3 seconds between draws
-    houseEdgePercent: parseFloat(process.env.HOUSE_EDGE_PERCENT || '25'),
+    houseEdgePercent: parseFloat(process.env.HOUSE_EDGE_PERCENT || '20'),
     totalNumbers: 75,             // standard bingo 1-75
   },
   withdrawal: {
