@@ -81,22 +81,22 @@ async function main() {
       // ── Register commands in Telegram (command picker) ──────────────────────
       try {
         await bot.telegram.setMyCommands([
-          // Core
+          // Core / Gaming
           { command: 'start',             description: 'Start the bot' },
           { command: 'playbingo',         description: 'Start playing Bingo' },
           { command: 'playspin',          description: 'Start playing Spin' },
           { command: 'register',          description: 'Register for an account' },
-          // Wallet
+          // Wallet & Finance
           { command: 'balance',           description: 'Check account balance' },
           { command: 'deposit',           description: 'Deposit funds into your account' },
           { command: 'withdraw',          description: 'Withdraw funds' },
           { command: 'transfer',          description: 'Transfer funds to another user' },
-          // Account
-          { command: 'change_name',       description: 'Change your account name' },
+          // History & Social
           { command: 'game_history',      description: 'Check your game history' },
           { command: 'check_transaction', description: 'Check your transaction history' },
           { command: 'invite',            description: 'Invite your friends' },
-          // Help
+          // Profile & Help
+          { command: 'change_name',       description: 'Change your account name' },
           { command: 'instruction',       description: 'View game instructions' },
           { command: 'support',           description: 'Contact support' },
         ]);
@@ -105,16 +105,14 @@ async function main() {
         logger.error('Failed to set bot commands:', err);
       }
 
-      // ── Set the Mini App menu button ────────────────────────────────────────
+      // ── Set the Menu Button to 'commands' (to show the 'Menu' button in UI) ──
       try {
         await bot.telegram.setChatMenuButton({
           menuButton: {
-            type: 'web_app',
-            text: 'Play Buna Bingo',
-            web_app: { url: `${config.bot.miniAppUrl}` },
+            type: 'commands',
           },
         });
-        logger.info(`🤖 Chat Menu Button set to: ${config.bot.miniAppUrl}`);
+        logger.info('🤖 Chat Menu Button set to: commands list');
       } catch (err) {
         logger.error('Failed to set Chat Menu Button:', err);
       }
