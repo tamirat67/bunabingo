@@ -3,7 +3,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getMe, joinGame } from '../../../lib/api';
 import { PREDEFINED_CARDS } from '../../../lib/predefinedCards';
-import { ChevronLeft, RefreshCw, Zap, X, Play } from 'lucide-react';
+import { ChevronLeft, RefreshCw, Zap, X, Play, ShieldCheck } from 'lucide-react';
 
 function SelectionContent() {
   const router = useRouter();
@@ -33,34 +33,35 @@ function SelectionContent() {
     try {
       const res = await joinGame(roomType, selected);
       
-      // Custom redirection based on game type
       if (roomType.startsWith('SPIN_')) {
         router.push(`/play/spin?id=${res.gameId}&stake=${stake}`);
       } else {
         router.push(`/game?id=${res.gameId}`);
       }
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to join');
+      const msg = err.response?.data?.error || err.message || 'Failed to join';
+      alert(`ERROR: ${msg}`);
     } finally {
       setJoining(false);
     }
   };
 
   const balance = user?.wallet?.balance || 0;
-  const activeGames = 2; // Stub for UI accuracy to screenshot
+  const activeGames = 2; 
 
   const lastSelected = selected.length > 0 ? selected[selected.length - 1] : null;
   const previewCard = lastSelected ? PREDEFINED_CARDS[lastSelected] : null;
 
   const isSpin = roomType.startsWith('SPIN_');
-  const gameTitle = isSpin ? 'Buna Spin' : 'Buna Bingo';
 
   return (
     <div className={`selection-container brown ${isSpin ? 'spin-theme' : ''}`}>
       <div className="selection-header-top">
         <button className="btn-back" onClick={() => router.push('/')}><ChevronLeft size={20} color="#4B3621" /></button>
         <div className="header-text">
-          <h1 style={{color: '#3D2B1F', fontWeight: 900}}>{gameTitle}</h1>
+          <h1 style={{color: '#3D2B1F', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px'}}>
+            <ShieldCheck size={24} /> ADDIS GAME ZONE
+          </h1>
           <p style={{color: 'rgba(61,43,31,0.6)', fontWeight: 800}}>{roomType} • STAKE {stake}</p>
         </div>
       </div>
@@ -94,7 +95,7 @@ function SelectionContent() {
         ))}
       </div>
 
-      <div style={{height: '300px'}}></div> {/* Spacer: footer (130px) + navbar (85px) + buffer */}
+      <div style={{height: '300px'}}></div>
 
       <div className="selection-footer-smart">
         <div className="footer-cards-scroll">
@@ -107,7 +108,7 @@ function SelectionContent() {
                 <div key={num} className="footer-card-item">
                   <div className="flp-title">#{num}</div>
                   <div className="pc-mini-grid">
-                    {card.map((row, ri) => row.map((cell, ci) => (
+                    {card.map((row, ri) => row.map((cell: any, ci) => (
                       <div key={`${ri}-${ci}`} className={`pc-mini-cell ${cell === 0 ? 'star' : ''}`}>
                         {cell === 0 ? '★' : cell}
                       </div>
