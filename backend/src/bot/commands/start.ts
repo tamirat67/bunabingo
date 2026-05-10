@@ -76,7 +76,12 @@ export async function handleStart(ctx: Context) {
     logger.info(`[Start] Showing main menu to ${tgUser.id} (${tgUser.first_name})`);
 
     await ctx.reply(
-      `Welcome to Buna Bingo! Choose an option below.`,
+      `Welcome to Buna Bingo! ☕️💰\n\n` +
+      `"Rich Flavor, Golden Wins." ✨\n` +
+      `"The Perfect Blend of Luck and Luxury." 🎰\n` +
+      `"Sip, Play, Win: The Royal Buna Way." 👑\n` +
+      `"Buna Bingo — Wake Up to a Jackpot." ☀️🏆\n\n` +
+      `Choose an option below:`,
       Markup.inlineKeyboard([
         // ── Row 1: Games ─────────────────────────────────────────────────────
         [
