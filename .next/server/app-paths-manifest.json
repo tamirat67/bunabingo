@@ -1,0 +1,13 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/game/[id]/page": "app/game/[id]/page.js",
+  "/game/page": "app/game/page.js",
+  "/history/page": "app/history/page.js",
+  "/page": "app/page.js",
+  "/play/spin/page": "app/play/spin/page.js",
+  "/profile/page": "app/profile/page.js",
+  "/scores/page": "app/scores/page.js",
+  "/tickets/select/page": "app/tickets/select/page.js",
+  "/wallet/page": "app/wallet/page.js"
+}

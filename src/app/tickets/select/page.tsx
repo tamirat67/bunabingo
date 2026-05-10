@@ -32,7 +32,13 @@ function SelectionContent() {
     setJoining(true);
     try {
       const res = await joinGame(roomType, selected);
-      router.push(`/game?id=${res.gameId}`);
+      
+      // If it's a Spin game, redirect to the Spin wheel page
+      if (roomType.startsWith('SPIN_')) {
+        router.push(`/play/spin?id=${res.gameId}&stake=${stake}`);
+      } else {
+        router.push(`/game?id=${res.gameId}`);
+      }
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to join');
     } finally {

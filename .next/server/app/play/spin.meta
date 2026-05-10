@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/play/layout,_N_T_/play/spin/layout,_N_T_/play/spin/page,_N_T_/play/spin"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/play/spin/__PAGE__",
+    "/play/spin",
+    "/play",
+    "/_index",
+    "/_head"
+  ]
+}
