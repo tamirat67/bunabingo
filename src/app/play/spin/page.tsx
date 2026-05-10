@@ -2,11 +2,10 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, LogOut, Volume2, VolumeX, Bell, Trophy } from 'lucide-react';
+import { RefreshCw, LogOut, Volume2, VolumeX, ShieldCheck, Trophy } from 'lucide-react';
 import { getMe, getGame, pusherAuth, getMyCard } from '../../../lib/api';
 import Pusher from 'pusher-js';
 
-// ── Coffee & Gold Theme ──────────────────────────────────────────────
 const T = {
   bg:      '#F5E6BE',   // Cream
   header:  '#3D2B1F',   // Dark coffee
@@ -54,10 +53,9 @@ function PrizeWheel({ segments, sliceDeg }: { segments: any[]; sliceDeg: number 
         );
       })}
       <circle cx={cx} cy={cy} r={60} fill="url(#hubG)" stroke={T.gold} strokeWidth={4} />
-      <g transform={`translate(${cx - 35}, ${cy - 40}) scale(0.75)`}>
-        <text x="50" y="35" textAnchor="middle" fill={T.gold} fontSize="13" fontWeight="bold">BUNA BINGO</text>
-        <text x="50" y="62" textAnchor="middle" fill="#ffffff" fontSize="24" fontWeight="black">SPIN</text>
-        <text x="50" y="85" textAnchor="middle" fill={T.gold} fontSize="12">ቡና ቢንጎ</text>
+      <g transform={`translate(${cx - 40}, ${cy - 40}) scale(0.8)`}>
+        <text x="50" y="35" textAnchor="middle" fill={T.gold} fontSize="11" fontWeight="bold">ADDIS GAME ZONE</text>
+        <text x="50" y="60" textAnchor="middle" fill="#ffffff" fontSize="26" fontWeight="black">SPIN</text>
       </g>
     </svg>
   );
@@ -92,7 +90,7 @@ function SpinContent() {
 
     Promise.all([getGame(gameId), getMyCard(gameId)]).then(([g, t]) => {
       setGame(g);
-      setTickets(t.tickets || []);
+      setTickets((t.tickets || []).sort((a: any, b: any) => (a.card?.id || 0) - (b.card?.id || 0)));
       if (g.status === 'COUNTDOWN') setCountdown(g.countdownSeconds);
       if (g.status === 'FINISHED' && g.winners?.length) {
         setResult({ winnerCardId: (g.winners[0].ticket?.card as any)?.id || 1, prizeAmount: g.winners[0].prizeAmount });
@@ -142,7 +140,9 @@ function SpinContent() {
   return (
     <div style={{ background: T.bg, minHeight: '100vh', paddingBottom: '90px', fontFamily: "'Segoe UI', sans-serif" }}>
       <div style={{ background: T.header, padding: '12px 15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `3px solid ${T.gold}` }}>
-        <div style={{ color: T.gold, fontWeight: '900', fontSize: '18px', letterSpacing: '1px' }}>☕ BUNA SPIN</div>
+        <div style={{ color: T.gold, fontWeight: '900', fontSize: '18px', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ShieldCheck size={20} /> ADDIS GAME ZONE
+        </div>
         <div onClick={() => setSoundOn(!soundOn)} style={{ color: soundOn ? T.gold : '#666', cursor: 'pointer' }}>
           {soundOn ? <Volume2 size={22} /> : <VolumeX size={22} />}
         </div>
@@ -186,7 +186,7 @@ function SpinContent() {
         </div>
 
         <div style={{ flex: 1, maxHeight: '60vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ color: T.header, fontWeight: '900', fontSize: '13px' }}>☕ YOUR CARTELAS ({tickets.length})</div>
+          <div style={{ color: T.header, fontWeight: '900', fontSize: '13px' }}>🏆 YOUR CARTELAS ({tickets.length})</div>
           {tickets.map((t: any) => {
             const cardObj = t.card as { id: number; rows: any[][] }, rows = cardObj?.rows ?? [], cardId = cardObj?.id ?? '?', isWinner = result?.winnerCardId === cardId;
             return (
@@ -222,7 +222,7 @@ function SpinContent() {
 
 export default function SpinPage() {
   return (
-    <Suspense fallback={<div style={{ background: '#3D2B1F', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D4AF37' }}>LOADING...</div>}>
+    <Suspense fallback={<div>Loading...</div>}>
       <SpinContent />
     </Suspense>
   );
