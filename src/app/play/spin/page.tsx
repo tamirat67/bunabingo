@@ -2,47 +2,29 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, RefreshCw, Trophy } from 'lucide-react';
-import { getMe, getGame, pusherAuth } from '../../../lib/api';
+import { RefreshCw, LogOut, Home, Trophy, History, Wallet, User, Volume2, VolumeX, PlusCircle } from 'lucide-react';
+import { getMe, getGame, pusherAuth, getMyCard } from '../../../lib/api';
 import Pusher from 'pusher-js';
 
-// ─── Color Palette from Screenshot ──────────────────────────────────────────
-const PALETTE = [
-  '#4A90E2', // Blue
-  '#5C6BC0', // Indigo
-  '#9C27B0', // Purple
-  '#E91E63', // Pink
-  '#F44336', // Red
-  '#FF9800', // Orange
-  '#FFC107', // Gold
-  '#4CAF50', // Green
-];
+const PALETTE = ['#F1C40F', '#E67E22', '#E74C3C', '#9B59B6', '#3498DB', '#1ABC9C', '#2ECC71', '#F39C12'];
 
-// ─── Wheel SVG ────────────────────────────────────────────────────────────────
 function PrizeWheel({ segments, sliceDeg }: { segments: any[], sliceDeg: number }) {
   const cx = 200, cy = 200, r = 190, labelR = 145;
-
   return (
     <svg viewBox="0 0 400 400" className="w-full h-full" style={{ filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.5))' }}>
       <defs>
         <radialGradient id="hubGrad" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#2D1B14" />
-          <stop offset="90%" stopColor="#3D2B1F" />
           <stop offset="100%" stopColor="#D4AF37" />
         </radialGradient>
       </defs>
-
-      {/* Outer Border */}
       <circle cx={cx} cy={cy} r={r + 5} fill="#1a1a1a" stroke="#D4AF37" strokeWidth={4} />
-
-      {/* Decorative dots on rim */}
-      {Array.from({ length: 24 }).map((_, i) => {
-        const deg = (i / 24) * 360;
+      {Array.from({ length: 32 }).map((_, i) => {
+        const deg = (i / 32) * 360;
         const x = cx + (r + 1) * Math.cos((deg * Math.PI) / 180);
         const y = cy + (r + 1) * Math.sin((deg * Math.PI) / 180);
         return <circle key={i} cx={x} cy={y} r={3} fill={i % 2 === 0 ? "#ffd700" : "#fff"} />;
       })}
-
       {segments.map((seg, i) => {
         const start = i * sliceDeg - 90;
         const end = start + sliceDeg;
@@ -51,35 +33,17 @@ function PrizeWheel({ segments, sliceDeg }: { segments: any[], sliceDeg: number 
         const lx = cx + labelR * Math.cos(midRad);
         const ly = cy + labelR * Math.sin(midRad);
         const textAngle = midDeg + 90;
-
         return (
           <g key={i}>
-            <path
-              d={slicePath(cx, cy, r, start, end)}
-              fill={seg.color}
-              stroke="rgba(0,0,0,0.3)"
-              strokeWidth={1}
-            />
-            <text
-              x={lx} y={ly}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill="#ffffff"
-              fontSize={18}
-              fontWeight="900"
-              transform={`rotate(${textAngle}, ${lx}, ${ly})`}
-              style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8)', letterSpacing: '-1px' }}
-            >
+            <path d={slicePath(cx, cy, r, start, end)} fill={seg.color} stroke="rgba(0,0,0,0.2)" strokeWidth={1} />
+            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fill="#ffffff" fontSize={16} fontWeight="900" transform={`rotate(${textAngle}, ${lx}, ${ly})`} style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
               {seg.label}
             </text>
           </g>
         );
       })}
-
-      {/* Center Hub (BUNA BINGO SPIN) */}
       <circle cx={cx} cy={cy} r={55} fill="url(#hubGrad)" stroke="#ffd700" strokeWidth={3} />
       <g transform={`translate(${cx - 35}, ${cy - 35}) scale(0.7)`}>
-         <rect width="100" height="100" rx="50" fill="transparent" />
          <text x="50" y="40" textAnchor="middle" fill="#D4AF37" fontSize="14" fontWeight="bold">BUNA BINGO</text>
          <text x="50" y="65" textAnchor="middle" fill="#ffffff" fontSize="24" fontWeight="black">SPIN</text>
          <text x="50" y="85" textAnchor="middle" fill="#D4AF37" fontSize="12">ቡና ቢንጎ</text>
@@ -101,227 +65,197 @@ function slicePath(cx: number, cy: number, r: number, startDeg: number, endDeg: 
 function SpinContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const stake = parseInt(searchParams.get('stake') || '10', 10);
   const gameId = searchParams.get('id');
 
   const [user, setUser] = useState<any>(null);
   const [game, setGame] = useState<any>(null);
+  const [tickets, setTickets] = useState<any[]>([]);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<null | { winnerCardId: number; prizeAmount: string }>(null);
   const [showResult, setShowResult] = useState(false);
   const [dynamicSegments, setDynamicSegments] = useState<any[]>([]);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [playerCount, setPlayerCount] = useState(0);
+  const [soundOn, setSoundOn] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const totalSpun = useRef(0);
 
   useEffect(() => {
-    getMe().then(setUser);
+    setMounted(true);
     if (!gameId) return;
 
-    // Initial Load
-    getGame(gameId).then(g => {
+    getMe().then(setUser);
+    Promise.all([getGame(gameId), getMyCard(gameId)]).then(([g, t]) => {
       setGame(g);
-      setPlayerCount(g.tickets?.length || 0);
+      setTickets(t.tickets || []);
       if (g.status === 'COUNTDOWN') setCountdown(g.countdownSeconds);
-      
-      // If already finished (e.g. joined late), don't wait
       if (g.status === 'FINISHED' && g.winners?.length) {
          setResult({ winnerCardId: g.winners[0].ticket?.card?.id || 1, prizeAmount: g.winners[0].prizeAmount });
          setShowResult(true);
       }
     });
 
-    // Pusher Sync
-    let pusher: any = null;
+    let pusher: Pusher | null = null;
     const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
     const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
-    
     if (pusherKey && pusherCluster) {
       pusher = new Pusher(pusherKey, {
         cluster: pusherCluster,
-        authorizer: (channel: any) => ({
-          authorize: (socketId: string, cb: any) => {
+        authorizer: (channel) => ({
+          authorize: (socketId, cb) => {
             pusherAuth(socketId, channel.name).then(data => cb(null, data)).catch(err => cb(err, null));
           }
         })
       });
-
       const channel = pusher.subscribe(`private-game-${gameId}`);
-
-      channel.bind('player-joined', (data: any) => {
-        setPlayerCount(data.playerCount);
-      });
-
-      channel.bind('countdown-start', (data: { seconds: number }) => {
-        setCountdown(data.seconds);
-      });
-
-      channel.bind('spin-result', (data: { winnerCardId: number; prizeAmount: string; soldCards: number[] }) => {
-        setCountdown(null);
-        handleRaffleResult(data);
-      });
+      channel.bind('player-joined', (data: any) => setGame((prev: any) => ({ ...prev, currentPlayers: data.playerCount })));
+      channel.bind('countdown-start', (data: { seconds: number }) => setCountdown(data.seconds));
+      channel.bind('spin-result', (data: any) => { setCountdown(null); handleRaffleResult(data); });
     }
-
-    return () => {
-      if (pusher) {
-        pusher.unsubscribe(`private-game-${gameId}`);
-        pusher.disconnect();
-      }
-    };
-  }, [gameId]);
+    return () => { if (pusher) { pusher.unsubscribe(`private-game-${gameId}`); pusher.disconnect(); } };
+  }, [gameId, mounted]);
 
   const handleRaffleResult = (data: { winnerCardId: number; prizeAmount: string; soldCards: number[] }) => {
     const sold = data.soldCards || [];
-    let segmentsToDisplay = sold.map((cardId, i) => ({
-      label: `${cardId}`,
-      cardId,
-      color: PALETTE[i % PALETTE.length],
-      textColor: '#ffffff'
-    }));
-
-    // Repeat segments to make a full wheel (min 16 segments)
-    while (segmentsToDisplay.length < 16 && segmentsToDisplay.length > 0) {
-      segmentsToDisplay = [...segmentsToDisplay, ...segmentsToDisplay.map((s, idx) => ({
-          ...s,
-          color: PALETTE[(segmentsToDisplay.length + idx) % PALETTE.length]
-      }))];
-    }
-    segmentsToDisplay = segmentsToDisplay.slice(0, 24);
-
-    setDynamicSegments(segmentsToDisplay);
+    let segs = sold.map((id, i) => ({ label: `${id}`, cardId: id, color: PALETTE[i % PALETTE.length] }));
+    while (segs.length < 16 && segs.length > 0) segs = [...segs, ...segs.map((s, idx) => ({ ...s, color: PALETTE[(segs.length + idx) % PALETTE.length] }))];
+    segs = segs.slice(0, 24);
+    setDynamicSegments(segs);
     setSpinning(true);
-
-    const TOTAL_SEG = segmentsToDisplay.length;
-    const SLICE = 360 / TOTAL_SEG;
-    const winIdx = segmentsToDisplay.findIndex(s => s.cardId === data.winnerCardId);
-    
+    const SLICE = 360 / segs.length;
+    const winIdx = segs.findIndex(s => s.cardId === data.winnerCardId);
     if (winIdx !== -1) {
       const segCenter = winIdx * SLICE + SLICE / 2;
-      const extraSpins = 360 * (10 + Math.floor(Math.random() * 5)); 
+      const extraSpins = 360 * (12 + Math.floor(Math.random() * 5)); 
       const targetAngle = totalSpun.current - segCenter - 90 + extraSpins;
       totalSpun.current = targetAngle % 360;
-
-      const wheelEl = document.getElementById('prize-wheel-inner');
+      const wheelEl = document.getElementById('wheel-inner');
       if (wheelEl) {
-        wheelEl.style.transition = 'transform 6s cubic-bezier(0.15, 0.8, 0.1, 1)';
+        wheelEl.style.transition = 'transform 7s cubic-bezier(0.15, 0.8, 0.1, 1)';
         wheelEl.style.transform = `rotate(${targetAngle}deg)`;
       }
-
       setTimeout(() => {
         setResult({ winnerCardId: data.winnerCardId, prizeAmount: data.prizeAmount });
         setSpinning(false);
         setShowResult(true);
         getMe().then(setUser);
-      }, 6500);
+      }, 7500);
     }
   };
 
-  const SLICE_DEG = dynamicSegments.length > 0 ? 360 / dynamicSegments.length : 36;
+  if (!mounted) return null;
 
   return (
-    <div className="selection-container brown" style={{ minHeight: '100vh', background: '#1A1A1A' }}>
-      <div className="selection-header-top" style={{ borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
-        <button className="btn-back" onClick={() => router.push('/')}><ArrowLeft size={20} /></button>
-        <div className="header-text">
-          <h1 style={{ color: '#D4AF37', textTransform: 'uppercase', letterSpacing: '1px' }}>Raffle Draw</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>ROOM #{gameId?.slice(-6).toUpperCase()}</p>
-        </div>
+    <div className="spin-tournament-container" style={{ background: '#7D5BA6', minHeight: '100vh', paddingBottom: '100px', fontFamily: 'sans-serif', color: 'white' }}>
+      
+      {/* ── Dashboard Header ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2px', padding: '5px', background: 'rgba(0,0,0,0.1)' }}>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Game</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>{gameId?.slice(-6).toUpperCase() || '--'}</div>
+         </div>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Derash</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>-</div>
+         </div>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Players</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>{game?.currentPlayers || '-'}</div>
+         </div>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Stake</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>{game?.room?.ticketPrice || 0}</div>
+         </div>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px', gridColumn: 'span 2' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>WINNER CARD</div>
+            <div style={{ fontSize: '11px', fontWeight: '900', color: '#E67E22' }}>{result ? `#${result.winnerCardId}` : 'WAITING...'}</div>
+         </div>
+         <div onClick={() => setSoundOn(!soundOn)} style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px', cursor: 'pointer', gridColumn: 'span 2' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Sound</div>
+            <div style={{ fontSize: '11px', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+               {soundOn ? <Volume2 size={12} /> : <VolumeX size={12} color="red" />} {soundOn ? 'ON' : 'OFF'}
+            </div>
+         </div>
       </div>
 
-      <div className="stats-row-brown" style={{ marginTop: '20px', padding: '0 20px' }}>
-        <div className="capsule-brown" style={{ flex: 1 }}><div className="l">BALANCE</div><div className="v">{Number(user?.wallet?.balance || 0).toFixed(0)}</div></div>
-        <div className="capsule-brown" style={{ flex: 1 }}><div className="l">TICKETS</div><div className="v">{playerCount} / 2 MIN</div></div>
-      </div>
-
-      <div className="wheel-area" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-         <div style={{ position: 'relative', width: '340px', height: '340px', transition: 'all 0.3s' }}>
-            {/* The Pointer */}
-            <div style={{ position: 'absolute', top: '-15px', left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
-                <svg width="40" height="50" viewBox="0 0 40 50">
-                    <path d="M20 50 L0 0 L40 0 Z" fill="#F44336" stroke="#ffffff" strokeWidth="2" />
-                    <circle cx="20" cy="15" r="5" fill="#ffffff" />
-                </svg>
+      <div style={{ display: 'flex', padding: '10px', gap: '10px' }}>
+        
+        {/* ── Left Column: Wheel ── */}
+        <div style={{ flex: 1.5, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ background: '#E0D4F0', color: '#3D2B1F', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                <div style={{ fontSize: '10px', fontWeight: 'bold', opacity: 0.7 }}>COUNTDOWN</div>
+                <div style={{ fontSize: '24px', fontWeight: '900' }}>{countdown !== null ? countdown : (spinning ? 'ROULING' : 'WAIT')}</div>
             </div>
 
-            <div id="prize-wheel-inner" style={{ width: '100%', height: '100%' }}>
-               {dynamicSegments.length > 0 ? (
-                 <PrizeWheel segments={dynamicSegments} sliceDeg={SLICE_DEG} />
-               ) : (
-                 <div className="wheel-placeholder" style={{ width: '100%', height: '100%', borderRadius: '50%', border: '8px solid rgba(212, 175, 55, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle, #2D1B14 0%, #1A1A1A 100%)' }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <RefreshCw className="animate-spin" size={48} color="#D4AF37" style={{ margin: '0 auto 10px' }} />
-                        <div style={{ color: '#D4AF37', fontSize: '12px', fontWeight: 'bold' }}>WAITING...</div>
+            <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', background: '#E0D4F0', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+               <div style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+                  <div style={{ width: '0', height: '0', borderLeft: '15px solid transparent', borderRight: '15px solid transparent', borderTop: '25px solid #E74C3C' }}></div>
+               </div>
+               <div id="wheel-inner" style={{ width: '90%', height: '90%' }}>
+                  {dynamicSegments.length > 0 ? (
+                    <PrizeWheel segments={dynamicSegments} sliceDeg={360 / dynamicSegments.length} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', border: '8px dashed rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                       <RefreshCw className="animate-spin" size={40} color="#7D5BA6" />
                     </div>
-                 </div>
-               )}
+                  )}
+               </div>
             </div>
-         </div>
 
-         <div className="spin-actions" style={{ marginTop: '40px', width: '100%', maxWidth: '300px', padding: '0 20px' }}>
-            {countdown !== null ? (
-              <div className="countdown-box" style={{ textAlign: 'center', padding: '24px', background: 'rgba(212, 175, 55, 0.05)', borderRadius: '24px', border: '2px solid rgba(212, 175, 55, 0.2)' }}>
-                <div style={{ color: '#D4AF37', fontSize: '12px', fontWeight: '900', letterSpacing: '2px', marginBottom: '8px' }}>DRAW STARTS IN</div>
-                <div style={{ color: 'white', fontSize: '56px', fontWeight: '900', lineHeight: 1 }}>{countdown}</div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+               <button onClick={() => window.location.reload()} style={{ flex: 1, background: '#3498DB', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 4px #2980B9' }}>
+                  <RefreshCw size={16} /> Refresh
+               </button>
+               <button onClick={() => router.push('/')} style={{ flex: 1, background: '#E74C3C', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 4px #C0392B' }}>
+                  <LogOut size={16} /> Leave
+               </button>
+            </div>
+        </div>
+
+        {/* ── Right Column: Player Cards ── */}
+        <div style={{ flex: 1, height: '70vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '15px' }} className="cards-scroll">
+           {tickets.map((t: any) => (
+              <div key={t.id} style={{ background: '#E0D4F0', borderRadius: '12px', padding: '8px' }}>
+                  <div style={{ color: '#3D2B1F', fontSize: '10px', fontWeight: '900', marginBottom: '5px', textAlign: 'center' }}>CARD #{t.card?.id || '?' }</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2px' }}>
+                     {(Array.isArray(t.card) ? t.card : t.card.rows).map((row: any[], ri: number) => row.map((cell: any, ci: number) => (
+                        <div key={`${ri}-${ci}`} style={{ background: 'white', color: (cell === 0 || cell === 'FREE') ? '#27AE60' : '#333', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '10px', fontWeight: '900' }}>
+                           {cell === 0 || cell === 'FREE' ? '★' : cell}
+                        </div>
+                     )))}
+                  </div>
               </div>
-            ) : spinning ? (
-              <div style={{ textAlign: 'center' }}>
-                 <div style={{ color: '#D4AF37', fontWeight: '900', fontSize: '24px', letterSpacing: '4px', textShadow: '0 0 10px #D4AF37' }}>ROULING...</div>
-                 <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', marginTop: '4px' }}>Picking a winner among {playerCount} cards</div>
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.03)' }}>
-                <div style={{ color: '#D4AF37', fontWeight: '800', fontSize: '14px' }}>WAITING FOR CARDS</div>
-                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', marginTop: '4px' }}>System automatically rolls when 2+ cards are sold.</div>
-              </div>
-            )}
-         </div>
+           ))}
+        </div>
       </div>
 
       <AnimatePresence>
         {showResult && result && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="win-overlay"
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(5px)' }}
-          >
-             <motion.div 
-                initial={{ scale: 0.5, y: 50 }}
-                animate={{ scale: 1, y: 0 }}
-                className="win-card" 
-                style={{ background: '#1A1A1A', border: '3px solid #D4AF37', borderRadius: '32px', padding: '40px 20px', textAlign: 'center', width: '100%', maxWidth: '340px', boxShadow: '0 0 50px rgba(212,175,55,0.3)' }}
-             >
-                <div style={{ fontSize: '80px', marginBottom: '10px' }}>{result.winnerCardId === (game?.tickets?.[0]?.card?.id || -1) ? '🎉' : '🍀'}</div>
-                <h2 style={{ color: '#D4AF37', fontSize: '32px', fontWeight: '900', marginBottom: '5px' }}>
-                  CARD #{result.winnerCardId}
-                </h2>
-                <div style={{ background: '#D4AF37', color: '#1A1A1A', display: 'inline-block', padding: '4px 16px', borderRadius: '20px', fontWeight: '900', fontSize: '18px', marginBottom: '25px' }}>
-                  WINNER!
-                </div>
-                
-                <div style={{ marginBottom: '35px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>PRIZE AMOUNT</div>
-                    <div style={{ color: 'white', fontSize: '36px', fontWeight: '900' }}>{Number(result.prizeAmount).toFixed(0)} <span style={{fontSize:'16px'}}>ETB</span></div>
-                </div>
-
-                <button 
-                    onClick={() => router.push('/')} 
-                    className="btn-bingo-main" 
-                    style={{ background: '#D4AF37', color: '#1A1A1A', fontWeight: '900', height: '55px', borderRadius: '16px', boxShadow: '0 6px 0 #8B6B1D' }}
-                >
-                    BACK TO LOBBY
-                </button>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+             <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} style={{ background: 'white', color: '#3D2B1F', borderRadius: '24px', padding: '30px', textAlign: 'center', maxWidth: '300px', boxShadow: '0 0 30px rgba(0,0,0,0.5)' }}>
+                <div style={{ fontSize: '50px' }}>🏆</div>
+                <h2 style={{ fontSize: '24px', fontWeight: '900', margin: '10px 0' }}>WINNER!</h2>
+                <div style={{ background: '#F1C40F', color: 'black', padding: '10px', borderRadius: '12px', fontWeight: '900', fontSize: '20px' }}>CARD #{result.winnerCardId}</div>
+                <div style={{ marginTop: '20px', fontSize: '14px', fontWeight: 'bold', color: '#7D5BA6' }}>PRIZE: {Number(result.prizeAmount).toFixed(0)} ETB</div>
+                <button onClick={() => router.push('/')} style={{ marginTop: '25px', width: '100%', background: '#7D5BA6', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: '900' }}>BACK TO LOBBY</button>
              </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', padding: '10px 0', display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #EEE', zIndex: 100 }}>
+         <div onClick={() => router.push('/')} style={{ color: '#7D5BA6', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}> <Home size={20} /> <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Game</span> </div>
+         <div style={{ color: '#AAA' }}> <Trophy size={20} /> <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Scores</span> </div>
+         <div onClick={() => router.push('/history')} style={{ color: '#AAA' }}> <History size={20} /> <span style={{ fontSize: '10px', fontWeight: 'bold' }}>History</span> </div>
+         <div onClick={() => router.push('/wallet')} style={{ color: '#AAA' }}> <Wallet size={20} /> <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Wallet</span> </div>
+         <div onClick={() => router.push('/profile')} style={{ color: '#AAA' }}> <User size={20} /> <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Profile</span> </div>
+      </div>
     </div>
   );
 }
 
 export default function SpinPage() {
   return (
-    <Suspense fallback={<div className="selection-container brown" style={{height:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#D4AF37'}}>Loading Draw...</div>}>
+    <Suspense fallback={<div style={{background:'#7D5BA6',height:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontSize:'18px',fontWeight:900}}>Loading Spin...</div>}>
       <SpinContent />
     </Suspense>
   );
