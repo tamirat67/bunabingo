@@ -3,7 +3,8 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getGame, getMyCard, pusherAuth, claimBingo } from '../../lib/api';
 import Pusher from 'pusher-js';
-import { Volume2, VolumeX, RefreshCw, LogOut, PlusCircle } from 'lucide-react';
+import { Volume2, VolumeX, RefreshCw, LogOut, PlusCircle, Home, Trophy, History, Wallet, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const COLUMNS = [
   { label: 'B', color: '#F59E0B', range: [1, 15] },
@@ -12,14 +13,6 @@ const COLUMNS = [
   { label: 'G', color: '#EF4444', range: [46, 60] },
   { label: 'O', color: '#8B5CF6', range: [61, 75] },
 ];
-
-function getColumnColor(num: number) {
-  if (num >= 1 && num <= 15) return '#F59E0B';
-  if (num >= 16 && num <= 30) return '#10B981';
-  if (num >= 31 && num <= 45) return '#3B82F6';
-  if (num >= 46 && num <= 60) return '#EF4444';
-  return '#8B5CF6';
-}
 
 function getColumnLabel(num: number) {
   if (num >= 1 && num <= 15) return 'B';
@@ -46,14 +39,18 @@ function GameContent() {
     setMounted(true);
     if (!gameId) return;
 
-    Promise.all([getGame(gameId), getMyCard(gameId)]).then(([g, t]) => {
-      setGame(g);
-      setTickets(t.tickets || []);
-      const history = g.drawHistory.map((d: any) => d.number);
-      setDrawn(history);
-      setLastBall(history.length ? history[history.length - 1] : null);
-      if (g.status === 'COUNTDOWN') setCountdown(g.countdownSeconds);
-    }).catch(console.error);
+    const fetchData = () => {
+      Promise.all([getGame(gameId), getMyCard(gameId)]).then(([g, t]) => {
+        setGame(g);
+        setTickets(t.tickets || []);
+        const history = g.drawHistory.map((d: any) => d.number);
+        setDrawn(history);
+        setLastBall(history.length ? history[history.length - 1] : null);
+        if (g.status === 'COUNTDOWN') setCountdown(g.countdownSeconds);
+      }).catch(console.error);
+    };
+
+    fetchData();
 
     let pusher: Pusher | null = null;
     try {
@@ -75,12 +72,9 @@ function GameContent() {
           setDrawn(prev => [...prev, data.number]);
           setCountdown(null);
           if (soundOn && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-            try {
-              const label = getColumnLabel(data.number);
-              const msg = new SpeechSynthesisUtterance(`${label} ${data.number}`);
-              msg.rate = 0.9;
-              window.speechSynthesis.speak(msg);
-            } catch (e) {}
+             const label = getColumnLabel(data.number);
+             const msg = new SpeechSynthesisUtterance(`${label} ${data.number}`);
+             window.speechSynthesis.speak(msg);
           }
         });
 
@@ -89,12 +83,11 @@ function GameContent() {
         });
 
         channel.bind('game-update', (data: any) => {
-          if (data.currentPlayers !== undefined) {
-            setGame((prev: any) => prev ? { ...prev, currentPlayers: data.currentPlayers } : prev);
-          }
+          if (data.status === 'FINISHED') window.location.reload();
+          setGame((prev: any) => prev ? { ...prev, ...data } : prev);
         });
       }
-    } catch (e) { console.error('Pusher error:', e); }
+    } catch (e) {}
 
     return () => {
       if (pusher) {
@@ -104,146 +97,196 @@ function GameContent() {
     };
   }, [gameId, mounted]);
 
-  const handleBingo = async () => {
+  const handleBingo = async (ticketId: string) => {
     if (!gameId) return;
     try {
       await claimBingo(gameId);
       alert('🎉 BINGO CLAIMED! Checking your card...');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'No Bingo yet! Keep playing.');
+      alert(err.response?.data?.error || 'No Bingo yet!');
     }
   };
 
-  const isCalled = (num: number) => drawn.includes(num);
-
   if (!mounted) return null;
 
-  const statusLabel = countdown !== null ? countdown : (game?.status === 'WAITING' ? 'Wait' : 'Live');
+  const isCalled = (num: number) => drawn.includes(num);
 
   return (
-    <div className="gp-layout">
-      {/* ── Top Stats Bar ── */}
-      <div className="gp-stats">
-        <div className="gp-stat"><div className="gp-sl">Game</div><div className="gp-sv">{gameId?.slice(-6).toUpperCase() || '--'}</div></div>
-        <div className="gp-stat"><div className="gp-sl">Derash</div><div className="gp-sv">-</div></div>
-        <div className="gp-stat"><div className="gp-sl">Bonus</div><div className="gp-sv">Off</div></div>
-        <div className="gp-stat"><div className="gp-sl">Players</div><div className="gp-sv">{game?.currentPlayers || 0}</div></div>
-        <div className="gp-stat"><div className="gp-sl">Stake</div><div className="gp-sv">{game?.room?.ticketPrice || 0}</div></div>
-        <div className="gp-stat"><div className="gp-sl">Call</div><div className="gp-sv">{drawn.length}</div></div>
-        <div className="gp-stat" onClick={() => setSoundOn(p => !p)} style={{cursor:'pointer'}}>
-          <div className="gp-sl">Sound</div>
-          <div className="gp-sv">{soundOn ? <Volume2 size={12} /> : <VolumeX size={12} color="#EF4444" />}</div>
-        </div>
+    <div className="game-tournament-container" style={{ background: '#7D5BA6', minHeight: '100vh', paddingBottom: '100px', fontFamily: 'sans-serif', color: 'white' }}>
+      
+      {/* ── Dashboard Header Grid ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2px', padding: '5px', background: 'rgba(0,0,0,0.1)' }}>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Game</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>{gameId?.slice(-6).toUpperCase()}</div>
+         </div>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Derash</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>-</div>
+         </div>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Bonus</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>Off</div>
+         </div>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Players</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>{game?.currentPlayers || '-'}</div>
+         </div>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Stake</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>{game?.room?.ticketPrice || 0}</div>
+         </div>
+         <div style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Call</div>
+            <div style={{ fontSize: '11px', fontWeight: '900' }}>{drawn.length}</div>
+         </div>
+         <div onClick={() => setSoundOn(!soundOn)} style={{ background: 'white', color: '#333', padding: '5px', textAlign: 'center', borderRadius: '4px', cursor: 'pointer', gridColumn: 'span 2' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', opacity: 0.6 }}>Sound</div>
+            <div style={{ fontSize: '11px', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+               {soundOn ? <Volume2 size={12} /> : <VolumeX size={12} color="red" />} {soundOn ? 'ON' : 'OFF'}
+            </div>
+         </div>
       </div>
 
-      {/* ── Main Play Area ── */}
-      <div className="gp-main">
-        {/* Master Calling Board */}
-        <div className="gp-board">
-          <div className="gp-col-headers">
-            {COLUMNS.map(c => (
-              <div key={c.label} className="gp-col-h" style={{ background: c.color }}>{c.label}</div>
-            ))}
-          </div>
-          <div className="gp-cols">
-            {COLUMNS.map(col => (
-              <div key={col.label} className="gp-col">
-                {Array.from({ length: 15 }, (_, i) => col.range[0] + i).map(n => (
-                  <div key={n} className={`gp-cell ${isCalled(n) ? 'called' : ''}`}
-                    style={isCalled(n) ? { background: col.color, color: '#fff', fontWeight: 900 } : {}}>
-                    {n}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+      <div style={{ display: 'flex', padding: '10px', gap: '10px' }}>
+        
+        {/* ── Left Column: Calling Logic ── */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            
+            <div style={{ display: 'flex', gap: '5px' }}>
+               <div style={{ background: '#E0D4F0', color: '#3D2B1F', flex: 1, borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '10px', fontWeight: 'bold', opacity: 0.7 }}>Count Down</div>
+                  <div style={{ fontSize: '18px', fontWeight: '900' }}>{countdown !== null ? countdown : (game?.status === 'WAITING' ? 'Wait' : 'Live')}</div>
+               </div>
+               <div style={{ background: '#E0D4F0', width: '60px', height: '60px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {lastBall ? (
+                     <div style={{ width: '45px', height: '45px', background: '#F39C12', borderRadius: '50%', border: '3px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '20px', color: 'white' }}>
+                        {lastBall}
+                     </div>
+                  ) : <div style={{ fontSize: '24px', fontWeight: '900', color: '#AAA' }}>.</div>}
+               </div>
+            </div>
+
+            {/* Master Board 1-75 */}
+            <div style={{ background: '#E0D4F0', borderRadius: '12px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2px' }}>
+                  {COLUMNS.map(c => <div key={c.label} style={{ background: c.color, color: 'white', textAlign: 'center', fontSize: '12px', fontWeight: '900', borderRadius: '30px' }}>{c.label}</div>)}
+               </div>
+               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2px' }}>
+                  {COLUMNS.map(col => (
+                     <div key={col.label} style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        {Array.from({ length: 15 }, (_, i) => col.range[0] + i).map(n => (
+                           <div key={n} style={{ 
+                              background: isCalled(n) ? col.color : 'white', 
+                              color: isCalled(n) ? 'white' : 'rgba(0,0,0,0.2)', 
+                              fontSize: '11px', 
+                              fontWeight: '900', 
+                              textAlign: 'center', 
+                              padding: '4px 0', 
+                              borderRadius: '4px' 
+                           }}>
+                              {n}
+                           </div>
+                        ))}
+                     </div>
+                  ))}
+               </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+               <button onClick={() => window.location.reload()} style={{ flex: 1, background: '#3498DB', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 4px #2980B9' }}>
+                  <RefreshCw size={16} /> Refresh
+               </button>
+               <button onClick={() => router.push('/')} style={{ flex: 1, background: '#E74C3C', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 4px #C0392B' }}>
+                  <LogOut size={16} /> Leave
+               </button>
+            </div>
         </div>
 
-        {/* Right Action Zone */}
-        <div className="gp-zone">
-          {/* Countdown */}
-          <div className="gp-countdown">
-            <div className="gp-cd-label">Count Down</div>
-            <div className="gp-cd-val">{statusLabel}</div>
-          </div>
-
-          {/* Current Call Ball */}
-          <div className="gp-current-call" style={lastBall ? { background: getColumnColor(lastBall) } : {}}>
-            <div className="gp-cc-label">Current Call</div>
-            {lastBall ? (
-              <div className="gp-cc-ball">
-                <div className="gp-cc-letter">{getColumnLabel(lastBall)}</div>
-                <div className="gp-cc-num">{lastBall}</div>
-              </div>
-            ) : (
-              <div className="gp-cc-num" style={{fontSize: '24px'}}>-</div>
-            )}
-          </div>
-
-          {/* Player Cards Stack */}
-          <div className="gp-cards-stack">
-            {tickets.map((t: any, idx: number) => {
-              const cardData = t.card as any;
-              const rows = Array.isArray(cardData) ? cardData : cardData.rows;
-              const cardId = cardData?.id || (idx + 1);
-
+        {/* ── Right Column: Cards ── */}
+        <div style={{ flex: 1.2, height: '70vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '15px', paddingRight: '5px' }} className="cards-scroll">
+           {tickets.map((t: any) => {
+              const rows = Array.isArray(t.card) ? t.card : t.card.rows;
               return (
-                <div key={t.id || idx} className="gp-card">
-                  <div className="gp-card-header">
-                    {COLUMNS.map(c => (
-                      <div key={c.label} className="gp-card-h" style={{ background: c.color }}>{c.label}</div>
-                    ))}
-                  </div>
-                  <div className="gp-card-grid">
-                    {rows?.map?.((row: any[], ri: number) => row?.map?.((cell: any, ci: number) => {
-                      const isFree = cell === 'FREE' || cell === 0;
-                      const isMarked = !isFree && isCalled(Number(cell));
-                      return (
-                        <div key={`${ri}-${ci}`}
-                          className={`gp-card-cell ${isFree ? 'free' : ''} ${isMarked ? 'marked' : ''}`}
-                          style={isMarked ? { background: getColumnColor(Number(cell)), color: '#fff' } : {}}>
-                          {isFree ? '★' : cell}
+                 <div key={t.id} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <div style={{ background: '#E0D4F0', borderRadius: '12px', padding: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px', marginBottom: '5px' }}>
+                           {COLUMNS.map(c => <div key={c.label} style={{ background: c.color, color: 'white', textAlign: 'center', fontSize: '10px', fontWeight: '900', borderRadius: '10px' }}>{c.label}</div>)}
                         </div>
-                      );
-                    }))}
-                  </div>
-                  <div className="gp-card-label">Board number {cardId}</div>
-                </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px' }}>
+                           {rows.map((row: any[], ri: number) => row.map((cell: any, ci: number) => {
+                              const isFree = cell === 0 || cell === 'FREE';
+                              const marked = isCalled(Number(cell));
+                              return (
+                                 <div key={`${ri}-${ci}`} style={{ 
+                                    background: isFree ? '#27AE60' : 'white', 
+                                    color: isFree ? 'white' : (marked ? '#27AE60' : '#333'), 
+                                    height: '35px', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center', 
+                                    borderRadius: '6px', 
+                                    fontSize: '14px', 
+                                    fontWeight: '900',
+                                    border: marked ? '2px solid #27AE60' : 'none'
+                                 }}>
+                                    {isFree ? '★' : cell}
+                                 </div>
+                              );
+                           }))}
+                        </div>
+                    </div>
+                    <button 
+                     onClick={() => handleBingo(t.id)}
+                     style={{ background: '#F39C12', color: 'white', border: 'none', padding: '10px', borderRadius: '10px', fontWeight: '900', fontSize: '14px', boxShadow: '0 4px #D35400' }}
+                    >
+                       BINGO! ({(game?.room?.ticketPrice || 0) * 8})
+                    </button>
+                 </div>
               );
-            })}
-            {tickets.length === 0 && (
-              <div style={{color: 'rgba(255,255,255,0.3)', fontSize: '12px', textAlign: 'center', padding: '12px'}}>
-                No tickets found
-              </div>
-            )}
-          </div>
+           })}
         </div>
       </div>
 
-      {/* ── BINGO Button ── */}
-      <button className="gp-bingo-btn" onClick={handleBingo}>BINGO!</button>
-
-      {/* ── Bottom Actions ── */}
-      <div className="gp-actions">
-        <button className="gp-act-btn gp-blue" onClick={() => window.location.reload()}>
-          <RefreshCw size={16} /><span>Refresh</span>
-        </button>
-        <button className="gp-act-btn gp-red" onClick={() => router.push('/')}>
-          <LogOut size={16} /><span>Leave</span>
-        </button>
-        <button className="gp-act-btn gp-orange" onClick={() => router.push(`/tickets/select?type=${game?.room?.type || 'STANDARD'}&price=${game?.room?.ticketPrice || 20}`)}>
-          <PlusCircle size={16} /><span>Add Board</span>
-        </button>
+      {/* Floating Add Board Button */}
+      <div 
+         onClick={() => router.push(`/tickets/select?type=${game?.room?.type || 'STANDARD'}&price=${game?.room?.ticketPrice || 10}`)}
+         style={{ position: 'fixed', bottom: '80px', right: '20px', background: '#E67E22', color: 'white', padding: '10px 20px', borderRadius: '25px', fontWeight: '900', fontSize: '14px', boxShadow: '0 5px 15px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 100, cursor: 'pointer' }}
+      >
+         Add Board <PlusCircle size={20} />
       </div>
 
-      <div style={{height: '90px'}} />
+      {/* Bottom Navbar */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', padding: '10px 0', display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #EEE', zIndex: 100 }}>
+         <div onClick={() => router.push('/')} style={{ color: '#7D5BA6', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+            <Home size={20} />
+            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Game</span>
+         </div>
+         <div style={{ color: '#AAA', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+            <Trophy size={20} />
+            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Scores</span>
+         </div>
+         <div onClick={() => router.push('/history')} style={{ color: '#AAA', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+            <History size={20} />
+            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>History</span>
+         </div>
+         <div onClick={() => router.push('/wallet')} style={{ color: '#AAA', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+            <Wallet size={20} />
+            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Wallet</span>
+         </div>
+         <div onClick={() => router.push('/profile')} style={{ color: '#AAA', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+            <User size={20} />
+            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Profile</span>
+         </div>
+      </div>
     </div>
   );
 }
 
 export default function GamePage() {
   return (
-    <Suspense fallback={<div style={{background:'#2D1B14',height:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#D4AF37',fontSize:'18px',fontWeight:900}}>Loading Game...</div>}>
+    <Suspense fallback={<div style={{background:'#7D5BA6',height:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontSize:'18px',fontWeight:900}}>Loading Heart...</div>}>
       <GameContent />
     </Suspense>
   );

@@ -37,7 +37,7 @@ function SelectionContent() {
       if (roomType.startsWith('SPIN_')) {
         router.push(`/play/spin?id=${res.gameId}&stake=${stake}`);
       } else {
-        router.push('/');
+        router.push(`/game?id=${res.gameId}`);
       }
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to join');
