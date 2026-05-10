@@ -213,18 +213,32 @@ function SpinContent() {
 
         {/* ── Right Column: Player Cards ── */}
         <div style={{ flex: 1, height: '70vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '15px' }} className="cards-scroll">
-           {tickets.map((t: any) => (
-              <div key={t.id} style={{ background: '#E0D4F0', borderRadius: '12px', padding: '8px' }}>
-                  <div style={{ color: '#3D2B1F', fontSize: '10px', fontWeight: '900', marginBottom: '5px', textAlign: 'center' }}>CARD #{t.card?.id || '?' }</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2px' }}>
-                     {(Array.isArray(t.card) ? t.card : t.card.rows).map((row: any[], ri: number) => row.map((cell: any, ci: number) => (
-                        <div key={`${ri}-${ci}`} style={{ background: 'white', color: (cell === 0 || cell === 'FREE') ? '#27AE60' : '#333', height: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '10px', fontWeight: '900' }}>
-                           {cell === 0 || cell === 'FREE' ? '★' : cell}
-                        </div>
-                     )))}
-                  </div>
-              </div>
-           ))}
+           {tickets.map((t: any) => {
+              const cardObj  = t.card as { id: number; rows: any[][] };
+              const rows     = cardObj?.rows ?? [];
+              const cardId   = cardObj?.id ?? '?';
+              const isWinner = result?.winnerCardId === cardId;
+              return (
+                 <div key={t.id} style={{ background: isWinner ? '#FFF9E6' : '#E0D4F0', borderRadius: '12px', padding: '8px', border: isWinner ? '3px solid #D4AF37' : 'none', boxShadow: isWinner ? '0 0 15px rgba(212,175,55,0.5)' : 'none' }}>
+                     <div style={{ color: isWinner ? '#D4AF37' : '#3D2B1F', fontSize: '11px', fontWeight: '900', marginBottom: '5px', textAlign: 'center' }}>
+                        {isWinner ? '🏆 ' : ''}CARD #{cardId}
+                     </div>
+                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2px' }}>
+                        {rows.map((row: any[], ri: number) => row.map((cell: any, ci: number) => {
+                           const isFree = cell === 'FREE' || cell === 0 || cell === null;
+                           return (
+                              <div key={`${ri}-${ci}`} style={{ background: isFree ? '#27AE60' : 'white', color: isFree ? 'white' : '#333', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '11px', fontWeight: '900' }}>
+                                 {isFree ? '★' : cell}
+                              </div>
+                           );
+                        }))}
+                     </div>
+                 </div>
+              );
+           })}
+           {tickets.length === 0 && (
+              <div style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '20px', fontSize: '13px' }}>Your selected cards will appear here</div>
+           )}
         </div>
       </div>
 
