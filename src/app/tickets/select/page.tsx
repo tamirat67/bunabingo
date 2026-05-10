@@ -52,12 +52,15 @@ function SelectionContent() {
   const lastSelected = selected.length > 0 ? selected[selected.length - 1] : null;
   const previewCard = lastSelected ? PREDEFINED_CARDS[lastSelected] : null;
 
+  const isSpin = roomType.startsWith('SPIN_');
+  const gameTitle = isSpin ? 'Buna Spin' : 'Buna Bingo';
+
   return (
-    <div className="selection-container brown">
+    <div className={`selection-container brown ${isSpin ? 'spin-theme' : ''}`}>
       <div className="selection-header-top">
         <button className="btn-back" onClick={() => router.push('/')}><ChevronLeft size={20} color="#4B3621" /></button>
         <div className="header-text">
-          <h1 style={{color: '#3D2B1F', fontWeight: 900}}>Buna Bingo</h1>
+          <h1 style={{color: '#3D2B1F', fontWeight: 900}}>{gameTitle}</h1>
           <p style={{color: 'rgba(61,43,31,0.6)', fontWeight: 800}}>{roomType} • STAKE {stake}</p>
         </div>
       </div>
