@@ -75,9 +75,10 @@ async function runGame(gameId: string): Promise<void> {
 
   if (!game || game.status === GameStatus.CANCELLED) return;
 
-  // Ensure 10+ players still in game
-  if (game.tickets.length < 10 && game.room.type !== 'DEMO') {
-    await cancelGame(gameId, 'Not enough players when game started (Min 10)');
+  // Ensure 10+ UNIQUE players still in game
+  const uniqueCount = await prisma.ticket.groupBy({ where: { gameId }, by: ['userId'] });
+  if (uniqueCount.length < 10 && game.room.type !== 'DEMO') {
+    await cancelGame(gameId, 'Not enough independent players when game started (Min 10)');
     return;
   }
 
