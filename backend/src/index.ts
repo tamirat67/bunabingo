@@ -78,14 +78,41 @@ async function main() {
   // Non-blocking: don't await so server stays responsive during bot init
   (async () => {
     try {
-      // Always try to set the Menu Button if we have a Mini App URL
+      // ── Register commands in Telegram (command picker) ──────────────────────
+      try {
+        await bot.telegram.setMyCommands([
+          // Core
+          { command: 'start',             description: 'Start the bot' },
+          { command: 'playbingo',         description: 'Start playing Bingo' },
+          { command: 'playspin',          description: 'Start playing Spin' },
+          { command: 'register',          description: 'Register for an account' },
+          // Wallet
+          { command: 'balance',           description: 'Check account balance' },
+          { command: 'deposit',           description: 'Deposit funds into your account' },
+          { command: 'withdraw',          description: 'Withdraw funds' },
+          { command: 'transfer',          description: 'Transfer funds to another user' },
+          // Account
+          { command: 'change_name',       description: 'Change your account name' },
+          { command: 'game_history',      description: 'Check your game history' },
+          { command: 'check_transaction', description: 'Check your transaction history' },
+          { command: 'invite',            description: 'Invite your friends' },
+          // Help
+          { command: 'instruction',       description: 'View game instructions' },
+          { command: 'support',           description: 'Contact support' },
+        ]);
+        logger.info('🤖 Bot commands registered with Telegram');
+      } catch (err) {
+        logger.error('Failed to set bot commands:', err);
+      }
+
+      // ── Set the Mini App menu button ────────────────────────────────────────
       try {
         await bot.telegram.setChatMenuButton({
           menuButton: {
             type: 'web_app',
             text: 'Play Buna Bingo',
-            web_app: { url: `${config.bot.miniAppUrl}` }
-          }
+            web_app: { url: `${config.bot.miniAppUrl}` },
+          },
         });
         logger.info(`🤖 Chat Menu Button set to: ${config.bot.miniAppUrl}`);
       } catch (err) {

@@ -19,7 +19,7 @@ export async function getBalance(userId: string): Promise<Decimal> {
 export async function creditWallet(
   userId: string,
   amount: number | Decimal,
-  type: 'DEPOSIT' | 'PRIZE_WIN' | 'REFUND',
+  type: 'DEPOSIT' | 'PRIZE_WIN' | 'REFUND' | 'REFERRAL_BONUS',
   referenceId?: string,
   description?: string
 ): Promise<void> {
@@ -34,7 +34,7 @@ export async function creditWallet(
       totalDeposited: type === 'DEPOSIT'
         ? new Decimal(wallet.totalDeposited.toString()).add(amt)
         : wallet.totalDeposited,
-      totalWon: type === 'PRIZE_WIN'
+      totalWon: (type === 'PRIZE_WIN' || type === 'REFERRAL_BONUS')
         ? new Decimal(wallet.totalWon.toString()).add(amt)
         : wallet.totalWon,
     },

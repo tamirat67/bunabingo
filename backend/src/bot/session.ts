@@ -3,6 +3,8 @@
  * Each user can have one active session at a time.
  */
 
+// ─── Deposit ──────────────────────────────────────────────────────────────────
+
 export type DepositStep =
   | 'AWAITING_AMOUNT'
   | 'AWAITING_SCREENSHOT'   // CBE-Birr, CBE Bank, MPESA
@@ -18,7 +20,32 @@ export interface DepositSession {
   paymentMethod?: PaymentMethod;
 }
 
-type Session = DepositSession;
+// ─── Transfer ─────────────────────────────────────────────────────────────────
+
+export type TransferStep =
+  | 'AWAITING_RECIPIENT'
+  | 'AWAITING_AMOUNT'
+  | 'CONFIRMING';
+
+export interface TransferSession {
+  type: 'TRANSFER';
+  step: TransferStep;
+  recipientId?: string;
+  recipientName?: string;
+  recipientUsername?: string;
+  amount?: number;
+}
+
+// ─── Change Name ──────────────────────────────────────────────────────────────
+
+export interface ChangeNameSession {
+  type: 'CHANGE_NAME';
+  step: 'AWAITING_NAME';
+}
+
+// ─── Union ────────────────────────────────────────────────────────────────────
+
+export type Session = DepositSession | TransferSession | ChangeNameSession;
 
 const sessions = new Map<number, Session>();
 

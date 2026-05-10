@@ -1,6 +1,9 @@
 import prisma from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { config } from '../config';
+import { creditWallet } from './wallet.service';
+
+const REFERRAL_BONUS_ETB = 2;
 
 export async function findOrCreateUser(
   telegramUser: {
@@ -43,18 +46,14 @@ export async function findOrCreateUser(
       logger.info(`[Auth] Wallet initialized for user ${user.id}`);
 
       if (user.referredById) {
-        logger.info(`[Auth] Processing referral for parent ${user.referredById}...`);
+        // Only increment referralCount here — bonus is awarded later in
+        // updateUserPhone() once the new user verifies a real phone number.
+        // This prevents fake accounts from gaming the referral system.
+        logger.info(`[Auth] Referral link attributed: new user ${user.id} ← parent ${user.referredById}`);
         await prisma.user.update({
           where: { id: user.referredById },
-          data: { referralCount: { increment: 1 } }
+          data: { referralCount: { increment: 1 } },
         });
-        
-        // Award referral bonus to parent wallet
-        await prisma.wallet.update({
-          where: { userId: user.referredById },
-          data: { balance: { increment: 2 } } // 2 ETB Bonus
-        });
-        logger.info(`[Auth] Referral bonus awarded to parent ${user.referredById}`);
       }
       logger.info(`🎉 [Auth] New user registered: ${user.firstName} (TG: ${telegramId})`);
     } else {
@@ -145,9 +144,66 @@ export async function isAdmin(telegramId: number): Promise<boolean> {
   return config.bot.adminIds.includes(telegramId.toString());
 }
 
-export async function updateUserPhone(telegramId: number, phoneNumber: string) {
-  return prisma.user.update({
+/**
+ * Saves the verified phone number and — if this user was referred —
+ * awards the 2 ETB referral bonus to the referrer via creditWallet()
+ * so a Transaction record is created (full audit trail).
+ *
+ * Returns: { user, referrer } so the bot can send a Telegram notification.
+ */
+export async function updateUserPhone(
+  telegramId: number,
+  phoneNumber: string
+): Promise<{
+  user: Awaited<ReturnType<typeof prisma.user.findUniqueOrThrow>>;
+  referrer: { id: string; telegramId: bigint; firstName: string } | null;
+}> {
+  // Save phone
+  const user = await prisma.user.update({
     where: { telegramId: BigInt(telegramId) },
-    data: { phoneNumber },
+    data:  { phoneNumber },
   });
+
+  let referrer: { id: string; telegramId: bigint; firstName: string } | null = null;
+
+  // Award referral bonus only once (guard: phone was null before this call)
+  if (user.referredById) {
+    const bonusAlreadyGiven = await prisma.transaction.findFirst({
+      where: {
+        userId:      user.referredById,
+        type:        'REFERRAL_BONUS',
+        referenceId: user.id,          // referenceId = new user's id → unique per pair
+      },
+    });
+
+    if (!bonusAlreadyGiven) {
+      try {
+        await creditWallet(
+          user.referredById,
+          REFERRAL_BONUS_ETB,
+          'REFERRAL_BONUS',
+          user.id,                     // referenceId links bonus to this specific new user
+          `Referral bonus — ${user.firstName} joined`
+        );
+        logger.info(
+          `[Referral] ${REFERRAL_BONUS_ETB} ETB bonus credited to ${user.referredById} ` +
+          `for referring user ${user.id}`
+        );
+
+        // Fetch referrer's telegramId so bot can notify them
+        const ref = await prisma.user.findUnique({
+          where:  { id: user.referredById },
+          select: { id: true, telegramId: true, firstName: true },
+        });
+        referrer = ref ?? null;
+      } catch (err) {
+        // Non-fatal — bonus failure should never block phone verification
+        logger.error('[Referral] Failed to credit bonus:', err);
+      }
+    } else {
+      logger.warn(`[Referral] Bonus already given for ${user.referredById} ← ${user.id}, skipping`);
+    }
+  }
+
+  return { user, referrer };
 }
