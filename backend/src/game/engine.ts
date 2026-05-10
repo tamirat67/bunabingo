@@ -75,9 +75,9 @@ async function runGame(gameId: string): Promise<void> {
 
   if (!game || game.status === GameStatus.CANCELLED) return;
 
-  // Ensure 2+ players still in game
-  if (game.tickets.length < 2) {
-    await cancelGame(gameId, 'Not enough players when game started');
+  // Ensure 10+ players still in game
+  if (game.tickets.length < 10 && game.room.type !== 'DEMO') {
+    await cancelGame(gameId, 'Not enough players when game started (Min 10)');
     return;
   }
 
@@ -120,7 +120,7 @@ async function runSpinRaffle(gameId: string): Promise<void> {
     include: { tickets: { include: { user: true } }, room: true }
   });
 
-  if (!game || game.tickets.length < 2) return;
+  if (!game || game.tickets.length < 10) return;
 
   // 1. Pick a random ticket as the winner
   const winnerTicket = game.tickets[Math.floor(Math.random() * game.tickets.length)];

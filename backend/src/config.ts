@@ -30,10 +30,10 @@ export const config = {
     },
     minPlayers: {
       DEMO: 1,
-      CASUAL: 1,
-      STANDARD: 1,
-      PRO: 1,
-      JACKPOT: 1,
+      CASUAL: 10,
+      STANDARD: 10,
+      PRO: 10,
+      JACKPOT: 10,
     },
     countdown: {
       2: 30,   // 2 players → 30s
