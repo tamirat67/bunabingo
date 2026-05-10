@@ -467,14 +467,14 @@ export async function joinGame(
 
   const numTickets = cardIds.length;
   if (numTickets === 0) throw new Error('No cards selected');
-  if (numTickets > 3) throw new Error('Maximum of 3 cards allowed per player at a time');
+  if (numTickets > 5) throw new Error('Maximum of 5 cards allowed per player at a time');
   
-  // Enforce total limit of 3 cards per player per game
+  // Enforce total limit of 5 cards per player per game
   const existingTicketsCount = await prisma.ticket.count({
     where: { userId, gameId }
   });
-  if (existingTicketsCount + numTickets > 3) {
-    throw new Error(`You already have ${existingTicketsCount} tickets in this game. Maximum allowed is 3.`);
+  if (existingTicketsCount + numTickets > 5) {
+    throw new Error(`You already have ${existingTicketsCount} tickets in this game. Maximum allowed is 5.`);
   }
 
   // Validate and prepare cards
