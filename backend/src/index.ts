@@ -82,23 +82,23 @@ async function main() {
       try {
         await bot.telegram.setMyCommands([
           // Core / Gaming
-          { command: 'start',             description: 'Start the bot' },
-          { command: 'playbingo',         description: 'Start playing Bingo' },
-          { command: 'playspin',          description: 'Start playing Spin' },
-          { command: 'register',          description: 'Register for an account' },
+          { command: 'start',             description: '👋 Start the bot' },
+          { command: 'playbingo',         description: '🎮 Start playing Bingo' },
+          { command: 'playspin',          description: '🎰 Start playing Spin' },
+          { command: 'register',          description: '📝 Register for an account' },
           // Wallet & Finance
-          { command: 'balance',           description: 'Check account balance' },
-          { command: 'deposit',           description: 'Deposit funds into your account' },
-          { command: 'withdraw',          description: 'Withdraw funds' },
-          { command: 'transfer',          description: 'Transfer funds to another user' },
+          { command: 'balance',           description: '💰 Check account balance' },
+          { command: 'deposit',           description: '💵 Deposit funds into your account' },
+          { command: 'withdraw',          description: '💸 Withdraw funds' },
+          { command: 'transfer',          description: '📤 Transfer funds to another user' },
           // History & Social
-          { command: 'game_history',      description: 'Check your game history' },
-          { command: 'check_transaction', description: 'Check your transaction history' },
-          { command: 'invite',            description: 'Invite your friends' },
+          { command: 'game_history',      description: '📜 Check your game history' },
+          { command: 'check_transaction', description: '💳 Check your transaction history' },
+          { command: 'invite',            description: '✉️ Invite your friends' },
           // Profile & Help
-          { command: 'change_name',       description: 'Change your account name' },
-          { command: 'instruction',       description: 'View game instructions' },
-          { command: 'support',           description: 'Contact support' },
+          { command: 'change_name',       description: '🆔 Change your account name' },
+          { command: 'instruction',       description: '📖 View game instructions' },
+          { command: 'support',           description: '📞 Contact support' },
         ]);
         logger.info('🤖 Bot commands registered with Telegram');
       } catch (err) {
