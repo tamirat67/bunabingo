@@ -92,7 +92,7 @@ export default function LobbyPage() {
         id: r.id,
         type: r.type,
         price: price,
-        win: livePrize, // Show live pool (usually 0 at start)
+        win: livePrize > 0 ? livePrize : price * 8, // Show 8x multiplier if live pool is 0
         players: r.games?.[0]?.tickets?.length || 0,
         active: r.games?.filter((g: any) => g.status === 'RUNNING').length || 0,
         isBonus: r.type === 'SPIN_10' || r.type === 'SPIN_100'
