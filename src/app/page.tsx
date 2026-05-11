@@ -75,7 +75,7 @@ export default function LobbyPage() {
         id: r.id,
         type: r.type,
         price: price,
-        win: livePrize > 0 ? livePrize : price * 8,
+        win: Math.max(livePrize, price * 8),
         players: r.games?.[0]?.tickets?.length || 0,
         active: r.games?.filter((g: any) => g.status === 'RUNNING').length || 0,
         isBonus: ['CASUAL', 'JACKPOT'].includes(r.type)
@@ -92,7 +92,7 @@ export default function LobbyPage() {
         id: r.id,
         type: r.type,
         price: price,
-        win: livePrize > 0 ? livePrize : price * 8, // Show 8x multiplier if live pool is 0
+        win: Math.max(livePrize, price * 8), // Show at least 8x multiplier
         players: r.games?.[0]?.tickets?.length || 0,
         active: r.games?.filter((g: any) => g.status === 'RUNNING').length || 0,
         isBonus: r.type === 'SPIN_10' || r.type === 'SPIN_100'
