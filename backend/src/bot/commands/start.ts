@@ -48,7 +48,7 @@ export async function handleStart(ctx: Context) {
         ? // ── Invited user path ───────────────────────────────────────────────
           `🎉 <b>${referrerName}</b> invited you to <b>Buna Bingo</b>!\n` +
           `እንኳን ደና መጡ!\n\n` +
-          `☕️ <i>"Spin Wheel, Play, Win: The Royal Buna Way."</i>\n` +
+          `☕️ <i>"Buna Bingo, Play, Win: The Royal Buna Way."</i>\n` +
           `☕️ <i>"ይጎንጩ፣ ይጫወቱ፣ ያሸንፉ፦ በንጉሳዊው የቡና መንገድ!"</i>\n\n` +
           `✨ <b>Join now and you both earn a 5 ETB bonus!</b>\n` +
           `✨ <b>አሁኑኑ ይቀላቀሉ እና የ 5 ብር ቦነስ ያግኙ!</b>\n\n` +
@@ -117,8 +117,8 @@ export async function handleStart(ctx: Context) {
       `✨ "የቡና ጣዕም፣ ወርቃማ ድሎች።"\n\n` +
       `🎰 "The Perfect Blend of Luck and Luxury."\n` +
       `🎰 "የዕድል እና የቅንጦት ፍጹም ውህደት።"\n\n` +
-      `👑 "Spin Wheel, Play, Win: The Royal Buna Way."\n` +
-      `👑 "ይጎንጩ፣ ይጫወቱ፣ ያሸንፉ፦ በንጉሳዊው የቡና መንገድ!"\n\n` +
+      `👑 "Buna Bingo, Play, Win: The Royal Buna Way."\n` +
+      `👑 "ቡና፣ ይጎንጩ፣ ይጫወቱ፣ ያሸንፉ፦ በንጉሳዊው የቡና መንገድ!"\n\n` +
       `☀️🏆 "Buna Bingo — Wake Up to a Jackpot."\n` +
       `☀️🏆 "ቡና ቢንጎ — ከጃክፖት ጋር ይንቁ!"\n\n` +
       `Choose an option below:\n` +
