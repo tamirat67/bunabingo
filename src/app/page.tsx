@@ -68,28 +68,36 @@ export default function LobbyPage() {
 
   const bingoRooms = rooms
     .filter(r => !r.type.startsWith('SPIN_') && r.type !== 'DEMO')
-    .map(r => ({
-      id: r.id,
-      type: r.type,
-      price: Number(r.ticketPrice),
-      win: r.games?.[0]?.totalPrize || Number(r.ticketPrice) * 8,
-      players: r.games?.[0]?.tickets?.length || 0,
-      active: r.games?.filter((g: any) => g.status === 'RUNNING').length || 0,
-      isBonus: ['CASUAL', 'JACKPOT'].includes(r.type)
-    }))
+    .map(r => {
+      const price = Number(r.ticketPrice);
+      const livePrize = Number(r.games?.[0]?.totalPrize || 0);
+      return {
+        id: r.id,
+        type: r.type,
+        price: price,
+        win: livePrize > 0 ? livePrize : price * 8,
+        players: r.games?.[0]?.tickets?.length || 0,
+        active: r.games?.filter((g: any) => g.status === 'RUNNING').length || 0,
+        isBonus: ['CASUAL', 'JACKPOT'].includes(r.type)
+      };
+    })
     .sort((a, b) => a.price - b.price);
 
   const spinRooms = rooms
     .filter(r => r.type.startsWith('SPIN_'))
-    .map(r => ({
-      id: r.id,
-      type: r.type,
-      price: Number(r.ticketPrice),
-      win: r.games?.[0]?.totalPrize || 0,
-      players: r.games?.[0]?.tickets?.length || 0,
-      active: r.games?.filter((g: any) => g.status === 'RUNNING').length || 0,
-      isBonus: r.type === 'SPIN_10' || r.type === 'SPIN_100'
-    }))
+    .map(r => {
+      const price = Number(r.ticketPrice);
+      const livePrize = Number(r.games?.[0]?.totalPrize || 0);
+      return {
+        id: r.id,
+        type: r.type,
+        price: price,
+        win: livePrize, // Show live pool (usually 0 at start)
+        players: r.games?.[0]?.tickets?.length || 0,
+        active: r.games?.filter((g: any) => g.status === 'RUNNING').length || 0,
+        isBonus: r.type === 'SPIN_10' || r.type === 'SPIN_100'
+      };
+    })
     .sort((a, b) => a.price - b.price);
 
   const demoRoom = rooms.find(r => r.type === 'DEMO');
