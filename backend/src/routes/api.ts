@@ -29,7 +29,7 @@ const upload = multer({
 // ─── PUBLIC Routes (no auth needed) ──────────────────────────
 router.get('/rooms', async (_req: Request, res: Response) => {
   try {
-    const rooms = await withRetry(() => prisma.room.findMany());
+    const rooms = await withRetry(() => getRooms());
     res.json(rooms);
   } catch (err) {
     logger.error('Failed to load rooms:', err);
@@ -491,8 +491,9 @@ router.get('/games/:gameId/mycard', async (req: Request, res: Response) => {
     include: { winners: true },
     orderBy: { purchasedAt: 'desc' }
   });
-  if (!tickets.length) return res.status(404).json({ error: 'No tickets found' });
-  res.json({ tickets }); // Now returns an array of tickets
+  // Always return 200 with empty array if no tickets — don't return 404
+  // so the frontend Promise.all doesn't crash
+  res.json({ tickets });
 });
 
 router.get('/mytickets', async (req: Request, res: Response) => {

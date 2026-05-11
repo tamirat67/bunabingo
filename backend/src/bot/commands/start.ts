@@ -48,7 +48,7 @@ export async function handleStart(ctx: Context) {
         ? // ── Invited user path ───────────────────────────────────────────────
           `🎉 <b>${referrerName}</b> invited you to <b>Buna Bingo</b>!\n\n` +
           `☕️ <i>The ultimate Ethiopian bingo experience.</i>\n\n` +
-          `✨ <b>Join now and you both earn a 2 ETB bonus!</b>\n\n` +
+          `✨ <b>Join now and you both earn a 5 ETB bonus!</b>\n\n` +
           `To activate your account, please share your phone number.\n` +
           `Telegram will ask for your confirmation before sharing anything.`
         : // ── Organic / direct user path ──────────────────────────────────────
@@ -58,31 +58,46 @@ export async function handleStart(ctx: Context) {
           `please share your phone number to continue.\n` +
           `Telegram will ask for your confirmation before sharing anything.`;
 
-      return ctx.reply(message, {
+      const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.jpg`;
+
+      return ctx.replyWithPhoto(bannerUrl, {
+        caption: message,
         parse_mode: 'HTML',
-        // contactRequest triggers the native "Share your phone number?" system dialog
         ...Markup.keyboard([
           [Markup.button.contactRequest('📱 Share Phone Number')],
         ]).oneTime().resize(),
+      }).catch(() => {
+        // Fallback if image fails to load
+        return ctx.reply(message, {
+          parse_mode: 'HTML',
+          ...Markup.keyboard([
+            [Markup.button.contactRequest('📱 Share Phone Number')],
+          ]).oneTime().resize(),
+        });
       });
     }
 
     // ── 3b. Phone already saved → show main menu ──────────────────────────────
     const inviteLink = `https://t.me/${ctx.botInfo.username}?start=${user.id}`;
     const shareText  = encodeURIComponent(
-      `🎰 Join me on Buna Bingo! ☕️ We both get 2 ETB bonus!\n\n${inviteLink}`
+      `🎰 Join me on Buna Bingo! ☕️ We both get 5 ETB bonus!\n\n${inviteLink}`
     );
 
     logger.info(`[Start] Showing main menu to ${tgUser.id} (${tgUser.first_name})`);
 
-    await ctx.reply(
+    const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.jpg`;
+    const mainMenuText = 
       `Welcome to Buna Bingo! ☕️💰\n\n` +
       `"Rich Flavor, Golden Wins." ✨\n` +
       `"The Perfect Blend of Luck and Luxury." 🎰\n` +
       `"Sip, Play, Win: The Royal Buna Way." 👑\n` +
       `"Buna Bingo — Wake Up to a Jackpot." ☀️🏆\n\n` +
-      `Choose an option below:`,
-      Markup.inlineKeyboard([
+      `Choose an option below:`;
+
+    await ctx.replyWithPhoto(bannerUrl, {
+      caption: mainMenuText,
+      parse_mode: 'HTML',
+      ...Markup.inlineKeyboard([
         // ── Row 1: Games ─────────────────────────────────────────────────────
         [
           Markup.button.callback('Play Bingo 🎮', 'cmd_play_bingo'),
@@ -107,7 +122,32 @@ export async function handleStart(ctx: Context) {
           ),
         ],
       ])
-    );
+    }).catch(() => {
+      // Fallback if image fails
+      return ctx.reply(mainMenuText, 
+        Markup.inlineKeyboard([
+          [
+            Markup.button.callback('Play Bingo 🎮', 'cmd_play_bingo'),
+            Markup.button.callback('Play Spin 🎮',  'cmd_play_spin'),
+          ],
+          [
+            Markup.button.callback('Register 📝',  'cmd_register'),
+            Markup.button.callback('Deposit 💵',   'cmd_deposit'),
+          ],
+          [
+            Markup.button.callback('Check Balance 💰', 'cmd_balance'),
+            Markup.button.url('Contact support 📞', 'https://t.me/bunabingosupport'),
+          ],
+          [
+            Markup.button.webApp('Instruction 📖', `${config.bot.miniAppUrl}/instructions`),
+            Markup.button.url(
+              'Invite ✉️',
+              `https://t.me/share/url?url=${inviteLink}&text=${shareText}`
+            ),
+          ],
+        ])
+      );
+    });
 
     logger.info(`[Start] Main menu sent to ${user.id}`);
   } catch (err: any) {

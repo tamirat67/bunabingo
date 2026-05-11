@@ -184,10 +184,10 @@ export function createBot(): Telegraf {
             Number(referrer.telegramId),
             `🎉 <b>Referral Bonus Earned!</b>\n\n` +
             `<b>${user.firstName}</b> just joined Buna Bingo using your invite link.\n\n` +
-            `💰 <b>+2.00 ETB</b> has been added to your wallet! ☕️`,
+            `💰 <b>+5.00 ETB</b> has been added to your wallet! ☕️`,
             { parse_mode: 'HTML' }
           );
-          logger.info(`[Referral] Notified referrer ${referrer.id} of 2 ETB bonus`);
+          logger.info(`[Referral] Notified referrer ${referrer.id} of 5 ETB bonus`);
         } catch {
           // Non-fatal — referrer may have blocked the bot
           logger.warn(`[Referral] Could not notify referrer ${referrer.id}`);

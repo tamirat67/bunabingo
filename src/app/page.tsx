@@ -224,7 +224,7 @@ export default function LobbyPage() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            {spinRooms.map((room) => (
+          {spinRooms.map((room) => (
               <React.Fragment key={room.type}>
                 <div onClick={() => handleJoinRoom(room)} style={{ background: T.card, padding: '15px 10px', display: 'grid', gridTemplateColumns: '70px 1fr 120px', alignItems: 'center', borderRadius: '4px', cursor: 'pointer' }}>
                     <div>
@@ -234,8 +234,8 @@ export default function LobbyPage() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                         <Trophy size={20} color={T.gold} />
                         <div style={{ textAlign: 'left' }}>
-                            <div style={{ fontSize: '20px', fontWeight: '900', color: 'white', lineHeight: '1' }}>0</div>
-                            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 'bold' }}>0 players</div>
+                            <div style={{ fontSize: '20px', fontWeight: '900', color: 'white', lineHeight: '1' }}>{room.win || room.price * 8}</div>
+                            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 'bold' }}>{room.players} players</div>
                         </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>

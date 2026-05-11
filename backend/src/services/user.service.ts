@@ -3,7 +3,7 @@ import { logger } from '../lib/logger';
 import { config } from '../config';
 import { creditWallet } from './wallet.service';
 
-const REFERRAL_BONUS_ETB = 2;
+const REFERRAL_BONUS_ETB = 5;
 
 export async function findOrCreateUser(
   telegramUser: {
