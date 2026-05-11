@@ -91,6 +91,25 @@ export async function handleStart(ctx: Context) {
     logger.info(`[Start] Showing main menu to ${tgUser.id} (${tgUser.first_name})`);
 
     const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.png`;
+    
+    // ── 4. Promotional Pinned Notice ──────────────────────────────────────────
+    const promoText = 
+      `☕️ <b>እንኳን ወደ ቡና ቢንጎ በሰላም መጡ!</b>\n\n` +
+      `የቡና ጣዕም ከወርቃማ ድሎች ጋር የሚገናኝበት፣ የዕድል እና የቅንጦት ፍጹም ውህደት።\n` +
+      `ይጎንጩ፣ ይጫወቱ፣ ያሸንፉ! በቡና ቢንጎ ሁሌም ከጃክፖት ጋር ይንቁ።\n\n` +
+      `📌 <i>Tip: Pin this bot to your chat list for quick access!</i>`;
+
+    try {
+      const promoMsg = await ctx.replyWithPhoto(bannerUrl, {
+        caption: promoText,
+        parse_mode: 'HTML',
+      });
+      // Pin the message to the "header" of the bot page
+      await ctx.telegram.pinChatMessage(ctx.chat!.id, promoMsg.message_id);
+    } catch (e) {
+      // Non-fatal if pinning fails
+    }
+
     const mainMenuText = 
       `<b>Welcome to Buna Bingo!</b> ☕️💰\n` +
       `<b>እንኳን ደና መጡ!</b>\n\n` +
