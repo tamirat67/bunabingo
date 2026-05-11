@@ -15,15 +15,13 @@ export async function handleInvite(ctx: Context) {
     const botUsername  = ctx.botInfo?.username ?? 'BunaBingoBot';
     const inviteLink   = `https://t.me/${botUsername}?start=${user.id}`;
     const shareMessage = encodeURIComponent(
-      `🎰 Join me on Buna Bingo — the ultimate Ethiopian bingo experience!\n` +
-      `☕️ We both get a bonus when you sign up!\n\n` +
-      `👉 ${inviteLink}`
+      `🎰 Join me on Buna Bingo! ☕️ We both get 5 ETB bonus!\n\n${inviteLink}`
     );
     const shareUrl = `https://t.me/share/url?url=${inviteLink}&text=${shareMessage}`;
 
     logger.info(`[Invite] User ${tgUser.id} requested invite link`);
 
-    const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.jpg`;
+    const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.png`;
     const messageText = 
       `✉️ <b>Invite Your Friends</b>\n\n` +
       `Share your personal invite link and earn <b>5 ETB bonus</b> for every friend who joins!\n\n` +

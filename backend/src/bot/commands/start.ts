@@ -62,7 +62,7 @@ export async function handleStart(ctx: Context) {
           `Please share your phone number to continue:\n` +
           `ለመቀጠል እባክዎ ስልክ ቁጥርዎን ያጋሩ፡-`;
 
-      const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.jpg`;
+      const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.png`;
 
       return ctx.replyWithPhoto(bannerUrl, {
         caption: message,
@@ -89,7 +89,7 @@ export async function handleStart(ctx: Context) {
 
     logger.info(`[Start] Showing main menu to ${tgUser.id} (${tgUser.first_name})`);
 
-    const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.jpg`;
+    const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.png`;
     const mainMenuText = 
       `<b>Welcome to Buna Bingo!</b> ☕️💰\n` +
       `<b>እንኳን ደና መጡ!</b>\n\n` +

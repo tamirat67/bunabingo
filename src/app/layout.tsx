@@ -7,7 +7,13 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Buna Bingo',
-  description: 'The ultimate bingo experience on Telegram',
+  description: '🎰 Join me on Buna Bingo! ☕️ We both get 5 ETB bonus!',
+  openGraph: {
+    title: 'Buna Bingo',
+    description: '🎰 Join me on Buna Bingo! ☕️ We both get 5 ETB bonus!',
+    images: [{ url: '/banner.png', width: 1200, height: 630 }],
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
