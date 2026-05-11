@@ -27,5 +27,9 @@ export async function handleInstructions(ctx: Context) {
     
     `☕️ <i>Buna Bingo: The Royal Way to Win!</i>`;
 
-  await ctx.reply(text, { parse_mode: 'HTML' });
+  const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.png`;
+  await ctx.replyWithPhoto(bannerUrl, {
+    caption: text,
+    parse_mode: 'HTML'
+  });
 }
