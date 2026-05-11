@@ -82,10 +82,11 @@ export async function handleStart(ctx: Context) {
     }
 
     // ── 3b. Phone already saved → show main menu ──────────────────────────────
-    const inviteLink = `https://t.me/${ctx.botInfo.username}?start=${user.id}`;
+    const inviteLink = `${config.bot.miniAppUrl}/invite/${user.id}`;
     const shareText  = encodeURIComponent(
-      `🎰 Join me on Buna Bingo! ☕️ We both get 5 ETB bonus!\n\n${inviteLink}`
+      `🎰 Join me on Buna Bingo! ☕️ We both get 5 ETB bonus!\n\n`
     );
+    const shareUrl = `https://t.me/share/url?url=${inviteLink}&text=${shareText}`;
 
     logger.info(`[Start] Showing main menu to ${tgUser.id} (${tgUser.first_name})`);
 
@@ -128,7 +129,7 @@ export async function handleStart(ctx: Context) {
           Markup.button.webApp('Instruction 📖', `${config.bot.miniAppUrl}/instructions`),
           Markup.button.url(
             'Invite ✉️',
-            `https://t.me/share/url?url=${inviteLink}&text=${shareText}`
+            shareUrl
           ),
         ],
       ])
@@ -152,7 +153,7 @@ export async function handleStart(ctx: Context) {
             Markup.button.webApp('Instruction 📖', `${config.bot.miniAppUrl}/instructions`),
             Markup.button.url(
               'Invite ✉️',
-              `https://t.me/share/url?url=${inviteLink}&text=${shareText}`
+              shareUrl
             ),
           ],
         ])

@@ -1,6 +1,7 @@
 import { Context, Markup } from 'telegraf';
 import { getUserByTelegramId } from '../../services/user.service';
 import { logger } from '../../lib/logger';
+import { config } from '../../config';
 
 // ─── /invite ──────────────────────────────────────────────────────────────────
 export async function handleInvite(ctx: Context) {
@@ -13,9 +14,9 @@ export async function handleInvite(ctx: Context) {
     if (!user) return ctx.reply('❌ Please /start first to register.');
 
     const botUsername  = ctx.botInfo?.username ?? 'BunaBingoBot';
-    const inviteLink   = `https://t.me/${botUsername}?start=${user.id}`;
+    const inviteLink   = `${config.bot.miniAppUrl}/invite/${user.id}`;
     const shareMessage = encodeURIComponent(
-      `🎰 Join me on Buna Bingo! ☕️ We both get 5 ETB bonus!\n\n${inviteLink}`
+      `🎰 Join me on Buna Bingo! ☕️ We both get 5 ETB bonus!\n\n`
     );
     const shareUrl = `https://t.me/share/url?url=${inviteLink}&text=${shareMessage}`;
 
