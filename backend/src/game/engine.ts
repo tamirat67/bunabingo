@@ -76,8 +76,8 @@ async function runGame(gameId: string): Promise<void> {
   if (!game || game.status === GameStatus.CANCELLED) return;
 
   // Ensure 10+ UNIQUE players still in game
-  const uniqueCount = await prisma.ticket.groupBy({ where: { gameId }, by: ['userId'] });
-  if (uniqueCount.length < 10 && game.room.type !== 'DEMO') {
+  const uniquePlayers = await prisma.ticket.groupBy({ where: { gameId }, by: ['userId'] });
+  if (uniquePlayers.length < 10 && game.room.type !== 'DEMO') {
     await cancelGame(gameId, 'Not enough independent players when game started (Min 10)');
     return;
   }
@@ -88,9 +88,80 @@ async function runGame(gameId: string): Promise<void> {
      return;
   }
 
+  // ─── CHARGE PLAYERS NOW (game is actually starting) ─────────────────────────
+  // Balance was only validated at join time — deduct here so users aren't charged
+  // for games that never start or get cancelled.
+  const unitPrice = game.room.ticketPrice;
+  const houseEdgePercent = config.game.houseEdgePercent;
+  let totalPrizePool = new Decimal(0);
+  let totalHouseEdge = new Decimal(0);
+
+  // Group tickets by user so we charge once per user for their total ticket count
+  const ticketsByUser = new Map<string, typeof game.tickets>();
+  for (const ticket of game.tickets) {
+    const existing = ticketsByUser.get(ticket.userId) || [];
+    existing.push(ticket);
+    ticketsByUser.set(ticket.userId, existing);
+  }
+
+  for (const [userId, userTickets] of ticketsByUser) {
+    const numTickets = userTickets.length;
+    const totalCharge = new Decimal(unitPrice).mul(numTickets);
+    const houseEdge = totalCharge.mul(houseEdgePercent).div(100);
+    const prizeContribution = totalCharge.sub(houseEdge);
+
+    const wallet = await prisma.wallet.findUnique({ where: { userId } });
+    if (!wallet) {
+      logger.error(`[Game ${gameId}] Wallet not found for user ${userId} — skipping charge`);
+      continue;
+    }
+
+    // Re-validate balance at game start (edge case: user spent balance elsewhere)
+    if (new Decimal(wallet.balance).lessThan(totalCharge)) {
+      logger.warn(`[Game ${gameId}] User ${userId} has insufficient balance at game start — removing tickets`);
+      await prisma.ticket.deleteMany({ where: { gameId, userId } });
+      continue;
+    }
+
+    const newBalance = new Decimal(wallet.balance).sub(totalCharge);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.wallet.update({
+        where: { userId },
+        data: {
+          balance: newBalance,
+          totalSpent: new Decimal(wallet.totalSpent).add(totalCharge),
+        },
+      });
+
+      await tx.transaction.create({
+        data: {
+          userId,
+          type: 'TICKET_PURCHASE',
+          amount: totalCharge,
+          balanceBefore: wallet.balance,
+          balanceAfter: newBalance,
+          status: 'COMPLETED',
+          referenceId: gameId,
+          description: `Game started — ${numTickets} ticket(s) charged for ${game.room.type}`,
+        },
+      });
+    });
+
+    totalPrizePool = totalPrizePool.add(prizeContribution);
+    totalHouseEdge = totalHouseEdge.add(houseEdge);
+    logger.info(`[Game ${gameId}] Charged ${totalCharge} ETB from user ${userId} (${numTickets} ticket(s))`);
+  }
+
+  // Update game prize pool with actual collected amounts
   await prisma.game.update({
     where: { id: gameId },
-    data: { status: GameStatus.RUNNING, startedAt: new Date() },
+    data: {
+      status: GameStatus.RUNNING,
+      startedAt: new Date(),
+      totalPrize: totalPrizePool,
+      houseEdge: totalHouseEdge,
+    },
   });
 
   let state = activeGames.get(gameId);
@@ -105,7 +176,7 @@ async function runGame(gameId: string): Promise<void> {
   }
 
   await triggerGameEvent(gameId, 'game-started', { gameId, playerCount: game.tickets.length });
-  logger.info(`[Game ${gameId}] Game RUNNING with ${game.tickets.length} players`);
+  logger.info(`[Game ${gameId}] Game RUNNING with ${game.tickets.length} tickets. Prize pool: ${totalPrizePool} ETB`);
 
   // Start draw loop
   state.drawInterval = setInterval(() => drawNumber(gameId), config.game.drawIntervalMs);
@@ -385,44 +456,19 @@ export async function cancelGame(gameId: string, reason: string): Promise<void> 
     data: { status: GameStatus.CANCELLED, cancelledAt: new Date(), cancelReason: reason },
   });
 
-  // Refund all ticket purchases
-  const tickets = await prisma.ticket.findMany({ where: { gameId }, include: { user: true } });
+  // No refunds needed — balance is only deducted when the game STARTS (in runGame).
+  // Cancelled games never charged players, so we just notify them.
+  const tickets = await prisma.ticket.findMany({ where: { gameId } });
+  const notifiedUsers = new Set<string>();
   for (const ticket of tickets) {
-    const game = await prisma.game.findUnique({ where: { id: gameId }, include: { room: true } });
-    if (!game) continue;
-
-    const refundAmount = game.room.ticketPrice;
-    const wallet = await prisma.wallet.findUnique({ where: { userId: ticket.userId } });
-    if (!wallet) continue;
-
-    const after = new Decimal(wallet.balance).add(refundAmount);
-    await prisma.wallet.update({
-      where: { userId: ticket.userId },
-      data: { balance: after, totalSpent: new Decimal(wallet.totalSpent).sub(refundAmount) },
-    });
-
-    await prisma.transaction.create({
-      data: {
-        userId: ticket.userId,
-        type: 'REFUND',
-        amount: refundAmount,
-        balanceBefore: wallet.balance,
-        balanceAfter: after,
-        status: 'COMPLETED',
-        referenceId: gameId,
-        description: `Refund: cancelled game`,
-      },
-    });
-
-    await triggerUserEvent(ticket.userId, 'game-cancelled', {
-      gameId,
-      refundAmount: refundAmount.toFixed(2),
-      reason,
-    });
+    if (!notifiedUsers.has(ticket.userId)) {
+      await triggerUserEvent(ticket.userId, 'game-cancelled', { gameId, reason });
+      notifiedUsers.add(ticket.userId);
+    }
   }
 
   await triggerGameEvent(gameId, 'game-cancelled', { gameId, reason });
-  logger.info(`[Game ${gameId}] Cancelled: ${reason}`);
+  logger.info(`[Game ${gameId}] Cancelled: ${reason} (no charges were made)`);
 }
 
 // ─── Create Waiting Game ──────────────────────────────────────
@@ -491,7 +537,9 @@ export async function joinGame(
     });
   }
 
-  // Check wallet balance for TOTAL amount
+  // ── Balance check only — do NOT deduct here ─────────────────────────────────
+  // Deduction happens in runGame() when the game actually starts.
+  // This way users are never charged for games that get cancelled.
   const wallet = await prisma.wallet.findUnique({ where: { userId } });
   if (!wallet) throw new Error('Wallet not found');
 
@@ -502,63 +550,27 @@ export async function joinGame(
     throw new Error(`Insufficient balance. You need ${totalPrice} ETB.`);
   }
 
-  // Deduct balance and update game prize
-  const newBalance = new Decimal(wallet.balance).sub(totalPrice);
-  const totalHouseEdge = new Decimal(totalPrice).mul(config.game.houseEdgePercent).div(100);
-  const totalPrizeContribution = new Decimal(totalPrice).sub(totalHouseEdge);
-
+  // Create tickets only (no wallet changes)
   const results = await prisma.$transaction(async (tx) => {
-    // 1. Update wallet
-    const updatedWallet = await tx.wallet.update({
-      where: { userId },
-      data: {
-        balance: newBalance,
-        totalSpent: new Decimal(wallet.totalSpent).add(totalPrice),
-      },
-    });
-
-    // 2. Create Transaction record
-    await tx.transaction.create({
-      data: {
-        userId,
-        type: 'TICKET_PURCHASE',
-        amount: totalPrice,
-        balanceBefore: wallet.balance,
-        balanceAfter: newBalance,
-        status: 'COMPLETED',
-        referenceId: gameId,
-        description: `Purchased ${numTickets} tickets for ${game.room.type} game`,
-      },
-    });
-
-    // 3. Create Tickets
-    const tickets = await Promise.all(preparedCards.map(c => 
+    // 1. Create Tickets
+    const tickets = await Promise.all(preparedCards.map(c =>
       tx.ticket.create({
-        data: { 
-          userId, 
-          gameId, 
-          card: { id: c.id, rows: c.pattern } as any, 
-          markedNumbers: [] 
+        data: {
+          userId,
+          gameId,
+          card: { id: c.id, rows: c.pattern } as any,
+          markedNumbers: []
         }
       })
     ));
 
-    // 4. Update Game
-    await tx.game.update({
-      where: { id: gameId },
-      data: {
-        totalPrize: new Decimal(game.totalPrize).add(totalPrizeContribution),
-        houseEdge: new Decimal(game.houseEdge).add(totalHouseEdge),
-      },
-    });
-
-    // 5. Update Room player count
+    // 2. Update Room player count (for lobby display)
     await tx.room.update({
       where: { id: game.roomId },
       data: { currentPlayers: { increment: numTickets } }
     });
 
-    return { tickets, updatedWallet };
+    return { tickets };
   });
 
   // Update room player count logic
