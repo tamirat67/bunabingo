@@ -27,6 +27,7 @@ export const config = {
       STANDARD: parseFloat(process.env.TICKET_PRICE_STANDARD || '20'),
       PRO: parseFloat(process.env.TICKET_PRICE_PRO || '50'),
       JACKPOT: parseFloat(process.env.TICKET_PRICE_JACKPOT || '100'),
+      VIP: parseFloat(process.env.TICKET_PRICE_VIP || '200'),
     },
     minPlayers: {
       DEMO: 1,
@@ -34,6 +35,7 @@ export const config = {
       STANDARD: 10,
       PRO: 10,
       JACKPOT: 10,
+      VIP: 10,
     },
     countdown: {
       2: 30,   // 2 players → 30s

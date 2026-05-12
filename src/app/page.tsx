@@ -77,7 +77,8 @@ export default function LobbyPage() {
         win: Math.max(livePrize, price * 8),
         players: r.games?.[0]?.tickets?.length || 0,
         active: r.games?.filter((g: any) => g.status === 'RUNNING').length || 0,
-        isBonus: ['CASUAL', 'JACKPOT'].includes(r.type)
+        isBonus: ['CASUAL', 'JACKPOT'].includes(r.type),
+        isVip: ['JACKPOT', 'VIP'].includes(r.type),
       };
     })
     .sort((a, b) => a.price - b.price);
@@ -162,16 +163,45 @@ export default function LobbyPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             {bingoRooms.map((room) => (
               <React.Fragment key={room.type}>
-                <div onClick={() => handleJoinRoom(room)} style={{ background: T.cardLobby, padding: '15px 10px', display: 'grid', gridTemplateColumns: '70px 1fr 120px', alignItems: 'center', borderRadius: '4px', cursor: 'pointer' }}>
-                    <div>
-                        <div style={{ fontSize: '24px', fontWeight: '900', color: T.gold, lineHeight: '1' }}>{room.price}</div>
+                <div
+                  onClick={() => handleJoinRoom(room)}
+                  style={{
+                    background: room.isVip
+                      ? 'linear-gradient(135deg, #2C1A4A 0%, #3D2B1F 60%, #2C1A4A 100%)'
+                      : T.cardLobby,
+                    padding: '15px 10px',
+                    display: 'grid',
+                    gridTemplateColumns: '70px 1fr 120px',
+                    alignItems: 'center',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    border: room.isVip ? '1px solid rgba(180,130,255,0.25)' : 'none',
+                  }}
+                >
+                    <div style={{ position: 'relative' }}>
+                        {room.isVip && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '-18px',
+                            left: '-4px',
+                            background: 'linear-gradient(90deg, #7B2FBE, #C471ED)',
+                            color: 'white',
+                            fontSize: '7px',
+                            padding: '2px 5px',
+                            borderRadius: '4px',
+                            fontWeight: '900',
+                            letterSpacing: '1px',
+                            boxShadow: '0 2px 6px rgba(123,47,190,0.5)',
+                          }}>👑 VIP</div>
+                        )}
+                        <div style={{ fontSize: '24px', fontWeight: '900', color: room.isVip ? '#C471ED' : T.gold, lineHeight: '1' }}>{room.price}</div>
                         <div style={{ fontSize: '9px', fontWeight: '900', color: T.textL, opacity: 0.4 }}>ETB</div>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                        <Trophy size={20} color={T.gold} />
+                        <Trophy size={20} color={room.isVip ? '#C471ED' : T.gold} />
                         <div style={{ textAlign: 'left' }}>
-                            <div style={{ fontSize: '20px', fontWeight: '900', color: T.gold, lineHeight: '1' }}>{Number(room.win).toFixed(0)}</div>
+                            <div style={{ fontSize: '20px', fontWeight: '900', color: room.isVip ? '#C471ED' : T.gold, lineHeight: '1' }}>{Number(room.win).toFixed(0)}</div>
                             <div style={{ fontSize: '9px', color: T.textL, opacity: 0.4, fontWeight: 'bold' }}>{room.players} players</div>
                         </div>
                     </div>
@@ -181,8 +211,17 @@ export default function LobbyPage() {
                         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
                             <div style={{ border: '1px solid #4CAF50', color: '#4CAF50', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: '900' }}>READY</div>
                             <div style={{ position: 'relative' }}>
-                                <button style={{ background: '#27AE60', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: '900', fontSize: '13px', boxShadow: '0 3px 0 #1E8449' }}>JOIN</button>
-                                {room.isBonus && (
+                                <button style={{
+                                  background: room.isVip ? 'linear-gradient(90deg, #7B2FBE, #C471ED)' : '#27AE60',
+                                  color: 'white',
+                                  border: 'none',
+                                  padding: '8px 16px',
+                                  borderRadius: '6px',
+                                  fontWeight: '900',
+                                  fontSize: '13px',
+                                  boxShadow: room.isVip ? '0 3px 0 #5A1F9E' : '0 3px 0 #1E8449',
+                                }}>JOIN</button>
+                                {room.isBonus && !room.isVip && (
                                     <div style={{ position: 'absolute', top: '-10px', right: '-5px', background: T.gold, color: T.header, fontSize: '7px', padding: '1px 4px', borderRadius: '4px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '2px', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
                                         BONUS
                                     </div>

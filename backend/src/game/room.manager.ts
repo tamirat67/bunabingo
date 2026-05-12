@@ -39,6 +39,12 @@ export async function initializeRooms(): Promise<void> {
       maxPlayers: 500,
     },
     {
+      type: RoomType.VIP,
+      ticketPrice: config.game.ticketPrice.VIP,
+      minPlayers: config.game.minPlayers.VIP,
+      maxPlayers: 500,
+    },
+    {
       type: RoomType.SPIN_10,
       ticketPrice: 10,
       minPlayers: 10,

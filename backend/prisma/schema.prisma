@@ -41,6 +41,7 @@ enum RoomType {
   STANDARD   // 5+ players, ticket: $20
   PRO        // 10+ players, ticket: $50
   JACKPOT    // 20+ players, ticket: $100
+  VIP        // VIP room, ticket: $200
   SPIN_10    // Instant win: $10
   SPIN_20    // Instant win: $20
   SPIN_50    // Instant win: $50
