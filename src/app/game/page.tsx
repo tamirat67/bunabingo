@@ -166,9 +166,7 @@ function GameContent() {
         ))}
       </div>
 
-      {/* ── Main Layout ── */}
       <div style={{ display: 'flex', gap: '10px', padding: '10px', alignItems: 'flex-start' }}>
-
         {/* Master Board (Left) */}
         <div style={{ flex: '0 0 52%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -197,22 +195,16 @@ function GameContent() {
               )))}
             </div>
           </div>
-          </div>
         </div>
-      </div>
 
-        {/* My Cartelas (Right) */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <div style={{ color: T.header, fontWeight: '900', fontSize: '13px', padding: '0 5px' }}>
             🏆 YOUR CARTELAS ({visible.length})
           </div>
-
           {visible.map((t: any) => {
             const cardObj = t.card as { id: number; rows: any[][] };
             const rows = cardObj?.rows ?? [];
             const cardId = cardObj?.id ?? '?';
-            const matched = rows.flat().filter((c: any) => c !== 'FREE' && c !== 0 && c !== null && isCalled(Number(c))).length;
-
             return (
               <motion.div layout key={t.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: 'relative', background: T.card, borderRadius: '16px', overflow: 'hidden', border: `2px solid ${T.gold}55`, boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
                 <button onClick={() => hideCard(t.id)} style={{ position: 'absolute', top: '4px', right: '5px', width: '20px', height: '20px', background: '#C0392B', color: 'white', border: 'none', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}><X size={10} /></button>
@@ -227,13 +219,12 @@ function GameContent() {
                       const isFree = cell === 'FREE' || cell === 0 || cell === null;
                       const isMarked = !isFree && isCalled(Number(cell));
                       return (
-                        <div key={`${ri}-${ci}`} style={{ height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '11px', fontWeight: '900', background: isFree ? '#27AE60' : isMarked ? T.gold : T.statBg, color: isFree ? 'white' : (isMarked ? T.header : T.text), border: isMarked ? `1px solid ${T.goldDk}` : 'none' }}>
+                        <div key={`${ri}-${ci}`} style={{ height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '11px', fontWeight: '900', background: isFree ? '#27AE60' : isMarked ? T.gold : T.statBg, color: isFree ? 'white' : (isMarked ? T.header : T.text), border: isMarked ? `1px solid ${T.gold}` : 'none' }}>
                           {isFree ? '★' : cell}
                         </div>
                       );
                     }))}
                 </div>
-
               </motion.div>
             );
           })}
