@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiLock, FiUser, FiAward, FiAlertCircle } from 'react-icons/fi';
+import { FiLock, FiPhone, FiEye, FiEyeOff, FiShield, FiArrowRight } from 'react-icons/fi';
 import api from '@/lib/api';
 import '@/app/admin.css';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -22,86 +23,103 @@ export default function LoginPage() {
       const response = await api.post('/auth/login', { username, password });
       const { token, user } = response.data;
 
-      // Save token
       localStorage.setItem('admin_token', token);
       
-      // Redirect based on role
       if (user.role === 'ADMIN' || user.isAdmin) {
         router.push('/admin');
       } else {
         router.push('/agent');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Invalid credentials. Please try again.');
+      setError(err.response?.data?.error || 'Access Denied. Check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        {/* Logo Section */}
-        <div className="login-header">
-          <div className="login-logo">
-            <FiAward />
-          </div>
-          <h1 style={{fontSize: '32px', fontWeight: '900', letterSpacing: '-1px'}}>BUNA BINGO</h1>
-          <p style={{color: 'var(--admin-text-muted)', marginTop: '8px'}}>Management Portal Access</p>
+    <div className="cmd-body">
+      <div className="cmd-login-card">
+        {/* Logo */}
+        <div className="cmd-logo-wrapper">
+          <img src="/logo.png" alt="Buna Bingo" className="cmd-logo-img" />
         </div>
 
-        {/* Login Form */}
+        {/* Title Section */}
+        <h1 className="cmd-title">
+          <span className="buna">BUNA</span> <span className="bingo">BINGO</span>
+        </h1>
+        <p className="cmd-subtitle">The Command Center</p>
+
+        {/* Form */}
         <form onSubmit={handleLogin}>
           {error && (
-            <div className="login-error">
-              <FiAlertCircle style={{marginTop: '2px', flexShrink: 0}} />
-              <p>{error}</p>
+            <div style={{ color: '#ef4444', fontSize: '12px', marginBottom: '20px', fontWeight: '700' }}>
+               {error}
             </div>
           )}
 
-          <div className="login-input-group">
-            <label className="login-label">Telegram ID / Username</label>
-            <div className="login-input-wrapper">
-              <FiUser className="login-input-icon" />
+          <div className="cmd-input-group">
+            <label className="cmd-label">
+              <FiPhone /> Username / Phone
+            </label>
+            <div className="cmd-input-container">
               <input 
                 type="text"
                 required
-                placeholder="Enter your ID or @username"
-                className="login-input"
+                placeholder="Enter your username"
+                className="cmd-input gold-border"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="login-input-group">
-            <label className="login-label">Secure Password</label>
-            <div className="login-input-wrapper">
-              <FiLock className="login-input-icon" />
+          <div className="cmd-input-group">
+            <label className="cmd-label">
+              <FiLock /> Security PIN
+            </label>
+            <div className="cmd-input-container">
               <input 
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
-                placeholder="••••••••"
-                className="login-input"
+                placeholder="••••"
+                className="cmd-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <div 
+                className="cmd-input-eye"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </div>
             </div>
           </div>
 
           <button 
             type="submit"
             disabled={loading}
-            className="login-button"
+            className="cmd-button"
           >
-            {loading ? 'AUTHENTICATING...' : 'ENTER DASHBOARD'}
+            {loading ? 'AUTHORIZING...' : (
+              <>
+                ENTER PORTAL <FiArrowRight />
+              </>
+            )}
           </button>
         </form>
 
-        <div style={{textAlign: 'center', marginTop: '32px'}}>
-           <p style={{fontSize: '12px', color: 'var(--admin-text-muted)', lineHeight: '1.6'}}>
-             Forgot your password? <br/> Contact the Super Admin via the bot.
-           </p>
+        {/* Footer */}
+        <div className="cmd-footer">
+          <div className="cmd-encrypted">
+            <FiShield size={14} /> End-to-end encrypted session
+          </div>
+          <div className="cmd-dots">
+            <div className="cmd-dot"></div>
+            <div className="cmd-dot active"></div>
+            <div className="cmd-dot"></div>
+          </div>
         </div>
       </div>
     </div>
