@@ -42,7 +42,7 @@ export default function LoginPage() {
       <div className="cmd-login-card">
         {/* Logo */}
         <div className="cmd-logo-wrapper">
-          <img src="/logo.png" alt="Buna Bingo" className="cmd-logo-img" />
+          <img src="/logo.png" alt="Buna Bingo Brand" className="cmd-logo-img" style={{ borderRadius: '50%' }} />
         </div>
 
         {/* Title Section */}
@@ -61,13 +61,13 @@ export default function LoginPage() {
 
           <div className="cmd-input-group">
             <label className="cmd-label">
-              <FiPhone /> Username / Phone
+              <FiPhone /> Telegram ID / Username
             </label>
             <div className="cmd-input-container">
               <input 
                 type="text"
                 required
-                placeholder="Enter your username"
+                placeholder="Enter your telegram ID or username"
                 className="cmd-input gold-border"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
