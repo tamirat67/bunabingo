@@ -8,6 +8,7 @@ import {
   FiSettings, FiLogOut, FiMenu, FiX, FiAward, FiArrowLeft
 } from 'react-icons/fi';
 import api from '@/lib/api';
+import '../admin.css';
 
 export default function AgentLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -33,7 +34,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
     loadUser();
   }, [pathname]);
 
-  if (!user) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+  if (!user) return <div className="login-container">
     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
   </div>;
 
@@ -45,64 +46,52 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-gray-100 flex">
+    <div className="admin-layout admin-body">
       {/* Sidebar */}
-      <aside className={`
-        ${isSidebarOpen ? 'w-64' : 'w-20'} 
-        fixed lg:static inset-y-0 left-0 z-50
-        transition-all duration-300 ease-in-out
-        bg-[#161616] border-r border-white/5 flex flex-col
-      `}>
+      <aside className="admin-sidebar" style={{ width: isSidebarOpen ? '260px' : '80px' }}>
         {/* Logo */}
-        <div className="h-20 flex items-center px-6 border-b border-white/5 overflow-hidden">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex-shrink-0 flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <FiAward className="text-white text-xl" />
+        <div className="sidebar-header">
+          <div className="sidebar-logo" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}>
+            <FiAward />
           </div>
           {isSidebarOpen && (
-            <span className="ml-3 font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 uppercase">
-              Agent Portal
-            </span>
+            <span className="sidebar-title">AGENT PORTAL</span>
           )}
         </div>
 
         {/* Nav Links */}
-        <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
+        <nav className="sidebar-nav">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
               <Link
                 key={item.name}
                 href={item.path}
-                className={`
-                  flex items-center px-4 py-3 rounded-xl transition-all duration-200 group
-                  ${isActive 
-                    ? 'bg-blue-500/10 text-blue-500 shadow-sm' 
-                    : 'text-gray-400 hover:bg-white/5 hover:text-white'}
-                `}
+                className={`nav-link agent-link ${isActive ? 'active' : ''}`}
               >
-                <item.icon className={`text-xl flex-shrink-0 ${isActive ? 'text-blue-500' : 'group-hover:text-white'}`} />
-                {isSidebarOpen && <span className="ml-4 font-medium">{item.name}</span>}
+                <item.icon style={{ fontSize: '20px', flexShrink: 0 }} />
+                {isSidebarOpen && <span style={{ marginLeft: '12px' }}>{item.name}</span>}
               </Link>
             );
           })}
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-white/5 bg-black/20">
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10 flex items-center justify-center text-blue-500 font-bold uppercase">
+        <div className="sidebar-footer">
+          <div className="user-pill">
+            <div className="user-avatar" style={{ color: 'var(--agent-accent)' }}>
               {user.firstName[0]}
             </div>
             {isSidebarOpen && (
-              <div className="ml-3 overflow-hidden">
-                <p className="text-sm font-semibold truncate">{user.firstName}</p>
-                <p className="text-xs text-gray-500 truncate">Agent Mode</p>
+              <div style={{ overflow: 'hidden', flex: 1 }}>
+                <p style={{ fontSize: '14px', fontWeight: '700', margin: 0 }}>{user.firstName}</p>
+                <p style={{ fontSize: '12px', color: 'var(--admin-text-muted)', margin: 0 }}>Agent Mode</p>
               </div>
             )}
             {isSidebarOpen && (
               <button 
                 onClick={() => router.push('/')}
-                className="ml-auto p-2 text-gray-500 hover:text-red-400 transition-colors"
+                style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer' }}
               >
                 <FiLogOut />
               </button>
@@ -112,47 +101,37 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="admin-main">
         {/* Header */}
-        <header className="h-20 bg-[#161616]/50 backdrop-blur-md border-b border-white/5 flex items-center px-8 sticky top-0 z-30">
+        <header className="admin-header">
           <button 
             onClick={() => setSidebarOpen(!isSidebarOpen)}
-            className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors"
+            style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', padding: '8px' }}
           >
             {isSidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
           
-          <div className="ml-auto flex items-center space-y-0 space-x-4">
-             <div className="text-right hidden sm:block">
-                <p className="text-xs text-gray-500">Commission Earned</p>
-                <p className="text-sm font-bold text-blue-500">{user.wallet.commissionBalance} ETB</p>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '24px' }}>
+             <div style={{ textAlign: 'right' }}>
+                <p style={{ fontSize: '11px', color: 'var(--admin-text-muted)', margin: 0, textTransform: 'uppercase', fontWeight: '800' }}>Commission</p>
+                <p style={{ fontSize: '18px', fontWeight: '900', color: 'var(--agent-accent)', margin: 0 }}>{Number(user.wallet?.commissionBalance || 0).toLocaleString()} ETB</p>
              </div>
-             <div className="h-8 w-px bg-white/5 mx-2"></div>
-             <Link href="/" className="flex items-center text-xs text-gray-400 hover:text-white transition-colors">
-                <FiArrowLeft className="mr-1" /> Back to Game
+             <div style={{ width: '1px', height: '32px', background: 'var(--admin-border)' }}></div>
+             <Link href="/" style={{ color: 'var(--admin-text-muted)', textDecoration: 'none', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <FiArrowLeft /> Back to Game
              </Link>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <div className="admin-content custom-scrollbar">
           {children}
         </div>
       </main>
 
       <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #333;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #444;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
       `}</style>
     </div>
   );
