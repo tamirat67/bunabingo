@@ -26,12 +26,9 @@ function SelectionContent() {
       
       // Subscribe to real-time updates
       const pk = process.env.NEXT_PUBLIC_PUSHER_KEY, pc = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
-      if (!pk || !pc || !res.gameId) return;
+      if (!pk || !pc || !res.roomId) return;
       const pusher = new Pusher(pk, { cluster: pc });
-      // We broadcast on the room ID channel for occupancy updates
-      const ch = pusher.subscribe(`game-${res.roomId || roomType}`); 
-      // Wait, I need to make sure backend uses a consistent channel. 
-      // I'll adjust backend to use roomType as channel for occupancy.
+      const ch = pusher.subscribe(`game-${res.roomId}`); 
       
       ch.bind('card-occupied', (data: { occupiedIds: number[] }) => {
         setOccupied(data.occupiedIds);
@@ -123,10 +120,12 @@ function SelectionContent() {
               key={num} 
               className={`num-brown ${isSelected ? 'selected' : ''} ${isOccupied ? 'occupied' : ''}`}
               style={{
-                backgroundColor: isOccupied ? '#27AE60' : (isSelected ? '#D4AF37' : 'white'),
+                backgroundColor: isOccupied ? '#2ECC71' : (isSelected ? '#D4AF37' : 'white'),
                 color: isOccupied || isSelected ? 'white' : '#3D2B1F',
                 cursor: isOccupied ? 'not-allowed' : 'pointer',
-                opacity: isOccupied ? 0.8 : 1
+                opacity: isOccupied ? 0.9 : 1,
+                border: isOccupied ? '2px solid #27AE60' : '1px solid rgba(0,0,0,0.1)',
+                boxShadow: isOccupied ? '0 0 10px rgba(46, 204, 113, 0.3)' : 'none'
               }}
               onClick={() => !isOccupied && toggleSelect(num)}
             >

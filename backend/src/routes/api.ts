@@ -363,7 +363,7 @@ router.get('/rooms/:type/occupied', async (req: Request, res: Response) => {
     });
 
     const occupiedIds = tickets.map(t => (t.card as any).id);
-    res.json({ occupiedIds, gameId });
+    res.json({ occupiedIds, gameId, roomId: room.id });
   } catch (e: any) {
     res.status(500).json({ error: 'Failed to fetch occupied cards' });
   }
