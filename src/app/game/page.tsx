@@ -146,7 +146,7 @@ function GameContent() {
       <div style={{ display: 'flex', gap: '10px', padding: '10px', alignItems: 'flex-start' }}>
 
         {/* Master Board (Left) */}
-        <div style={{ flex: '0 0 44%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ flex: '0 0 52%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <div style={{ flex: 1, background: T.header, borderRadius: '14px', padding: '10px', textAlign: 'center', border: `2px solid ${T.gold}` }}>
               <div style={{ color: T.gold, fontSize: '9px', fontWeight: '900' }}>COUNT DOWN</div>
@@ -193,20 +193,20 @@ function GameContent() {
 
             return (
               <motion.div layout key={t.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: 'relative', background: T.card, borderRadius: '16px', overflow: 'hidden', border: `2px solid ${T.gold}55`, boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
-                <button onClick={() => hideCard(t.id)} style={{ position: 'absolute', top: '7px', right: '7px', width: '22px', height: '22px', background: '#C0392B', color: 'white', border: 'none', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}><X size={12} /></button>
-                <div style={{ background: T.header, padding: '8px 12px', color: T.gold, fontWeight: '900', fontSize: '13px', display: 'flex', justifyContent: 'space-between', paddingRight: '35px' }}>
+                <button onClick={() => hideCard(t.id)} style={{ position: 'absolute', top: '5px', right: '5px', width: '20px', height: '20px', background: '#C0392B', color: 'white', border: 'none', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}><X size={10} /></button>
+                <div style={{ background: T.header, padding: '6px 10px', color: T.gold, fontWeight: '900', fontSize: '11px', display: 'flex', justifyContent: 'space-between', paddingRight: '30px' }}>
                    <span>CARTELA #{cardId}</span>
-                   <span style={{ background: T.gold, color: T.header, fontSize: '10px', padding: '2px 8px', borderRadius: '10px' }}>{matched} MATCHED</span>
+                   <span style={{ background: T.gold, color: T.header, fontSize: '9px', padding: '1px 6px', borderRadius: '8px' }}>{matched} MATCHED</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '3px', padding: '6px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2px', padding: '5px' }}>
                   {['B','I','N','G','O'].map(l => (
-                    <div key={l} style={{ background: COL_COLOR[l], color: 'white', textAlign: 'center', fontSize: '11px', fontWeight: '900', padding: '3px 0', borderRadius: '5px' }}>{l}</div>
+                    <div key={l} style={{ background: COL_COLOR[l], color: 'white', textAlign: 'center', fontSize: '10px', fontWeight: '900', padding: '2px 0', borderRadius: '4px' }}>{l}</div>
                   ))}
                   {rows.map((row: any[], ri: number) => row.map((cell: any, ci: number) => {
                       const isFree = cell === 'FREE' || cell === 0 || cell === null;
                       const isMarked = !isFree && isCalled(Number(cell));
                       return (
-                        <div key={`${ri}-${ci}`} style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', fontSize: '12px', fontWeight: '900', background: isFree ? '#27AE60' : isMarked ? T.gold : T.statBg, color: isFree ? 'white' : T.header, border: isMarked ? `2px solid ${T.goldDk}` : 'none' }}>
+                        <div key={`${ri}-${ci}`} style={{ height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '11px', fontWeight: '900', background: isFree ? '#27AE60' : isMarked ? T.gold : T.statBg, color: isFree ? 'white' : T.header, border: isMarked ? `1px solid ${T.goldDk}` : 'none' }}>
                           {isFree ? '★' : cell}
                         </div>
                       );
