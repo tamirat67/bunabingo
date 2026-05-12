@@ -729,6 +729,35 @@ adminRouter.post('/users/:id/ban', async (req, res) => {
   res.json({ success: true });
 });
 
+// ─── Agent Management (Admin Only) ──────────────────────────
+adminRouter.get('/agents', async (req, res) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const { getAgents } = await import('../services/user.service');
+  res.json(await getAgents(page));
+});
+
+adminRouter.post('/users/:id/promote', async (req, res) => {
+  const admin = (req as any).user;
+  const { promoteToAgent } = await import('../services/user.service');
+  try {
+    await promoteToAgent(req.params.id, admin.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Promotion failed' });
+  }
+});
+
+adminRouter.post('/users/:id/demote', async (req, res) => {
+  const admin = (req as any).user;
+  const { demoteFromAgent } = await import('../services/user.service');
+  try {
+    await demoteFromAgent(req.params.id, admin.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Demotion failed' });
+  }
+});
+
 adminRouter.get('/analytics', async (_req, res) => {
   const [
     totalUsers, totalGames, totalDeposits, totalWithdrawals,
@@ -763,5 +792,9 @@ adminRouter.get('/games/active', async (_req, res) => {
 });
 
 router.use('/admin', adminRouter);
+
+// ─── Agent Routes ─────────────────────────────────────────────
+import agentRouter from './agent';
+router.use('/agent', agentRouter);
 
 export default router;

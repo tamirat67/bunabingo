@@ -15,6 +15,12 @@ datasource db {
 //  ENUMS
 // ─────────────────────────────────────────────
 
+enum UserRole {
+  PLAYER
+  AGENT
+  ADMIN
+}
+
 enum UserStatus {
   ACTIVE
   SUSPENDED
@@ -91,16 +97,24 @@ model User {
   firstName        String
   lastName         String?
   status           UserStatus  @default(ACTIVE)
-  isAdmin          Boolean     @default(false)
+  role             UserRole    @default(PLAYER) // Added role
+  isAdmin          Boolean     @default(false)  // Kept for backward compatibility
   registeredAt     DateTime    @default(now())
   hasSeenJackpot   Boolean     @default(false)
   lastActiveAt     DateTime    @default(now())
   ipHash           String?     // hashed for privacy
   deviceHash       String?
   phoneNumber      String?
+
+  // Referral / Agent Hierarchy
   referredById     String?
   referredBy       User?       @relation("Referral", fields: [referredById], references: [id])
   referrals        User[]      @relation("Referral")
+
+  agentId          String?     // The Agent who "owns" this player
+  agent            User?       @relation("AgentPlayers", fields: [agentId], references: [id])
+  players          User[]      @relation("AgentPlayers")
+
   referralCount    Int         @default(0)
 
   wallet           Wallet?
@@ -114,6 +128,7 @@ model User {
 
   @@index([telegramId])
   @@index([status])
+  @@index([role])
   @@map("users")
 }
 
@@ -134,12 +149,14 @@ model Wallet {
   id            String   @id @default(uuid())
   userId        String   @unique
   balance       Decimal  @default(0) @db.Decimal(18, 2)
-  bonusBalance  Decimal  @default(0) @db.Decimal(18, 2)  // from referrals/promos, not withdrawable
-  coins         Int      @default(0)                      // XP points earned from gameplay
+  bonusBalance  Decimal  @default(0) @db.Decimal(18, 2)
+  commissionBalance Decimal @default(0) @db.Decimal(18, 2) // Added for Agents
+  coins         Int      @default(0)
   totalDeposited Decimal @default(0) @db.Decimal(18, 2)
   totalWithdrawn Decimal @default(0) @db.Decimal(18, 2)
   totalWon      Decimal  @default(0) @db.Decimal(18, 2)
   totalSpent    Decimal  @default(0) @db.Decimal(18, 2)
+  totalCommissionEarned Decimal @default(0) @db.Decimal(18, 2) // Added for Agents
   updatedAt     DateTime @updatedAt
   createdAt     DateTime @default(now())
 

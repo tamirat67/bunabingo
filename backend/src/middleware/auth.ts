@@ -86,8 +86,19 @@ export async function telegramAuthMiddleware(
  */
 export function adminMiddleware(req: Request, res: Response, next: NextFunction) {
   const user = (req as any).user;
-  if (!user?.isAdmin) {
+  if (!user || (user.role !== 'ADMIN' && !user.isAdmin)) {
     return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+}
+
+/**
+ * Agent middleware — allows Agents and Admins to access agent portals
+ */
+export function agentMiddleware(req: Request, res: Response, next: NextFunction) {
+  const user = (req as any).user;
+  if (!user || (user.role !== 'AGENT' && user.role !== 'ADMIN' && !user.isAdmin)) {
+    return res.status(403).json({ error: 'Agent access required' });
   }
   next();
 }

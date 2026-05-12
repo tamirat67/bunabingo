@@ -24,18 +24,35 @@ export async function findOrCreateUser(
 
     if (!user) {
       logger.info(`[Auth] User not found. Creating new user record...`);
+      
+      // Determine role based on config
+      const isAdminUser = config.bot.adminIds.includes(telegramUser.id.toString());
+      const role = isAdminUser ? 'ADMIN' : 'PLAYER';
+
+      // Check if referredById is an Agent
+      let agentId: string | undefined = undefined;
+      if (referredById && referredById.length > 20) {
+        const referrer = await prisma.user.findUnique({ where: { id: referredById } });
+        if (referrer?.role === 'AGENT' || referrer?.role === 'ADMIN') {
+          agentId = referrer.id;
+          logger.info(`[Auth] New user ${telegramUser.first_name} linked to Agent ${referrer.firstName}`);
+        }
+      }
+
       user = await prisma.user.create({
         data: {
           telegramId,
           telegramUsername: telegramUser.username,
           firstName: telegramUser.first_name,
           lastName: telegramUser.last_name,
-          isAdmin: config.bot.adminIds.includes(telegramUser.id.toString()),
+          isAdmin: isAdminUser,
+          role,
           referredById: referredById && referredById.length > 20 ? referredById : undefined,
+          agentId, // Permanently link player to this agent
           phoneNumber: phoneNumber || undefined,
         },
       });
-      logger.info(`[Auth] User record created: ${user.id}`);
+      logger.info(`[Auth] User record created: ${user.id} with role ${role}`);
 
       logger.info(`[Auth] Initializing wallet for user ${user.id}...`);
       await prisma.wallet.upsert({
@@ -46,9 +63,6 @@ export async function findOrCreateUser(
       logger.info(`[Auth] Wallet initialized for user ${user.id}`);
 
       if (user.referredById) {
-        // Only increment referralCount here — bonus is awarded later in
-        // updateUserPhone() once the new user verifies a real phone number.
-        // This prevents fake accounts from gaming the referral system.
         logger.info(`[Auth] Referral link attributed: new user ${user.id} ← parent ${user.referredById}`);
         await prisma.user.update({
           where: { id: user.referredById },
@@ -66,6 +80,9 @@ export async function findOrCreateUser(
           telegramUsername: telegramUser.username || user.telegramUsername,
           firstName: telegramUser.first_name || user.firstName,
           lastName: telegramUser.last_name || user.lastName,
+          // Sync admin status from config if it changed
+          role: config.bot.adminIds.includes(telegramUser.id.toString()) ? 'ADMIN' : user.role,
+          isAdmin: config.bot.adminIds.includes(telegramUser.id.toString()),
         }
       });
 
@@ -211,4 +228,70 @@ export async function updateUserPhone(
   }
 
   return { user, referrer };
+}
+
+export async function promoteToAgent(userId: string, adminId: string) {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { role: 'AGENT' },
+  });
+
+  await prisma.adminLog.create({
+    data: {
+      adminId,
+      targetUserId: userId,
+      action: 'PROMOTE_TO_AGENT',
+      details: {},
+    },
+  });
+
+  return user;
+}
+
+export async function demoteFromAgent(userId: string, adminId: string) {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { role: 'PLAYER' },
+  });
+
+  await prisma.adminLog.create({
+    data: {
+      adminId,
+      targetUserId: userId,
+      action: 'DEMOTE_FROM_AGENT',
+      details: {},
+    },
+  });
+
+  return user;
+}
+
+export async function getPlayersUnderAgent(agentId: string, page = 1, limit = 20) {
+  const skip = (page - 1) * limit;
+  const [players, total] = await Promise.all([
+    prisma.user.findMany({
+      where: { agentId },
+      skip,
+      take: limit,
+      include: { wallet: true },
+      orderBy: { registeredAt: 'desc' },
+    }),
+    prisma.user.count({ where: { agentId } }),
+  ]);
+  return { players, total, pages: Math.ceil(total / limit) };
+}
+
+export async function getAgents(page = 1, limit = 20) {
+  const skip = (page - 1) * limit;
+  const [agents, total] = await Promise.all([
+    prisma.user.findMany({
+      where: { role: 'AGENT' },
+      skip,
+      take: limit,
+      include: { wallet: true, _count: { select: { players: true } } },
+      orderBy: { registeredAt: 'desc' },
+    }),
+    prisma.user.count({ where: { role: 'AGENT' } }),
+  ]);
+  return { agents, total, pages: Math.ceil(total / limit) };
 }
