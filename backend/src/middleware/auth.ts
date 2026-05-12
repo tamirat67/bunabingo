@@ -48,7 +48,7 @@ export async function telegramAuthMiddleware(
         (req as any).user = devUser;
         return next();
       }
-      return res.status(401).json({ error: 'Missing Telegram auth data' });
+      return res.status(401).json({ error: 'Authentication required. Please log in.' });
     }
 
     // Parse and validate initData

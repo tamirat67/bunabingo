@@ -18,6 +18,13 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     async function loadUser() {
+      // Pre-check token for web users
+      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+      if (!token) {
+        router.push('/admin/login');
+        return;
+      }
+
       try {
         const response = await api.get('/me');
         const userData = response.data;
