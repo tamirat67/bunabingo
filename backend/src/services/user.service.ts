@@ -1,7 +1,7 @@
 import prisma from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { config } from '../config';
-import { creditWallet } from './wallet.service';
+import { creditWallet, creditBonus, awardCoins, XP_REWARDS } from './wallet.service';
 
 const REFERRAL_BONUS_ETB = 5;
 
@@ -178,15 +178,20 @@ export async function updateUserPhone(
 
     if (!bonusAlreadyGiven) {
       try {
-        await creditWallet(
+        // Referral bonus goes to bonusBalance (not withdrawable main balance)
+        await creditBonus(
           user.referredById,
           REFERRAL_BONUS_ETB,
-          'REFERRAL_BONUS',
-          user.id,                     // referenceId links bonus to this specific new user
           `Referral bonus — ${user.firstName} joined`
         );
+        // Award XP to referrer
+        await awardCoins(
+          user.referredById,
+          XP_REWARDS.REFER_FRIEND,
+          `Referred ${user.firstName}`
+        );
         logger.info(
-          `[Referral] ${REFERRAL_BONUS_ETB} ETB bonus credited to ${user.referredById} ` +
+          `[Referral] ${REFERRAL_BONUS_ETB} ETB bonus + ${XP_REWARDS.REFER_FRIEND} XP credited to ${user.referredById} ` +
           `for referring user ${user.id}`
         );
 

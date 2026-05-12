@@ -21,7 +21,9 @@ export async function handleBalance(ctx: Context) {
       `👤 *Account Holder:* ${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}\n` +
       `${phoneDisplay}\n\n` +
       `━━━━━━━━━━━━━━━━━━\n` +
-      `💵 *Balance:* \`${Number(wallet.balance).toFixed(2)} ETB\`\n` +
+      `💵 *Main Balance:* \`${Number(wallet.balance).toFixed(2)} ETB\`\n` +
+      `🎁 *Bonus Balance:* \`${Number(wallet.bonusBalance).toFixed(2)} ETB\`\n` +
+      `💎 *XP Coins:* \`${wallet.coins} XP\`\n` +
       `━━━━━━━━━━━━━━━━━━\n\n` +
       `📥 Total Deposited: ${Number(wallet.totalDeposited).toFixed(2)} ETB\n` +
       `🏆 Total Won:       ${Number(wallet.totalWon).toFixed(2)} ETB\n` +

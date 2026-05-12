@@ -6,6 +6,7 @@ import { generateBingoCard, checkWin, BingoCard } from './card.generator';
 import { Decimal } from '@prisma/client/runtime/library';
 import { RoomType, GameStatus } from '@prisma/client';
 import { PREDEFINED_CARDS } from '../lib/predefinedCards';
+import { awardCoins, XP_REWARDS } from '../services/wallet.service';
 
 interface ActiveGame {
   gameId: string;
@@ -151,6 +152,11 @@ async function runGame(gameId: string): Promise<void> {
     totalPrizePool = totalPrizePool.add(prizeContribution);
     totalHouseEdge = totalHouseEdge.add(houseEdge);
     logger.info(`[Game ${gameId}] Charged ${totalCharge} ETB from user ${userId} (${numTickets} ticket(s))`);
+
+    // Award XP for joining
+    try {
+      await awardCoins(userId, XP_REWARDS.JOIN_GAME * numTickets, `Joined game ${gameId} with ${numTickets} card(s)`);
+    } catch (e) { logger.warn(`[Coins] Failed to award join XP to ${userId}:`, e); }
   }
 
   // Update game prize pool with actual collected amounts
@@ -399,6 +405,13 @@ async function processWinner(
   }
 
   await prisma.ticket.update({ where: { id: ticketId }, data: { isWinner: true } });
+
+  // Award XP for winning
+  const xpKey = `WIN_${winMode}` as keyof typeof XP_REWARDS;
+  const xpAmount = XP_REWARDS[xpKey] ?? XP_REWARDS.WIN_ROW;
+  try {
+    await awardCoins(userId, xpAmount, `Bingo WIN: ${winMode} in game ${gameId}`);
+  } catch (e) { logger.warn(`[Coins] Failed to award win XP to ${userId}:`, e); }
 
   await triggerGameEvent(gameId, 'winner-announced', {
     userId,

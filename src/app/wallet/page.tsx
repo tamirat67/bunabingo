@@ -94,15 +94,29 @@ export default function WalletPage() {
                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '25px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>
                   <div>
                      <div style={{ fontSize: '10px', opacity: 0.5, marginBottom: '4px' }}>BONUS BALANCE</div>
-                     <div style={{ fontSize: '18px', fontWeight: '900' }}>0.00 <span style={{ fontSize: '11px', opacity: 0.3 }}>ETB</span></div>
+                     <div style={{ fontSize: '18px', fontWeight: '900' }}>{Number(user?.wallet?.bonusBalance ?? 0).toFixed(2)} <span style={{ fontSize: '11px', opacity: 0.3 }}>ETB</span></div>
                   </div>
                   <div>
                      <div style={{ fontSize: '10px', opacity: 0.5, marginBottom: '4px' }}>TOTAL COINS</div>
-                     <div style={{ fontSize: '18px', fontWeight: '900', color: T.gold }}>0 <span style={{ fontSize: '11px', opacity: 0.3 }}>XP</span></div>
+                     <div style={{ fontSize: '18px', fontWeight: '900', color: T.gold }}>{user?.wallet?.coins ?? 0} <span style={{ fontSize: '11px', opacity: 0.3 }}>XP</span></div>
                   </div>
                </div>
 
-               <button style={{ width: '100%', marginTop: '20px', padding: '12px', borderRadius: '12px', background: T.gold, border: 'none', color: T.header, fontWeight: '900', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+               <button 
+                  onClick={async () => {
+                    try {
+                      const { convertCoins } = await import('../../lib/api');
+                      const res = await convertCoins();
+                      if (res.success) {
+                        alert(`Successfully converted ${res.coinsSpent} XP into ${res.bonusEarned} ETB Bonus!`);
+                        window.location.reload();
+                      }
+                    } catch (e: any) {
+                      alert(e.response?.data?.error || 'Failed to convert coins. Minimum 100 XP required.');
+                    }
+                  }}
+                  style={{ width: '100%', marginTop: '20px', padding: '12px', borderRadius: '12px', background: T.gold, border: 'none', color: T.header, fontWeight: '900', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+               >
                   <Download size={18} /> Convert Coins to ETB
                </button>
             </div>

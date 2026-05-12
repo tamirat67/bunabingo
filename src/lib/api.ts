@@ -33,5 +33,6 @@ export const addTicket = (gameId: string, cardIds: number[]) => api.post(`/games
 export const getLeaderboard = (timeframe: string) => api.get(`/leaderboard?timeframe=${timeframe}`).then(res => res.data);
 export const getHistory = () => api.get('/history').then(res => res.data);
 export const getGlobalHistory = () => api.get('/history/global').then(res => res.data);
+export const convertCoins = () => api.post('/me/coins/convert').then(res => res.data);
 
 export default api;

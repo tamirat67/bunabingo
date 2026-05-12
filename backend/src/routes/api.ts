@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { telegramAuthMiddleware, adminMiddleware } from '../middleware/auth';
 import { depositLimiter, withdrawLimiter, joinGameLimiter } from '../middleware/rateLimit';
-import { getOrCreateWallet } from '../services/wallet.service';
+import { getOrCreateWallet, convertCoinsToBonus, COINS_PER_ETB } from '../services/wallet.service';
 import { getUserDeposits, createDepositRequest, getPendingDeposits, approveDeposit, rejectDeposit } from '../services/deposit.service';
 import { getUserWithdrawals, createWithdrawalRequest, getPendingWithdrawals, approveWithdrawal, rejectWithdrawal } from '../services/withdrawal.service';
 import { getRooms, getRoomWithActiveGame, initializeRooms } from '../game/room.manager';
@@ -126,11 +126,32 @@ router.get('/me', async (req: Request, res: Response) => {
       telegramId: user.telegramId?.toString(),
       telegramUsername: user.telegramUsername,
       isAdmin: user.isAdmin,
-      wallet
+      wallet: {
+        ...wallet,
+        balance: wallet.balance.toString(),
+        bonusBalance: wallet.bonusBalance.toString(),
+        coins: wallet.coins,
+        totalDeposited: wallet.totalDeposited.toString(),
+        totalWithdrawn: wallet.totalWithdrawn.toString(),
+        totalWon: wallet.totalWon.toString(),
+        totalSpent: wallet.totalSpent.toString(),
+      }
     });
   } catch (err) {
     logger.error('Wallet sync error:', err);
     res.status(500).json({ error: 'Failed to sync wallet balance' });
+  }
+});
+
+// ─── Convert Coins → Bonus Balance ───────────────────────────
+router.post('/me/coins/convert', async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Not authorized' });
+  try {
+    const result = await convertCoinsToBonus(user.id);
+    res.json({ success: true, ...result, rate: `${COINS_PER_ETB} XP = 1 ETB bonus` });
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
   }
 });
 

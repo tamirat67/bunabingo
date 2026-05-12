@@ -119,6 +119,8 @@ model Wallet {
   id            String   @id @default(uuid())
   userId        String   @unique
   balance       Decimal  @default(0) @db.Decimal(18, 2)
+  bonusBalance  Decimal  @default(0) @db.Decimal(18, 2)  // from referrals/promos, not withdrawable
+  coins         Int      @default(0)                      // XP points earned from gameplay
   totalDeposited Decimal @default(0) @db.Decimal(18, 2)
   totalWithdrawn Decimal @default(0) @db.Decimal(18, 2)
   totalWon      Decimal  @default(0) @db.Decimal(18, 2)
