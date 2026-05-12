@@ -44,6 +44,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const isAdmin = user.role === 'ADMIN' || user.isAdmin;
 
+  // ─── LOGIN PAGE VIEW ──────────────────────────────────────
+  // If we are on the login page, don't show sidebars or headers
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
+
   const navItems = [
     { name: 'Dashboard', icon: FiPieChart, path: '/admin' },
     ...(isAdmin ? [
