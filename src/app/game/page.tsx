@@ -168,7 +168,7 @@ function GameContent() {
                 <div key={n} style={{
                   background: isCalled(n) ? COL_COLOR[col.l] : T.statBg,
                   color:      isCalled(n) ? 'white' : T.brown,
-                  fontSize: '10px', fontWeight: '900', textAlign: 'center', padding: '3.5px 0', borderRadius: '4px'
+                  fontSize: '10px', fontWeight: '900', textAlign: 'center', padding: '5.5px 0', borderRadius: '4px'
                 }}>{n}</div>
               )))}
             </div>
