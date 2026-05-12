@@ -96,7 +96,7 @@ function GameContent() {
 
   const isCalled   = (n: number) => drawn.includes(n);
   const hideCard   = (id: string) => setHidden(p => new Set([...p, id]));
-  const handleBingo = async (tid: string) => {
+  const handleBingo = async () => {
     if (!gameId) return;
     try { await claimBingo(gameId); }
     catch (e: any) { alert(e.response?.data?.error || 'No Bingo yet! Keep playing.'); }
@@ -180,7 +180,7 @@ function GameContent() {
         </div>
 
         {/* My Cartelas (Right) */}
-        <div style={{ flex: 1, maxHeight: '82vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '15px' }} className="custom-scroll">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <div style={{ color: T.header, fontWeight: '900', fontSize: '13px', padding: '0 5px' }}>
             🏆 YOUR CARTELAS ({visible.length})
           </div>
@@ -206,17 +206,13 @@ function GameContent() {
                       const isFree = cell === 'FREE' || cell === 0 || cell === null;
                       const isMarked = !isFree && isCalled(Number(cell));
                       return (
-                        <div key={`${ri}-${ci}`} style={{ height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', fontSize: '14px', fontWeight: '900', background: isFree ? '#27AE60' : isMarked ? T.gold : T.statBg, color: isFree ? 'white' : T.header, border: isMarked ? `2px solid ${T.goldDk}` : 'none' }}>
+                        <div key={`${ri}-${ci}`} style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', fontSize: '12px', fontWeight: '900', background: isFree ? '#27AE60' : isMarked ? T.gold : T.statBg, color: isFree ? 'white' : T.header, border: isMarked ? `2px solid ${T.goldDk}` : 'none' }}>
                           {isFree ? '★' : cell}
                         </div>
                       );
                     }))}
                 </div>
-                <div style={{ padding: '0 6px 8px' }}>
-                  <button onClick={() => handleBingo(t.id)} style={{ width: '100%', background: `linear-gradient(135deg, ${T.gold}, ${T.goldDk})`, color: T.header, border: 'none', padding: '12px', borderRadius: '12px', fontWeight: '900', fontSize: '16px' }}>
-                    ☕ BINGO! ({prize} ETB)
-                  </button>
-                </div>
+
               </motion.div>
             );
           })}
@@ -232,8 +228,20 @@ function GameContent() {
         )}
       </AnimatePresence>
 
-      <motion.div whileTap={{ scale: 0.9 }} onClick={() => router.push(`/tickets/select?type=${game?.room?.type || 'STANDARD'}&price=${stake}`)} style={{ position: 'fixed', bottom: '90px', right: '15px', background: `linear-gradient(135deg, ${T.gold}, ${T.goldDk})`, color: T.header, padding: '14px 22px', borderRadius: '30px', fontWeight: '900', fontSize: '14px', boxShadow: '0 8px 20px rgba(0,0,0,0.2)', zIndex: 200, cursor: 'pointer', border: `2px solid ${T.goldDk}` }}>
-        <Plus size={20} style={{ display: 'inline', marginRight: '5px' }} /> ADD BOARD
+      {/* ── Single BINGO button for all cards ── */}
+      {visible.length > 0 && game?.status === 'RUNNING' && (
+        <motion.div
+          whileTap={{ scale: 0.95 }}
+          onClick={handleBingo}
+          style={{ position: 'fixed', bottom: '15px', left: '15px', right: '15px', background: `linear-gradient(135deg, ${T.gold}, ${T.goldDk})`, color: T.header, padding: '16px', borderRadius: '18px', fontWeight: '900', fontSize: '20px', textAlign: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.3)', zIndex: 300, cursor: 'pointer', border: `2px solid ${T.goldDk}`, letterSpacing: '1px' }}
+        >
+          ☕ BINGO! &nbsp;<span style={{ fontSize: '13px', opacity: 0.75 }}>({visible.length} card{visible.length > 1 ? 's' : ''} · {prize} ETB)</span>
+        </motion.div>
+      )}
+
+      {/* ── Add Board FAB ── */}
+      <motion.div whileTap={{ scale: 0.9 }} onClick={() => router.push(`/tickets/select?type=${game?.room?.type || 'STANDARD'}&price=${stake}`)} style={{ position: 'fixed', bottom: '80px', right: '15px', background: T.header, color: T.gold, padding: '12px 18px', borderRadius: '30px', fontWeight: '900', fontSize: '13px', boxShadow: '0 8px 20px rgba(0,0,0,0.2)', zIndex: 200, cursor: 'pointer', border: `2px solid ${T.gold}` }}>
+        <Plus size={18} style={{ display: 'inline', marginRight: '5px' }} /> ADD BOARD
       </motion.div>
 
       <AnimatePresence>

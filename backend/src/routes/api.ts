@@ -121,6 +121,8 @@ router.get('/me', async (req: Request, res: Response) => {
     res.json({
       id: user.id,
       firstName: user.firstName,
+      lastName: user.lastName ?? null,
+      phoneNumber: user.phoneNumber ?? null,
       telegramId: user.telegramId?.toString(),
       telegramUsername: user.telegramUsername,
       isAdmin: user.isAdmin,

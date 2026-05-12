@@ -12,13 +12,20 @@ export async function handleBalance(ctx: Context) {
     if (ctx.callbackQuery) await ctx.answerCbQuery();
     const wallet = await getOrCreateWallet(user.id);
 
+    const phoneDisplay = user.phoneNumber
+      ? `📱 ${user.phoneNumber}  ✅ *VERIFIED*`
+      : `📱 _No phone linked_`;
+
     await ctx.reply(
-      `💰 *Your Wallet*\n\n` +
-      `👤 ${user.firstName}\n` +
-      `💵 Balance: *${Number(wallet.balance).toFixed(2)} ETB*\n\n` +
+      `💳 *MY WALLET*\n\n` +
+      `👤 *Account Holder:* ${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}\n` +
+      `${phoneDisplay}\n\n` +
+      `━━━━━━━━━━━━━━━━━━\n` +
+      `💵 *Balance:* \`${Number(wallet.balance).toFixed(2)} ETB\`\n` +
+      `━━━━━━━━━━━━━━━━━━\n\n` +
       `📥 Total Deposited: ${Number(wallet.totalDeposited).toFixed(2)} ETB\n` +
-      `🏆 Total Won: ${Number(wallet.totalWon).toFixed(2)} ETB\n` +
-      `🎫 Total Spent: ${Number(wallet.totalSpent).toFixed(2)} ETB\n` +
+      `🏆 Total Won:       ${Number(wallet.totalWon).toFixed(2)} ETB\n` +
+      `🎫 Total Spent:     ${Number(wallet.totalSpent).toFixed(2)} ETB\n` +
       `📤 Total Withdrawn: ${Number(wallet.totalWithdrawn).toFixed(2)} ETB`,
       { parse_mode: 'Markdown' }
     );

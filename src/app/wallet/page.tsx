@@ -57,13 +57,15 @@ export default function WalletPage() {
                  <UserIcon size={20} opacity={0.5} />
               </div>
               <div>
-                 <div style={{ fontSize: '14px', fontWeight: '900' }}>{user?.phoneNumber || '0900000000'}</div>
-                 <div style={{ fontSize: '11px', opacity: 0.5 }}>Account Holder</div>
+                 <div style={{ fontSize: '14px', fontWeight: '900' }}>{user?.firstName} {user?.lastName || ''}</div>
+                 <div style={{ fontSize: '11px', opacity: 0.5 }}>{user?.phoneNumber || 'Phone not linked'}</div>
               </div>
            </div>
-           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(76,175,80,0.1)', color: '#4CAF50', padding: '4px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: '900' }}>
-              <CheckCircle size={12} /> VERIFIED
-           </div>
+           {user?.phoneNumber && (
+             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(76,175,80,0.1)', color: '#4CAF50', padding: '4px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: '900' }}>
+                <CheckCircle size={12} /> VERIFIED
+             </div>
+           )}
         </div>
 
         {/* ── Tabs ── */}

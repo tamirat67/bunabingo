@@ -114,13 +114,13 @@ export async function handleStart(ctx: Context) {
       `<b>Welcome to Buna Bingo!</b> ☕️💰\n` +
       `<b>እንኳን ደና መጡ!</b>\n\n` +
       `✨ "Rich Flavor, Golden Wins."\n` +
-      `✨ "የቡና ጣዕም፣ ወርቃማ ድሎች።"\n\n` +
+      `☕️ "የቡና ጣዕም፣ ወርቃማ ድሎች።"\n\n` +
       `🎰 "The Perfect Blend of Luck and Luxury."\n` +
-      `🎰 "የዕድል እና የቅንጦት ፍጹም ውህደት።"\n\n` +
+      `☕️ "የዕድል እና የቅንጦት ፍጹም ውህደት።"\n\n` +
       `👑 "Buna Bingo, Play, Win: The Royal Buna Way."\n` +
-      `👑 "ቡና፣ ይጎንጩ፣ ይጫወቱ፣ ያሸንፉ፦ በንጉሳዊው የቡና መንገድ!"\n\n` +
+      `☕️ "ቡና፣ እየጠጡ ይጫወቱ፣ ያሸንፉ፦ በንጉሳዊው የቡና መንገድ!"\n\n` +
       `☀️🏆 "Buna Bingo — Wake Up to a Jackpot."\n` +
-      `☀️🏆 "ቡና ቢንጎ — ከጃክፖት ጋር ይንቁ!"\n\n` +
+      `💳🏆 "ቡና ቢንጎ — ከጃክፖት ጋር ይንቁ!"\n\n` +
       `Choose an option below:\n` +
       `ከታች አንድ አማራጭ ይምረጡ፡-\n\n` +
       `✉️ <a href="${shareUrl}">Share Invite Link & Earn 5 ETB!</a>`;
