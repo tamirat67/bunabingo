@@ -37,13 +37,13 @@ export async function updateBotDescription(bot: Telegraf): Promise<void> {
     const formatted = formatCount(count);
 
     // Short description — shown under bot name in chat list / search results
-    await bot.telegram.setMyShortDescription(`${formatted} monthly players`);
+    await bot.telegram.setMyShortDescription(`${formatted} monthly users`);
 
     // Full description — shown on the bot's profile page when opened
     await bot.telegram.setMyDescription(
       `☕ Buna Bingo — Ethiopia's #1 Telegram Bingo Game!\n\n` +
       `🎮 Play Bingo & Spin games and win real ETB prizes.\n` +
-      `👥 ${formatted} players active this month.\n\n` +
+      `👥 ${formatted} users active this month.\n\n` +
       `Tap START to join the fun!`
     );
 
