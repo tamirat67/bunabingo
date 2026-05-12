@@ -167,7 +167,7 @@ function GameContent() {
               {COL_RANGES.map(col => Array.from({ length: 15 }, (_, i) => col.s + i).map(n => (
                 <div key={n} style={{
                   background: isCalled(n) ? COL_COLOR[col.l] : T.statBg,
-                  color:      isCalled(n) ? 'white' : T.brown,
+                  color:      isCalled(n) ? 'white' : T.text,
                   fontSize: '10px', fontWeight: '900', textAlign: 'center', padding: '5.5px 0', borderRadius: '4px'
                 }}>{n}</div>
               )))}
@@ -205,7 +205,7 @@ function GameContent() {
                       const isFree = cell === 'FREE' || cell === 0 || cell === null;
                       const isMarked = !isFree && isCalled(Number(cell));
                       return (
-                        <div key={`${ri}-${ci}`} style={{ height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '11px', fontWeight: '900', background: isFree ? '#27AE60' : isMarked ? T.gold : T.statBg, color: isFree ? 'white' : T.header, border: isMarked ? `1px solid ${T.goldDk}` : 'none' }}>
+                        <div key={`${ri}-${ci}`} style={{ height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '11px', fontWeight: '900', background: isFree ? '#27AE60' : isMarked ? T.gold : T.statBg, color: isFree ? 'white' : (isMarked ? T.header : T.text), border: isMarked ? `1px solid ${T.goldDk}` : 'none' }}>
                           {isFree ? '★' : cell}
                         </div>
                       );
