@@ -16,7 +16,6 @@ const navItems = [
 function NavContent() {
   const pathname = usePathname() ?? '';
   const { T } = useTheme();
-  if (pathname === '/game') return null;
 
   return (
     <div className="nav-container">
