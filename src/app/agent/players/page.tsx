@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiUsers, FiActivity } from 'react-icons/fi';
-import { useApi } from '@/lib/api';
+import { FiSearch, FiUsers, FiActivity } from 'react-icons/fi';
+import api from '@/lib/api';
 
 export default function AgentPlayersPage() {
   const [players, setPlayers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const api = useApi();
 
   useEffect(() => {
     fetchPlayers();

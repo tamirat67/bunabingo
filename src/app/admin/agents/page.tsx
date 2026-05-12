@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiPlus, FiMoreHorizontal, FiExternalLink, FiUserPlus, FiTrendingUp } from 'react-icons/fi';
-import { useApi } from '@/lib/api';
+import { FiSearch, FiPlus, FiMoreHorizontal, FiExternalLink, FiUserPlus, FiTrendingUp } from 'react-icons/fi';
+import api from '@/lib/api';
 
 export default function AgentsPage() {
   const [agents, setAgents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const api = useApi();
 
   useEffect(() => {
     fetchAgents();

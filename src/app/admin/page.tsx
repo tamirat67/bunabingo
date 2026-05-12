@@ -5,13 +5,12 @@ import {
   FiUsers, FiTrendingUp, FiDollarSign, FiActivity,
   FiArrowUpRight, FiArrowDownRight, FiUserCheck
 } from 'react-icons/fi';
-import { useApi } from '@/lib/api';
+import api from '@/lib/api';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const api = useApi();
 
   useEffect(() => {
     async function fetchData() {

@@ -7,14 +7,13 @@ import {
   FiPieChart, FiUsers, FiDollarSign, 
   FiSettings, FiLogOut, FiMenu, FiX, FiAward, FiArrowLeft
 } from 'react-icons/fi';
-import { useApi } from '@/lib/api';
+import api from '@/lib/api';
 
 export default function AgentLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
   const router = useRouter();
-  const api = useApi();
 
   useEffect(() => {
     async function loadUser() {
