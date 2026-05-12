@@ -8,6 +8,7 @@ import { getRooms, getRoomWithActiveGame, initializeRooms } from '../game/room.m
 import { joinGame, createWaitingGame } from '../game/engine';
 import { getAllUsers, suspendUser, banUser, findOrCreateUser } from '../services/user.service';
 import { withRetry } from '../lib/prisma';
+import { getJackpot } from '../services/jackpot.service';
 import prisma from '../lib/prisma';
 import multer from 'multer';
 import path from 'path';
@@ -118,6 +119,8 @@ router.get('/me', async (req: Request, res: Response) => {
       });
     }
 
+    const jackpot = await getJackpot();
+
     res.json({
       id: user.id,
       firstName: user.firstName,
@@ -126,6 +129,11 @@ router.get('/me', async (req: Request, res: Response) => {
       telegramId: user.telegramId?.toString(),
       telegramUsername: user.telegramUsername,
       isAdmin: user.isAdmin,
+      hasSeenJackpot: user.hasSeenJackpot,
+      jackpot: {
+        amount: jackpot.currentAmount.toString(),
+        target: jackpot.targetAmount.toString()
+      },
       wallet: {
         ...wallet,
         balance: wallet.balance.toString(),
@@ -152,6 +160,21 @@ router.post('/me/coins/convert', async (req: Request, res: Response) => {
     res.json({ success: true, ...result, rate: `${COINS_PER_ETB} XP = 1 ETB bonus` });
   } catch (e: any) {
     res.status(400).json({ error: e.message });
+  }
+});
+
+// ─── Mark Jackpot as Seen ────────────────────────────────────
+router.post('/me/jackpot/seen', async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Not authorized' });
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { hasSeenJackpot: true }
+    });
+    res.json({ success: true });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Failed to update user' });
   }
 });
 

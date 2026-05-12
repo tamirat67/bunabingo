@@ -92,6 +92,7 @@ model User {
   status           UserStatus  @default(ACTIVE)
   isAdmin          Boolean     @default(false)
   registeredAt     DateTime    @default(now())
+  hasSeenJackpot   Boolean     @default(false)
   lastActiveAt     DateTime    @default(now())
   ipHash           String?     // hashed for privacy
   deviceHash       String?
@@ -113,6 +114,19 @@ model User {
   @@index([telegramId])
   @@index([status])
   @@map("users")
+}
+
+model Jackpot {
+  id              String   @id @default("GLOBAL")
+  currentAmount   Decimal  @default(0) @db.Decimal(18, 2)
+  targetAmount    Decimal  @default(1000) @db.Decimal(18, 2)
+  minTickets      Int      @default(10)      // Minimum tickets in game to contribute
+  contributionPercent Decimal @default(1) @db.Decimal(5, 2) // 1% of ticket price
+  lastWonAt       DateTime?
+  lastWinnerId    String?
+  updatedAt       DateTime @updatedAt
+
+  @@map("jackpots")
 }
 
 model Wallet {

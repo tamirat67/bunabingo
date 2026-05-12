@@ -34,5 +34,6 @@ export const getLeaderboard = (timeframe: string) => api.get(`/leaderboard?timef
 export const getHistory = () => api.get('/history').then(res => res.data);
 export const getGlobalHistory = () => api.get('/history/global').then(res => res.data);
 export const convertCoins = () => api.post('/me/coins/convert').then(res => res.data);
+export const markJackpotSeen = () => api.post('/me/jackpot/seen').then(res => res.data);
 
 export default api;

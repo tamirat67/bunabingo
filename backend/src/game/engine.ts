@@ -7,6 +7,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { RoomType, GameStatus } from '@prisma/client';
 import { PREDEFINED_CARDS } from '../lib/predefinedCards';
 import { awardCoins, XP_REWARDS } from '../services/wallet.service';
+import { contributeToJackpot, checkJackpotWin } from '../services/jackpot.service';
 
 interface ActiveGame {
   gameId: string;
@@ -158,6 +159,11 @@ async function runGame(gameId: string): Promise<void> {
       await awardCoins(userId, XP_REWARDS.JOIN_GAME * numTickets, `Joined game ${gameId} with ${numTickets} card(s)`);
     } catch (e) { logger.warn(`[Coins] Failed to award join XP to ${userId}:`, e); }
   }
+
+  // Contribute to Global Jackpot
+  try {
+    await contributeToJackpot(game.tickets.length, unitPrice);
+  } catch (e) { logger.error(`[Jackpot] Contribution failed:`, e); }
 
   // Update game prize pool with actual collected amounts
   await prisma.game.update({
@@ -412,6 +418,18 @@ async function processWinner(
   try {
     await awardCoins(userId, xpAmount, `Bingo WIN: ${winMode} in game ${gameId}`);
   } catch (e) { logger.warn(`[Coins] Failed to award win XP to ${userId}:`, e); }
+
+  // ─── CHECK JACKPOT ───
+  if (winMode === 'FULL_HOUSE') {
+    try {
+      const jackpotWin = await checkJackpotWin(userId, ticketId, winMode, drawnNumbers.length);
+      if (jackpotWin) {
+        logger.info(`🔥 JACKPOT! User ${userId} won ${jackpotWin} ETB!`);
+        // Notify user specifically
+        await triggerUserEvent(userId, 'jackpot-alert', { amount: jackpotWin.toFixed(2) });
+      }
+    } catch (e) { logger.error(`[Jackpot] Win check failed:`, e); }
+  }
 
   await triggerGameEvent(gameId, 'winner-announced', {
     userId,

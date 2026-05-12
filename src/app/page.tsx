@@ -7,6 +7,7 @@ import { Trophy, Gift, Wallet as WalletIcon, Target, Play, Dices, ExternalLink, 
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useTheme } from '../context/ThemeContext';
+import JackpotModal from '../components/JackpotModal';
 
 export default function LobbyPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function LobbyPage() {
   const [rooms, setRooms] = useState<any[]>([]);
   const [activeGame, setActiveGame] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
+  const [showJackpot, setShowJackpot] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -29,15 +31,20 @@ export default function LobbyPage() {
     try {
       const me = await getMe();
       setUser(me);
-      getWallet().then(setWallet);
+      setWallet(me.wallet); // me already includes wallet
       getRooms().then(setRooms);
+
+      // Show jackpot splash if not seen
+      if (me && !me.hasSeenJackpot) {
+        setShowJackpot(true);
+      }
 
       if (me.tickets && me.tickets.length > 0) {
          const latestTicket = me.tickets[0];
          if (latestTicket.game.status !== 'FINISHED' && latestTicket.game.status !== 'CANCELLED') {
             setActiveGame(latestTicket.game);
          } else {
-            setActiveGame(null);
+            setActiveGame(latestTicket.game.status === 'FINISHED' ? null : activeGame);
          }
       }
     } catch (e) {}
@@ -117,7 +124,7 @@ export default function LobbyPage() {
          </div>
          <div style={{ display: 'flex', gap: '15px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.gold, fontSize: '12px', fontWeight: '900' }}>
-               <Gift size={14} color={T.gold} /> BONUS: <span style={{ color: T.textL }}>0.00</span>
+               <Gift size={14} color={T.gold} /> BONUS: <span style={{ color: T.textL }}>{Number(user?.wallet?.bonusBalance || 0).toFixed(2)}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#4CAF50', fontSize: '12px', fontWeight: '900' }}>
                <WalletIcon size={14} color="#4CAF50" /> BALANCE: <span style={{ color: T.textL }}>{Number(wallet?.balance || 0).toFixed(2)}</span>
@@ -185,7 +192,7 @@ export default function LobbyPage() {
                     </div>
                 </div>
                 <div style={{ background: 'rgba(61,43,31,0.05)', color: T.header, textAlign: 'center', fontSize: '8px', fontWeight: '900', padding: '2px 0', opacity: 0.5, letterSpacing: '1px' }}>
-                    JACKPOT 0 / 1000
+                    JACKPOT {Number(user?.jackpot?.amount || 0).toFixed(0)} / {Number(user?.jackpot?.target || 1000).toFixed(0)}
                 </div>
               </React.Fragment>
             ))}
@@ -278,6 +285,12 @@ export default function LobbyPage() {
            </div>
          ))}
       </div>
+
+      <JackpotModal 
+        show={showJackpot} 
+        onClose={() => setShowJackpot(false)} 
+        jackpotAmount={Number(user?.jackpot?.amount || 0).toFixed(2)} 
+      />
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap');
