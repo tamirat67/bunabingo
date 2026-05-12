@@ -253,8 +253,8 @@ function GameContent() {
             disabled={game?.status !== 'RUNNING'}
             style={{ 
               flex: 1,
-              background: game?.status === 'RUNNING' ? (hasBingo ? 'linear-gradient(135deg, #F1C40F, #E67E22)' : `linear-gradient(135deg, ${T.gold}, ${T.goldDk})`) : 'rgba(0,0,0,0.05)', 
-              color: game?.status === 'RUNNING' ? T.header : 'rgba(0,0,0,0.3)', 
+              background: game?.status === 'RUNNING' ? (hasBingo ? 'linear-gradient(135deg, #F1C40F, #E67E22)' : `linear-gradient(135deg, ${T.gold}, ${T.goldDk})`) : 'rgba(150,150,150,0.08)', 
+              color: game?.status === 'RUNNING' ? T.header : (activeThemeKey === 'GOLDEN' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.25)'), 
               height: '45px', 
               borderRadius: '15px', 
               fontWeight: '900', 
@@ -268,7 +268,7 @@ function GameContent() {
               gap: '6px'
             }}
           >
-            ☕ BINGO! <span style={{ fontSize: '11px', opacity: 0.7 }}>({prize} ETB)</span>
+            ☕ BINGO! <span style={{ fontSize: '11px', opacity: (activeThemeKey === 'GOLDEN' ? 0.3 : 0.5) }}>({prize} ETB)</span>
           </motion.button>
 
           <button onClick={() => router.push('/')} style={{ width: '45px', height: '45px', background: '#C0392B', color: 'white', border: 'none', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><LogOut size={20} /></button>
