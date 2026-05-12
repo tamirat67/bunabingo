@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Trophy, History, Wallet, User } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const navItems = [
   { label: 'Home',    href: '/',        icon: Home },
@@ -14,6 +15,7 @@ const navItems = [
 
 function NavContent() {
   const pathname = usePathname() ?? '';
+  const { T } = useTheme();
   if (pathname === '/game') return null;
 
   return (
@@ -21,12 +23,12 @@ function NavContent() {
       {navItems.map(({ label, href, icon: Icon }) => {
         const isActive = pathname === href;
         return (
-          <Link key={label} href={href} className={`nav-item ${isActive ? 'active' : ''}`}>
-            <div className="nav-item-inner">
+          <Link key={label} href={href} className={`nav-item ${isActive ? 'active' : ''}`} style={{ color: isActive ? T.gold : T.text }}>
+            <div className="nav-item-inner" style={{ backgroundColor: isActive ? `${T.gold}22` : 'transparent' }}>
               <Icon size={24} strokeWidth={isActive ? 2 : 1.5} />
               <span>{label}</span>
             </div>
-            {isActive && <div className="nav-indicator-line" />}
+            {isActive && <div className="nav-indicator-line" style={{ backgroundColor: T.gold }} />}
           </Link>
         );
       })}
@@ -36,6 +38,8 @@ function NavContent() {
 
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
+  const { T } = useTheme();
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -43,7 +47,7 @@ export default function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav className="bottom-navbar">
+    <nav className="bottom-navbar" style={{ backgroundColor: T.card, border: `1px solid ${T.border}` }}>
       <Suspense fallback={null}>
         <NavContent />
       </Suspense>
