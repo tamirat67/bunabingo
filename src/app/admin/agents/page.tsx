@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiPlus, FiMoreHorizontal, FiExternalLink, FiUserPlus, FiTrendingUp } from 'react-icons/fi';
-import { FiSearch, FiPlus, FiMoreHorizontal, FiExternalLink, FiUserPlus, FiTrendingUp } from 'react-icons/fi';
 import api from '@/lib/api';
 
 export default function AgentsPage() {

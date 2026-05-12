@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiUsers, FiActivity } from 'react-icons/fi';
-import { FiSearch, FiUsers, FiActivity } from 'react-icons/fi';
 import api from '@/lib/api';
 
 export default function AgentPlayersPage() {
