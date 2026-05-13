@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getMe, joinGame, getOccupiedCards } from '../../../lib/api';
+import { getMe, joinGame, getOccupiedCards, pusherAuth } from '../../../lib/api';
 import { PREDEFINED_CARDS } from '../../../lib/predefinedCards';
 import { ChevronLeft, RefreshCw, Zap, X, Play, ShieldCheck } from 'lucide-react';
 import Pusher from 'pusher-js';
@@ -28,8 +28,11 @@ function SelectionContent() {
       // Subscribe to real-time updates
       const pk = process.env.NEXT_PUBLIC_PUSHER_KEY, pc = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
       if (!pk || !pc || !res.roomId) return;
-      const pusher = new Pusher(pk, { cluster: pc });
-      const ch = pusher.subscribe(`game-${res.roomId}`); 
+      const pusher = new Pusher(pk, { 
+        cluster: pc,
+        authorizer: ch => ({ authorize: (sid, cb) => pusherAuth(sid, ch.name).then(d => cb(null, d)).catch(e => cb(e, null)) }),
+      });
+      const ch = pusher.subscribe(`private-game-${res.roomId}`); 
       
       ch.bind('card-occupied', (data: { occupiedIds: number[] }) => {
         setOccupied(data.occupiedIds);

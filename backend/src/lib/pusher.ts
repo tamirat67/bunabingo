@@ -11,7 +11,7 @@ export const pusher = new Pusher({
 
 export const triggerGameEvent = async (gameId: string, event: string, data: unknown) => {
   try {
-    await pusher.trigger(`game-${gameId}`, event, data);
+    await pusher.trigger(`private-game-${gameId}`, event, data);
   } catch (err) {
     console.error('[Pusher] Failed to trigger event:', err);
   }
@@ -19,7 +19,7 @@ export const triggerGameEvent = async (gameId: string, event: string, data: unkn
 
 export const triggerUserEvent = async (userId: string, event: string, data: unknown) => {
   try {
-    await pusher.trigger(`user-${userId}`, event, data);
+    await pusher.trigger(`private-user-${userId}`, event, data);
   } catch (err) {
     console.error('[Pusher] Failed to trigger user event:', err);
   }
