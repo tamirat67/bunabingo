@@ -705,6 +705,31 @@ export async function joinGame(
     return { tickets };
   });
 
+  // ─── Update Pool Balance Display ───────────────────────────
+  // Recalculate projected prize pool (Total Tickets * Price * (1 - HouseEdge))
+  // This ensures players see the pool growing in real-time before start.
+  const updatedGameWithRoom = await prisma.game.findUnique({
+    where: { id: gameId },
+    include: { tickets: true, room: true },
+  });
+  
+  let displayPrize = '0';
+  if (updatedGameWithRoom) {
+    const totalTicketsCount = updatedGameWithRoom.tickets.length;
+    const unitPrice = updatedGameWithRoom.room.ticketPrice;
+    const houseEdgePercent = config.game.houseEdgePercent;
+    
+    const totalCharge = new Decimal(unitPrice).mul(totalTicketsCount);
+    const houseEdge = totalCharge.mul(houseEdgePercent).div(100);
+    const totalPrizePool = totalCharge.sub(houseEdge);
+    displayPrize = totalPrizePool.toString();
+
+    await prisma.game.update({
+      where: { id: gameId },
+      data: { totalPrize: totalPrizePool }
+    });
+  }
+
   // Update room player count logic
   const updatedGame = await prisma.game.findUnique({
     where: { id: gameId },
@@ -712,8 +737,7 @@ export async function joinGame(
   });
   const uniqueUsers = new Set(updatedGame?.tickets.map(t => t.userId) || []);
   const playerCount = uniqueUsers.size; 
-  const totalTickets = updatedGame?.tickets.length ?? 0;
-
+  
   try {
     const currentState = activeGames.get(gameId);
     const endTime = currentState?.secondsRemaining ? (Date.now() + currentState.secondsRemaining * 1000) : undefined;
@@ -721,6 +745,7 @@ export async function joinGame(
       userId, 
       playerCount, 
       numTickets,
+      totalPrize: displayPrize,
       secondsRemaining: currentState?.secondsRemaining,
       endTime,
       serverTime: Date.now()

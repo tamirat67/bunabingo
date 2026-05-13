@@ -230,7 +230,7 @@ router.get('/me/profile', async (req: Request, res: Response) => {
     res.json({
       username: fullUser.telegramUsername || fullUser.firstName || 'User',
       balance: fullUser.wallet?.balance || 0,
-      bonusBalance: 0,
+      bonusBalance: fullUser.wallet?.bonusBalance || 0,
       gamesWon: fullUser._count.winners,
       totalCoins: totalEarnings._sum.amount || 0
     });

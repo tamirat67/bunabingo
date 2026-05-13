@@ -91,9 +91,11 @@ function GameContent() {
       if (toastTimer.current) clearTimeout(toastTimer.current);
       toastTimer.current = setTimeout(() => setToast(null), 2500);
 
-      if (soundOn) {
-        const audio = new Audio(`/audio/${colLabel(num)}${num}.mp3`);
-        audio.play().catch(e => console.warn('Audio play failed:', e));
+      // Audio trigger with user interaction unlock
+      if (localStorage.getItem('game_sound') !== 'false') {
+        const ballLabel = colLabel(num);
+        const audio = new Audio(`/audio/${ballLabel}${num}.mp3`);
+        audio.play().catch(e => console.warn('Ball audio play failed:', e));
       }
     });
 
@@ -117,13 +119,30 @@ function GameContent() {
       setGame((p: any) => p ? { ...p, currentPlayers: d.playerCount } : p);
     });
 
-    ch.bind('player-joined', (d: { playerCount: number, secondsRemaining?: number, endTime?: number, serverTime?: number }) => {
+    // Prime audio on first interaction to unlock for mobile browsers/Telegram
+    const primeAudio = () => {
+      const silent = new Audio('/audio/start.mp3');
+      silent.volume = 0;
+      silent.play().then(() => {
+        console.log('Audio primed');
+        window.removeEventListener('click', primeAudio);
+        window.removeEventListener('touchstart', primeAudio);
+      }).catch(() => {});
+    };
+    window.addEventListener('click', primeAudio);
+    window.addEventListener('touchstart', primeAudio);
+
+    ch.bind('player-joined', (d: { playerCount: number, totalPrize?: string, secondsRemaining?: number, endTime?: number, serverTime?: number }) => {
       console.log('Pusher: player-joined', d);
       if (d.endTime && d.serverTime) {
         setServerOff(d.serverTime - Date.now());
         setEndTime(d.endTime);
       }
-      setGame((p: any) => p ? { ...p, currentPlayers: d.playerCount } : p);
+      if (d.totalPrize) {
+        setGame((p: any) => p ? { ...p, currentPlayers: d.playerCount, totalPrize: d.totalPrize } : p);
+      } else {
+        setGame((p: any) => p ? { ...p, currentPlayers: d.playerCount } : p);
+      }
       if (d.secondsRemaining !== undefined) setCountdown(d.secondsRemaining);
     });
 
@@ -132,9 +151,9 @@ function GameContent() {
         const winner = d.winners?.[0];
         setWinMsg(winner ? `Card #${(winner.ticket?.card as any)?.id} WON! 🏆` : 'Game Over');
         
-        if (soundOn) {
+        if (localStorage.getItem('game_sound') !== 'false') {
           const audio = new Audio('/audio/stop.mp3');
-          audio.play().catch(e => console.warn('Audio play failed:', e));
+          audio.play().catch(e => console.warn('Stop audio play failed:', e));
         }
 
         // Auto-redirect to lobby after 8 seconds
@@ -142,9 +161,9 @@ function GameContent() {
       }
 
       if (d.status === 'RUNNING') {
-        if (soundOn) {
+        if (localStorage.getItem('game_sound') !== 'false') {
           const audio = new Audio('/audio/start.mp3');
-          audio.play().catch(e => console.warn('Audio play failed:', e));
+          audio.play().catch(e => console.warn('Start audio play failed:', e));
         }
       }
 
@@ -185,9 +204,9 @@ function GameContent() {
     try { 
       const res = await claimBingo(gameId);
       if (res.won) {
-        if (soundOn) {
+        if (localStorage.getItem('game_sound') !== 'false') {
           const audio = new Audio('/audio/stop.mp3');
-          audio.play().catch(e => console.warn('Audio play failed:', e));
+          audio.play().catch(e => console.warn('Bingo win audio play failed:', e));
         }
         setToast(`🎊 BINGO! ${res.mode} (+${res.prize} ETB)`);
         if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -204,8 +223,10 @@ function GameContent() {
   if (!mounted) return null;
 
   const isSpin  = game?.room?.type?.startsWith('SPIN_');
-  const stake   = game?.room?.ticketPrice || 0;
-  const prize   = game?.totalPrize ? Number(game.totalPrize) : (tickets.length * stake * 0.8);
+  const stake   = Number(game?.room?.ticketPrice || 10);
+  const prize   = (game?.totalPrize && Number(game.totalPrize) > 0) 
+                  ? Number(game.totalPrize) 
+                  : Math.max(80, (tickets.length || 1) * stake * 0.8);
   const cdText  = countdown !== null ? `${countdown}s` : (game?.status === 'WAITING' ? 'WAIT' : 'LIVE');
   const visible = tickets.filter(t => !hidden.has(t.id));
 

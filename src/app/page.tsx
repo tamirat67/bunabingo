@@ -73,8 +73,8 @@ export default function LobbyPage() {
       return {
         id: r.id,
         type: r.type,
-        price: price,
-        win: Math.max(livePrize, price * 8),
+        price: price || 10,
+        win: Math.max(livePrize, (price || 10) * 8),
         players: r.games?.[0]?.tickets?.length || 0,
         active: r.games?.filter((g: any) => g.status === 'RUNNING').length || 0,
         isBonus: ['CASUAL', 'JACKPOT'].includes(r.type),
