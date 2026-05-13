@@ -164,17 +164,34 @@ export async function debitWallet(
   const wallet = await getOrCreateWallet(userId);
   const amt = new Decimal(amount.toString());
   const balance = new Decimal(wallet.balance.toString());
+  const bonus = new Decimal(wallet.bonusBalance.toString());
+  const totalAvailable = type === 'TICKET_PURCHASE' ? balance.add(bonus) : balance;
 
-  if (balance.lessThan(amt)) {
-    throw new Error(`Insufficient balance. Available: ${balance.toFixed(2)}, Required: ${amt.toFixed(2)}`);
+  if (totalAvailable.lessThan(amt)) {
+    throw new Error(`Insufficient funds. Required: ${amt.toFixed(2)} ETB`);
   }
 
-  const newBalance = balance.sub(amt);
+  let remainingToDebit = amt;
+  let newBalance = balance;
+  let newBonus = bonus;
+
+  if (type === 'TICKET_PURCHASE') {
+    // Use bonus first
+    if (bonus.greaterThan(0)) {
+      const bonusToUse = Decimal.min(bonus, remainingToDebit);
+      newBonus = bonus.sub(bonusToUse);
+      remainingToDebit = remainingToDebit.sub(bonusToUse);
+    }
+  }
+
+  // Use main balance for the rest
+  newBalance = balance.sub(remainingToDebit);
 
   await prisma.wallet.update({
     where: { userId: userId },
     data: {
       balance: newBalance,
+      bonusBalance: newBonus,
       totalWithdrawn: type === 'WITHDRAWAL'
         ? new Decimal(wallet.totalWithdrawn.toString()).add(amt)
         : wallet.totalWithdrawn,

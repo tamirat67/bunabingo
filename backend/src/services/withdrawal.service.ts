@@ -20,6 +20,16 @@ export async function createWithdrawalRequest(
     throw new Error('Insufficient balance');
   }
 
+  // ─── Withdrawal Guard: Must play more than 5 games ───
+  const gamesPlayed = await prisma.ticket.groupBy({
+    where: { userId },
+    by: ['gameId'],
+  });
+
+  if (gamesPlayed.length <= 5) {
+    throw new Error(`Anti-Abuse: You must play more than 5 games before requesting a withdrawal. You have played ${gamesPlayed.length} games.`);
+  }
+
   const withdrawal = await prisma.withdrawal.create({
     data: {
       userId,
