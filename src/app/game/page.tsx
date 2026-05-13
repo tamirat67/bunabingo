@@ -38,6 +38,7 @@ function GameContent() {
   const [hidden,    setHidden]    = useState<Set<string>>(new Set());
   const [winMsg,    setWinMsg]    = useState<string | null>(null);
   const [toast,     setToast]     = useState<string | null>(null);
+  const [mounted,   setMounted]   = useState(false);
   const [endTime,   setEndTime]   = useState<number | null>(null);
   const [serverOff, setServerOff] = useState(0);
   const [marked,    setMarked]    = useState<Set<number>>(new Set());
