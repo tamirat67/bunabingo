@@ -684,7 +684,8 @@ export async function joinGame(
     by: ['userId']
   });
   
-  if (totalTickets >= minTickets && uniquePlayers.length >= 2) {
+  // Start countdown as soon as 2 unique players are in
+  if (uniquePlayers.length >= 2) {
     const currentState = activeGames.get(gameId);
     if (!currentState?.countdownTimer) {
       try {

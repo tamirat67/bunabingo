@@ -118,8 +118,9 @@ function GameContent() {
 
   if (!mounted) return null;
 
+  const isSpin  = game?.room?.type?.startsWith('SPIN_');
   const stake   = game?.room?.ticketPrice || 0;
-  const prize   = stake * 8;
+  const prize   = stake * (isSpin ? 10 : 8);
   const cdText  = countdown !== null ? `${countdown}s` : (game?.status === 'WAITING' ? 'WAIT' : 'LIVE');
   const visible = tickets.filter(t => !hidden.has(t.id));
 
@@ -169,7 +170,7 @@ function GameContent() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', padding: '8px', background: T.statBg, borderBottom: `1px solid ${T.gold}44` }}>
         {[
           ['GAME ID', gameId?.slice(-6).toUpperCase() || '--'],
-          ['PLAYERS', game?.currentPlayers ?? '-'],
+          ['PLAYERS', game?.currentPlayers || game?.tickets?.length || (tickets.length > 0 ? tickets.length : '-')],
           ['STAKE', `${stake} ETB`],
           ['POOL', `${prize} ETB`]
         ].map(([l, v]) => (
