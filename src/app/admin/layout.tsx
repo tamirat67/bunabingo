@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
   FiPieChart, FiUsers, FiUserCheck, FiDollarSign, 
-  FiSettings, FiLogOut, FiMenu, FiX, FiAward 
+  FiSettings, FiLogOut, FiMenu, FiX, FiAward,
+  FiActivity, FiShield, FiCreditCard
 } from 'react-icons/fi';
 import api from '@/lib/api';
 import '@/app/admin.css';
@@ -15,6 +16,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
   const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token');
+    router.push('/admin/login');
+  };
 
   useEffect(() => {
     async function loadUser() {
@@ -67,6 +73,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       { name: 'My Players', icon: FiUsers, path: '/admin/players' },
     ]),
     { name: 'Transactions', icon: FiDollarSign, path: '/admin/transactions' },
+  ];
+
   return (
     <div className="admin-layout admin-body">
       <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
@@ -138,5 +146,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
       `}</style>
     </div>
+  );
+}
+
+function NavLink({ href, icon, label }: { href: string, icon: React.ReactNode, label: string }) {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+  
+  return (
+    <Link href={href} className={`nav-link ${isActive ? 'active' : ''}`}>
+      {icon}
+      <span>{label}</span>
+    </Link>
   );
 }
