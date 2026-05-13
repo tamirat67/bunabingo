@@ -86,16 +86,19 @@ function GameContent() {
     });
 
     ch.bind('countdown-start', (d: { seconds: number, playerCount?: number }) => {
+      console.log('Pusher: countdown-start', d);
       setCountdown(d.seconds);
       if (d.playerCount !== undefined) setGame((p: any) => p ? { ...p, currentPlayers: d.playerCount } : p);
     });
 
     ch.bind('countdown-tick', (d: { secondsRemaining: number, playerCount: number }) => {
+      console.log('Pusher: countdown-tick', d);
       setCountdown(d.secondsRemaining);
       setGame((p: any) => p ? { ...p, currentPlayers: d.playerCount } : p);
     });
 
     ch.bind('player-joined', (d: { playerCount: number, secondsRemaining?: number }) => {
+      console.log('Pusher: player-joined', d);
       setGame((p: any) => p ? { ...p, currentPlayers: d.playerCount } : p);
       if (d.secondsRemaining !== undefined) setCountdown(d.secondsRemaining);
     });
@@ -107,6 +110,15 @@ function GameContent() {
 
     return () => { ch.unbind_all(); pusher.disconnect(); if (toastTimer.current) clearTimeout(toastTimer.current); };
   }, [gameId, mounted, soundOn]);
+
+  // Local countdown fallback for smoothness
+  useEffect(() => {
+    if (countdown === null || countdown <= 0) return;
+    const timer = setInterval(() => {
+      setCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : prev));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   const isCalled   = (n: number) => drawn.includes(n);
   const hideCard   = (id: string) => setHidden(p => new Set([...p, id]));

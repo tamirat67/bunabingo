@@ -114,6 +114,15 @@ function SpinContent() {
     return () => { ch.unbind_all(); pusher.disconnect(); };
   }, [gameId, mounted]);
 
+  // Local countdown fallback for smoothness
+  useEffect(() => {
+    if (countdown === null || countdown <= 0) return;
+    const timer = setInterval(() => {
+      setCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : prev));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [countdown]);
+
   const handleRaffleResult = (data: any) => {
     const sold = data.soldCards || [];
     let segs = sold.map((id: any, i: any) => ({ label: `${id}`, cardId: id, color: PALETTE[i % PALETTE.length] }));

@@ -82,6 +82,8 @@ export async function startCountdown(gameId: string, playerCount: number): Promi
       });
       const currentTicketCount = game?.tickets.length || 0;
 
+      logger.info(`[Game ${gameId}] Countdown tick: ${existing!.secondsRemaining}s, Players: ${currentTicketCount}`);
+
       await triggerGameEvent(gameId, 'countdown-tick', { 
         secondsRemaining: existing!.secondsRemaining,
         playerCount: currentTicketCount 

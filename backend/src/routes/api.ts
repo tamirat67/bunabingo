@@ -549,7 +549,17 @@ router.get('/games/:gameId', async (req: Request, res: Response) => {
     },
   });
   if (!game) return res.status(404).json({ error: 'Game not found' });
-  res.json(game);
+  
+  // Inject live state if available
+  const { getActiveGames } = await import('../game/engine');
+  const activeGames = getActiveGames();
+  const state = activeGames.get(game.id);
+  
+  res.json({
+    ...game,
+    countdownSeconds: state?.secondsRemaining ?? (game as any).countdownSeconds,
+    currentPlayers: state?.secondsRemaining !== undefined ? (game as any).tickets?.length : (game as any).currentPlayers
+  });
 });
 
 router.get('/games/:gameId/mycard', async (req: Request, res: Response) => {
