@@ -348,7 +348,7 @@ async function drawNumber(gameId: string): Promise<void> {
 
   logger.debug(`[Game ${gameId}] Drew #${number} (${sequence}th)`);
 
-  // Check all tickets for winners
+  // Check all tickets for winners (Now only updates markedNumbers in DB, doesn't auto-claim)
   await checkAllTickets(gameId, state.drawnNumbers);
 }
 
@@ -376,18 +376,65 @@ async function checkAllTickets(gameId: string, drawnNumbers: number[]): Promise<
       }
     }
 
-    // Update marked numbers
+    // Update marked numbers (Auto-daub in DB for verification, but user still needs to click BINGO)
     await prisma.ticket.update({
       where: { id: ticket.id },
       data: { markedNumbers: drawnNumbers },
     });
   }
+}
 
-  // If full house found → end game
-  if (existingWinModes.has('FULL_HOUSE')) {
-    clearInterval(activeGames.get(gameId)?.drawInterval);
-    await finishGame(gameId, 'Full house winner found');
+// ─── Claim Bingo Win (Manual) ─────────────────────────────────
+export async function claimBingoWin(gameId: string, userId: string): Promise<{ won: boolean; mode?: string; prize?: number }> {
+  const game = await prisma.game.findUnique({
+    where: { id: gameId },
+    include: { drawHistory: true, room: true }
+  });
+  if (!game || game.status !== GameStatus.RUNNING) throw new Error('Game is not running');
+
+  const tickets = await prisma.ticket.findMany({
+    where: { gameId, userId }
+  });
+
+  const drawnNumbers = game.drawHistory.map(d => d.number);
+  const existingWinners = await prisma.winner.findMany({ where: { gameId } });
+  const existingWinModes = new Set(existingWinners.map(w => w.winMode));
+
+  for (const ticket of tickets) {
+    const cardData = ticket.card as any;
+    const rows = Array.isArray(cardData) ? cardData : cardData.rows;
+    const result = checkWin(rows as BingoCard, drawnNumbers);
+
+    if (result.won) {
+      // Find the best available win mode that hasn't been claimed yet
+      // Priority: FULL_HOUSE > FOUR_CORNERS > DIAGONAL > COLUMN > ROW
+      const priority = ['FULL_HOUSE', 'FOUR_CORNERS', 'DIAGONAL', 'COLUMN', 'ROW'];
+      for (const mode of priority) {
+        if (result.modes.includes(mode) && !existingWinModes.has(mode)) {
+          await processWinner(gameId, userId, ticket.id, mode, drawnNumbers);
+          
+          if (mode === 'FULL_HOUSE') {
+             const state = activeGames.get(gameId);
+             if (state?.drawInterval) clearInterval(state.drawInterval);
+             await finishGame(gameId, 'Full House claimed');
+          }
+          
+          const prizeAmount = await calculatePrize(game, mode);
+          return { won: true, mode, prize: Number(prizeAmount) };
+        }
+      }
+    }
   }
+
+  return { won: false };
+}
+
+async function calculatePrize(game: any, winMode: string): Promise<Decimal> {
+  const prizePercents: Record<string, number> = {
+    ROW: 10, COLUMN: 10, DIAGONAL: 15, FOUR_CORNERS: 15, FULL_HOUSE: 50,
+  };
+  const percent = prizePercents[winMode] ?? 10;
+  return new Decimal(game.totalPrize).mul(percent).div(100);
 }
 
 // ─── Process Winner ───────────────────────────────────────────

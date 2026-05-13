@@ -387,22 +387,13 @@ router.post('/games/:gameId/bingo', async (req: Request, res: Response) => {
       where: { userId: user.id, gameId }
     });
     
-    const drawnNumbers = game.drawHistory.map(d => d.number);
-    let won = false;
+    const { claimBingoWin } = await import('../game/engine');
+    const result = await claimBingoWin(gameId, user.id);
     
-    for (const ticket of tickets) {
-      const cardData = ticket.card as any;
-      const rows = Array.isArray(cardData) ? cardData : cardData.rows;
-      const result = checkWin(rows as any, drawnNumbers);
-      if (result.won) {
-        won = true;
-        break;
-      }
-    }
-    
-    res.json({ success: true, won });
-  } catch (err) {
-    res.status(500).json({ error: 'Verification failed' });
+    res.json(result);
+  } catch (err: any) {
+    logger.error('Bingo claim failed:', err);
+    res.status(400).json({ error: err.message || 'Verification failed' });
   }
 });
 

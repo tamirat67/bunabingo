@@ -38,9 +38,10 @@ function GameContent() {
   const [hidden,    setHidden]    = useState<Set<string>>(new Set());
   const [winMsg,    setWinMsg]    = useState<string | null>(null);
   const [toast,     setToast]     = useState<string | null>(null);
-  const [mounted,   setMounted]   = useState(false);
   const [endTime,   setEndTime]   = useState<number | null>(null);
   const [serverOff, setServerOff] = useState(0);
+  const [marked,    setMarked]    = useState<Set<number>>(new Set());
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 
   const toastTimer = useRef<any>(null);
 
@@ -142,6 +143,18 @@ function GameContent() {
   }, [endTime, serverOff]);
 
   const isCalled   = (n: number) => drawn.includes(n);
+  const isMarkedLocal = (n: number) => marked.has(n);
+  
+  const toggleMark = (n: number) => {
+    if (typeof n !== 'number' || n === 0) return;
+    setMarked(prev => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
+  };
+
   const hideCard   = (id: string) => setHidden(p => new Set([...p, id]));
   const handleBingo = async () => {
     if (!gameId) return;
@@ -167,7 +180,8 @@ function GameContent() {
       
       const isMarked = (r: number, c: number) => {
         const val = rows[r][c];
-        return val === 'FREE' || val === 0 || val === null || drawnSet.has(Number(val));
+        const numVal = Number(val);
+        return val === 'FREE' || val === 0 || val === null || (drawnSet.has(numVal) && marked.has(numVal));
       };
 
       for (let r = 0; r < 5; r++) if ([0,1,2,3,4].every(c => isMarked(r, c))) return true;
@@ -253,22 +267,62 @@ function GameContent() {
             const cardObj = t.card as { id: number; rows: any[][] };
             const rows = cardObj?.rows ?? [];
             const cardId = cardObj?.id ?? '?';
+            const isSelected = selectedTicketId === t.id;
+            
             return (
-              <motion.div layout key={t.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: 'relative', background: T.card, borderRadius: '16px', overflow: 'hidden', border: `2px solid ${T.gold}55`, boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
-                <button onClick={() => hideCard(t.id)} style={{ position: 'absolute', top: '4px', right: '5px', width: '20px', height: '20px', background: '#C0392B', color: 'white', border: 'none', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}><X size={10} /></button>
-                <div style={{ background: T.header, padding: '4px 10px', color: T.gold, fontWeight: '900', fontSize: '11px' }}>
-                   Cartela #{cardId}
+              <motion.div 
+                layout 
+                key={t.id} 
+                onClick={() => setSelectedTicketId(t.id)}
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1, scale: isSelected ? 1.02 : 1 }} 
+                style={{ 
+                  position: 'relative', 
+                  background: T.card, 
+                  borderRadius: '16px', 
+                  overflow: 'hidden', 
+                  border: isSelected ? `3px solid ${T.gold}` : `2px solid ${T.gold}55`, 
+                  boxShadow: isSelected ? `0 8px 20px ${T.gold}44` : '0 4px 10px rgba(0,0,0,0.05)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <button onClick={(e) => { e.stopPropagation(); hideCard(t.id); }} style={{ position: 'absolute', top: '4px', right: '5px', width: '20px', height: '20px', background: '#C0392B', color: 'white', border: 'none', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}><X size={10} /></button>
+                <div style={{ background: isSelected ? T.gold : T.header, padding: '4px 10px', color: isSelected ? T.header : T.gold, fontWeight: '900', fontSize: '11px' }}>
+                   Cartela #{cardId} {isSelected ? '(SELECTED)' : ''}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2px', padding: '5px' }}>
                   {['B','I','N','G','O'].map(l => (
                     <div key={l} style={{ background: COL_COLOR[l], color: 'white', textAlign: 'center', fontSize: '10px', fontWeight: '900', padding: '2px 0', borderRadius: '4px' }}>{l}</div>
                   ))}
                   {rows.map((row: any[], ri: number) => row.map((cell: any, ci: number) => {
+                      const numVal = Number(cell);
                       const isFree = cell === 'FREE' || cell === 0 || cell === null;
-                      const isMarked = !isFree && isCalled(Number(cell));
+                      const userMarked = !isFree && marked.has(numVal);
+                      const callMarked = !isFree && isCalled(numVal);
+                      
                       return (
-                        <div key={`${ri}-${ci}`} style={{ height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '11px', fontWeight: '900', background: isFree ? '#27AE60' : isMarked ? T.gold : T.statBg, color: isFree ? 'white' : (isMarked ? T.header : T.text), border: isMarked ? `1px solid ${T.gold}` : 'none' }}>
+                        <div 
+                          key={`${ri}-${ci}`} 
+                          onClick={(e) => { e.stopPropagation(); if (!isFree) toggleMark(numVal); }}
+                          style={{ 
+                            height: '26px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            borderRadius: '4px', 
+                            fontSize: '11px', 
+                            fontWeight: '900', 
+                            background: isFree ? '#27AE60' : userMarked ? T.gold : T.statBg, 
+                            color: isFree ? 'white' : (userMarked ? T.header : T.text), 
+                            border: (callMarked && !userMarked) ? `2px dashed ${T.gold}` : userMarked ? `1px solid ${T.gold}` : 'none',
+                            position: 'relative'
+                          }}
+                        >
                           {isFree ? '★' : cell}
+                          {userMarked && (
+                             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} style={{ position: 'absolute', width: '80%', height: '80%', border: `2px solid ${T.header}`, borderRadius: '50%', opacity: 0.5 }} />
+                          )}
                         </div>
                       );
                     }))}
