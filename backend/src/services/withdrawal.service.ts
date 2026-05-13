@@ -37,23 +37,23 @@ export async function createWithdrawalRequest(
     withdrawalId: withdrawal.id,
     userId,
     amount,
-    userName: withdrawal.user?.username || 'User',
+    userName: (withdrawal as any).user?.username || 'User',
     bankName,
     accountNumber,
   });
 
   // Notify Agent if applicable
-  if (withdrawal.user?.referredBy) {
-    await triggerUserEvent(withdrawal.user.referredBy, 'agent-new-withdrawal', {
+  if ((withdrawal as any).user?.referredBy) {
+    await triggerUserEvent((withdrawal as any).user.referredBy, 'agent-new-withdrawal', {
       withdrawalId: withdrawal.id,
       userId,
       amount,
-      userName: withdrawal.user?.username || 'User',
+      userName: (withdrawal as any).user?.username || 'User',
     });
 
     // Notify agent on Telegram
     await notifyAgent(
-      withdrawal.user.referredBy,
+      (withdrawal as any).user.referredBy,
       `💸 <b>New Withdrawal Request</b>\n\n` +
       `👤 <b>Player:</b> ${withdrawal.user?.username || 'Unknown'}\n` +
       `💰 <b>Amount:</b> ${amount} ETB\n` +

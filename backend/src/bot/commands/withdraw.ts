@@ -9,7 +9,7 @@ export async function handleWithdraw(ctx: Context) {
     const user = await getUserByTelegramId(tgUser.id);
     if (!user) return ctx.reply('❌ Please /start first.');
 
-    const balance = Number(user.wallet?.balance ?? 0);
+    const balance = Number((user as any).wallet?.balance ?? 0);
 
     const bannerUrl = `${process.env.WEBHOOK_URL}/uploads/banner.png`;
     const text = 
