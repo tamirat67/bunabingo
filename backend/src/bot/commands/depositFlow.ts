@@ -162,7 +162,7 @@ export async function handleDepositMessage(ctx: Context): Promise<boolean> {
     }
 
     // ── Valid — show parsed confirmation ──
-    const verifiedBadge = result.onlineVerified ? '✅ INSTANTLY VERIFIED' : '⚠️ Checking with bank...';
+    const verifiedBadge = result.onlineVerified ? '✅ INSTANTLY VERIFIED' : '🔗 Performing automated verification...';
 
     await ctx.reply(
       `✅ *Receipt Validated!*\n\n` +
@@ -174,7 +174,7 @@ export async function handleDepositMessage(ctx: Context): Promise<boolean> {
       `Date/Time      : ${d.dateTime}\n` +
       `Service Fee    : ETB ${d.serviceFee.toFixed(2)}\n` +
       `\`\`\`\n` +
-      `🔗 ${verifiedBadge}\n\n` +
+      ` ${verifiedBadge}\n\n` +
       `Finalizing your deposit...`,
       { parse_mode: 'Markdown' }
     );
@@ -354,11 +354,11 @@ async function submitDeposit(
       );
     } else {
       await ctx.reply(
-        `⏳ *Verifying with Bank...*\n\n` +
+        `⏳ *Performing Final Bank Check...*\n\n` +
         `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
         `💳 Method: *${methodLabel}*\n` +
         `📋 Status: *Awaiting Confirmation*\n\n` +
-        `⏱ Please wait *2-5 minutes* while our system verifies your payment with the bank. You will be notified automatically once your wallet is credited. 🙏`,
+        `⏱ Our system is performing multiple automated checks with the bank portal. Please wait **2-5 minutes**. You will receive an automated notification as soon as the credit is confirmed. 🙏`,
         { parse_mode: 'Markdown' }
       );
     }
