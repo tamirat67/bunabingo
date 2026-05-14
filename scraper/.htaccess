@@ -1,4 +1,11 @@
-# Plesk Node.js Passenger Configuration
-PassengerEnabled on
-PassengerAppType node
-PassengerStartupFile app.js
+# Disable Node.js Passenger
+PassengerEnabled off
+
+RewriteEngine On
+RewriteBase /scraper/
+
+# Route /validate/ID to scraper.php
+RewriteRule ^validate/([A-Z0-9]+)$ scraper.php?transactionId=$1 [L,QSA]
+
+# Handle root access
+RewriteRule ^$ scraper.php [L]
