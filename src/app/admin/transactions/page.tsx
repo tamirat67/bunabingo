@@ -84,7 +84,7 @@ export default function TransactionsPage() {
             style={{ padding: '10px 20px', borderRadius: '12px', background: activeTab === 'history' ? '#3d2b1f' : 'transparent', color: activeTab === 'history' ? 'white' : '#3d2b1f' }}
             onClick={() => setActiveTab('history')}
           >
-            Ledger History
+            Transaction History
           </button>
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function TransactionsPage() {
                     <th>Reference</th>
                     <th>Proof</th>
                     <th>Time</th>
-                    <th>Actions</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -131,10 +131,9 @@ export default function TransactionsPage() {
                       </td>
                       <td style={{ color: '#78716c', fontSize: '13px' }}>{new Date(d.createdAt).toLocaleString()}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button onClick={() => handleApprove(d.id, 'deposit')} className="login-button" style={{ padding: '8px', background: '#f0fdf4', color: '#22c55e' }}><FiCheck /></button>
-                          <button onClick={() => handleReject(d.id, 'deposit')} className="login-button" style={{ padding: '8px', background: '#fef2f2', color: '#ef4444' }}><FiX /></button>
-                        </div>
+                        <span className="badge badge-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                          <FiClock size={12} /> VERIFYING...
+                        </span>
                       </td>
                     </tr>
                   ))}
