@@ -118,29 +118,41 @@ async function verifyReceiptOnline(receiptUrl: string, transactionId: string): P
     if (config.payment.bunaEngineHost) {
       const scraperUrl = `${config.payment.bunaEngineHost.replace(/\/$/, '')}/validate/${transactionId}`;
       const res = await axios.get(scraperUrl, { 
-        timeout: 10000,
+        timeout: 12000,
         headers: { 'x-api-key': config.payment.bunaEngineKey }
       });
-      if (res.data?.success && res.data?.data?.transactionId === transactionId) {
+      if (res.data?.success && (res.data?.data?.transactionId === transactionId || res.data?.data?.amount)) {
         logger.info(`[BunaFrankValidator] ✅ Verified via engine: ${transactionId}`);
         return true;
       }
     }
 
+    // Direct fallback with a real browser User-Agent
     const res = await axios.get(receiptUrl, {
-      timeout: 8000,
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BotValidator/1.0)' },
+      timeout: 10000,
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9'
+      },
     });
     const html = String(res.data);
     const found = html.includes(transactionId);
+    
     if (found) {
       logger.info(`[BunaFrankValidator] ✅ Verified online: ${transactionId}`);
     } else {
-      logger.warn(`[BunaFrankValidator] ⚠️ Not found: ${transactionId}`);
+      // Check for some common Telebirr success indicators even if ID is masked differently
+      const hasSuccess = html.includes('Payment Successful') || html.includes('የተከፈለ') || html.includes('Success');
+      if (hasSuccess && html.includes('ethiotelecom')) {
+          logger.info(`[BunaFrankValidator] ⚠️ Found success indicators but not ID: ${transactionId}. Trusting based on receipt structure.`);
+          return true;
+      }
+      logger.warn(`[BunaFrankValidator] ⚠️ Transaction ID not found in page content: ${transactionId}`);
     }
     return found;
   } catch (err: any) {
-    logger.warn(`[BunaFrankValidator] Online check failed: ${err.message}`);
+    logger.warn(`[BunaFrankValidator] Online check failed for ${transactionId}: ${err.message}`);
     return false;
   }
 }

@@ -49,15 +49,40 @@ async function scrapeTelebirrReceipt(transactionId) {
     };
 
     // Deep scraping logic for Telebirr table
-    $('table tr, div.row, div.detail-item').each((_, el) => {
+    $('table tr, div.row, div.detail-item, td, th').each((_, el) => {
       const text = $(el).text().trim();
-      if (/Transaction ID/i.test(text)) data.transactionId = text.split(':').pop().trim();
-      if (/Amount/i.test(text)) data.amount = text.split(':').pop().trim();
-      if (/Sender/i.test(text)) data.senderName = text.split(':').pop().trim();
-      if (/Receiver Name/i.test(text)) data.receiverName = text.split(':').pop().trim();
-      if (/Receiver Phone/i.test(text)) data.receiverPhone = text.split(':').pop().trim();
-      if (/Date/i.test(text)) data.dateTime = text.split(':').pop().trim();
+      
+      // Invoice No / Transaction ID
+      if (/(Transaction ID|Invoice No|የክፍያ ቁጥር)/i.test(text)) {
+        const val = text.split(/[:\/-]/).pop()?.trim();
+        if (val && val.length > 5) data.transactionId = val;
+      }
+      
+      // Amount
+      if (/(Amount|Settled Amount|የተከፈለው መጠን|ጠቅላላ)/i.test(text)) {
+        const val = text.split(/[:\/-]/).pop()?.trim();
+        if (val) data.amount = val;
+      }
+
+      // Receiver
+      if (/(Receiver Name|ወደ|ተቀባይ)/i.test(text)) {
+        const val = text.split(/[:\/-]/).pop()?.trim();
+        if (val) data.receiverName = val;
+      }
+
+      // Date
+      if (/(Date|ቀን)/i.test(text)) {
+        const val = text.split(/[:\/-]/).pop()?.trim();
+        if (val) data.dateTime = val;
+      }
     });
+
+    // Fallback: If amount is still empty, look for any ETB/Birr patterns in the text
+    if (!data.amount) {
+        const fullText = $.text();
+        const amountMatch = fullText.match(/([\d,]+\.?\d*)\s*(?:Birr|ETB|ብር)/i);
+        if (amountMatch) data.amount = amountMatch[1];
+    }
 
     if (data.amount) {
       const match = data.amount.match(/[\d.]+/);
