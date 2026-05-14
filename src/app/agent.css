@@ -1,20 +1,18 @@
-/* ─── Agent Dashboard CSS ───
+/* ─── Agent Dashboard CSS — Light Theme ───
    Explicit styles for /agent pages.
-   Replaces Tailwind utilities that get purged in production
-   or fail due to custom-color opacity modifiers.
 */
 
 /* ── CSS Variables ── */
 :root {
-  --agent-bg:       #0c0c0c;
-  --agent-card:     #161616;
-  --agent-coffee:   #3d2b1f;
+  --agent-bg:       #f5f0e8;            /* warm cream */
+  --agent-card:     #ffffff;             /* white cards */
+  --agent-coffee:   #ffffff;             /* card background (light) */
   --agent-gold:     #d4af37;
   --agent-gold-dk:  #b8962e;
   --agent-tan:      #e8dcc4;
-  --agent-border:   rgba(255,255,255,0.05);
-  --agent-muted:    #6b7280;  /* gray-500 */
-  --agent-muted2:   #9ca3af;  /* gray-400 */
+  --agent-border:   rgba(0,0,0,0.08);
+  --agent-muted:    #78716c;             /* stone-500 */
+  --agent-muted2:   #57534e;             /* stone-600 */
 }
 
 /* ── Reset body padding added by globals.css ── */
@@ -114,51 +112,52 @@
    CARD COMPONENTS
 ──────────────────────────────────────────── */
 .agent-card {
-  background: var(--agent-coffee);
+  background: var(--agent-card);
   border: 1px solid var(--agent-border);
-  border-radius: 1rem;       /* rounded-2xl */
-  padding: 1.5rem;            /* p-6 */
+  border-radius: 1rem;
+  padding: 1.5rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-  transition: border-color 0.3s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 .agent-card:hover {
-  border-color: rgba(212,175,55,0.3);
+  border-color: rgba(212,175,55,0.5);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.10);
 }
 
 .agent-card-lg {
-  background: var(--agent-coffee);
+  background: var(--agent-card);
   border: 1px solid var(--agent-border);
   border-radius: 1rem;
-  padding: 2rem;              /* p-8 */
-  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
   position: relative;
   overflow: hidden;
 }
 
 .agent-card-3xl {
-  background: var(--agent-coffee);
+  background: var(--agent-card);
   border: 1px solid var(--agent-border);
-  border-radius: 1.5rem;     /* rounded-3xl */
+  border-radius: 1.5rem;
   padding: 2rem;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
   position: relative;
   overflow: hidden;
   text-align: center;
 }
 
 .agent-card-gold {
-  background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, transparent 100%);
-  border: 1px solid var(--agent-border);
+  background: linear-gradient(135deg, rgba(212,175,55,0.06) 0%, rgba(212,175,55,0.02) 100%);
+  border: 1px solid rgba(212,175,55,0.2);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
 
 .agent-card-gold-sm {
   background: rgba(212,175,55,0.05);
-  border: 1px solid rgba(212,175,55,0.1);
+  border: 1px solid rgba(212,175,55,0.15);
   border-radius: 1rem;
   padding: 1.5rem;
   display: flex;
@@ -215,58 +214,58 @@
    TYPOGRAPHY
 ──────────────────────────────────────────── */
 .agent-h1 {
-  font-size: 1.875rem;   /* text-3xl */
+  font-size: 1.875rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #1c1917;
   letter-spacing: -0.025em;
-  text-transform: none;  /* override globals.css h1 uppercase */
+  text-transform: none;
   margin: 0;
 }
 .agent-h2 {
   font-size: 1.5rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #1c1917;
   margin: 0;
   letter-spacing: -0.02em;
 }
 .agent-h3 {
   font-size: 1.125rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #1c1917;
   text-transform: none;
   margin: 0;
 }
 .agent-h3-sm {
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #1c1917;
   text-transform: none;
   margin: 0;
 }
 .agent-stat-value {
-  font-size: 1.5rem;    /* text-2xl */
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #1c1917;
   margin-top: 0.25rem;
   letter-spacing: -0.02em;
 }
 .agent-stat-value-xl {
   font-size: 1.875rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #1c1917;
   margin-top: 0.25rem;
 }
 .agent-stat-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--agent-muted2);
+  color: var(--agent-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-top: 1rem;
 }
 .agent-subtitle {
   font-size: 0.875rem;
-  color: var(--agent-muted2);
+  color: var(--agent-muted);
   margin-top: 0.25rem;
 }
 .agent-label-xs {
@@ -279,12 +278,12 @@
   margin-bottom: 0.5rem;
 }
 .agent-text-gold  { color: var(--agent-gold); }
-.agent-text-white { color: #ffffff; }
+.agent-text-white { color: #1c1917; }  /* remapped to dark for light theme */
 .agent-text-muted { color: var(--agent-muted2); }
 .agent-text-muted2{ color: var(--agent-muted); }
-.agent-text-green { color: #4ade80; }
-.agent-text-red   { color: #f87171; }
-.agent-text-blue  { color: #60a5fa; }
+.agent-text-green { color: #16a34a; }
+.agent-text-red   { color: #dc2626; }
+.agent-text-blue  { color: #2563eb; }
 
 /* ────────────────────────────────────────────
    TIER BADGE (top-right of page header)
@@ -367,13 +366,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 8px 20px rgba(212,175,55,0.25);
+  box-shadow: 0 4px 14px rgba(212,175,55,0.3);
   margin-top: 2rem;
 }
 .agent-btn-gold:hover {
   background: var(--agent-gold-dk);
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(212,175,55,0.35);
+  box-shadow: 0 8px 20px rgba(212,175,55,0.4);
 }
 .agent-btn-gold:active { transform: translateY(0); }
 
@@ -429,20 +428,20 @@
 .agent-search-wrap:focus-within svg { color: var(--agent-gold); }
 
 .agent-search-input {
-  background: var(--agent-coffee);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: #f9f7f3;
+  border: 1px solid rgba(0,0,0,0.12);
   border-radius: 0.75rem;
   padding: 0.75rem 1rem 0.75rem 3rem;
   font-size: 0.875rem;
-  color: #ffffff;
+  color: #1c1917;
   outline: none;
   width: 100%;
   transition: border-color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 .agent-search-input::placeholder { color: var(--agent-muted); }
 .agent-search-input:focus {
-  border-color: rgba(212,175,55,0.4);
+  border-color: rgba(212,175,55,0.6);
   box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
 }
 @media (min-width: 768px) {
@@ -453,16 +452,16 @@
    DATA TABLE
 ──────────────────────────────────────────── */
 .agent-table-wrap {
-  background: var(--agent-coffee);
+  background: var(--agent-card);
   border: 1px solid var(--agent-border);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
 }
 .agent-table-header {
   padding: 1.5rem 2rem;
   border-bottom: 1px solid var(--agent-border);
-  background: rgba(255,255,255,0.02);
+  background: rgba(0,0,0,0.02);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -482,7 +481,7 @@
   font-weight: 900;
   border-top: 1px solid var(--agent-border);
   border-bottom: 1px solid var(--agent-border);
-  background: rgba(255,255,255,0.02);
+  background: rgba(0,0,0,0.02);
 }
 .agent-table th {
   padding: 1.25rem 2rem;
@@ -495,7 +494,7 @@
   transition: background 0.15s;
 }
 .agent-table tbody tr:last-child { border-bottom: none; }
-.agent-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+.agent-table tbody tr:hover { background: rgba(0,0,0,0.02); }
 
 .agent-table td {
   padding: 1.25rem 2rem;
@@ -603,11 +602,11 @@
   margin-bottom: 0.5rem;
 }
 .agent-field-value {
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.08);
   padding: 1rem;
   border-radius: 0.75rem;
-  color: #ffffff;
+  color: #1c1917;
   font-weight: 700;
   font-size: 0.875rem;
   display: flex;
@@ -616,8 +615,8 @@
 }
 .agent-verified-tag {
   font-size: 0.625rem;
-  background: rgba(74,222,128,0.2);
-  color: #4ade80;
+  background: rgba(22,163,74,0.12);
+  color: #16a34a;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
   font-weight: 900;
@@ -648,7 +647,7 @@
    LOADING SKELETON
 ──────────────────────────────────────────── */
 .agent-skeleton {
-  background: rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.07);
   border-radius: 1rem;
   animation: agentPulse 1.5s ease-in-out infinite;
 }

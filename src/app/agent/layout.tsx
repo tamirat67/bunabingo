@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { FiLogOut } from 'react-icons/fi';
 import { 
   FiPieChart, FiUsers, FiDollarSign, 
   FiSettings, FiLogOut, FiMenu, FiX, FiAward, FiArrowLeft
@@ -95,10 +96,43 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
             {isSidebarOpen && (
               <div style={{ overflow: 'hidden', flex: 1 }}>
                 <p style={{ fontSize: '13px', fontWeight: '900', color: 'white', margin: 0 }}>{user.firstName}</p>
-                <p style={{ fontSize: '10px', color: 'var(--admin-text-muted)', margin: 0, textTransform: 'uppercase', fontWeight: '800' }}>Verified Agent</p>
+                <p style={{ fontSize: '10px', color: 'var(--admin-text-muted)', margin: 0, textTransform: 'uppercase', fontWeight: '800' }}>Agent</p>
               </div>
             )}
           </div>
+
+          {/* Logout button */}
+          <button
+            onClick={() => {
+              localStorage.removeItem('admin_token');
+              router.push('/admin/login');
+            }}
+            title="Logout"
+            style={{
+              marginTop: '10px',
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: isSidebarOpen ? 'flex-start' : 'center',
+              gap: '10px',
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: '12px',
+              padding: '12px 14px',
+              color: '#f87171',
+              fontWeight: '900',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.18)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.08)')}
+          >
+            <FiLogOut size={16} />
+            {isSidebarOpen && <span>Logout</span>}
+          </button>
         </div>
       </aside>
 

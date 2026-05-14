@@ -1,16 +1,17 @@
-/* ─── Premium Golden Espresso Design System ─── */
+/* ─── Premium Golden Espresso Design System — Light Theme ─── */
 
 :root {
-  --cmd-bg: #0c0c0c;
-  --cmd-card: #161616;
-  --cmd-coffee: #3d2b1f;
+  --cmd-bg: #f5f0e8;           /* warm cream background */
+  --cmd-card: #ffffff;          /* white cards */
+  --cmd-coffee: #3d2b1f;        /* dark brown — sidebar only */
   --cmd-gold: #d4af37;
   --cmd-tan: #e8dcc4;
-  --cmd-text: #ffffff;
-  --cmd-text-muted: #a8a29e;
-  --cmd-border: rgba(255, 255, 255, 0.05);
+  --cmd-text: #1c1917;          /* stone-900 */
+  --cmd-text-muted: #78716c;    /* stone-500 */
+  --cmd-border: rgba(0, 0, 0, 0.08);
   --sidebar-w: 280px;
   --agent-accent: #d4af37;
+  --admin-text-muted: #78716c;
 }
 
 .admin-body {
@@ -19,6 +20,9 @@
   min-height: 100vh;
   font-family: 'Inter', -apple-system, sans-serif;
 }
+
+/* override globals.css body padding for admin/agent */
+.admin-body body { padding-bottom: 0; }
 
 .admin-layout {
   display: flex;
@@ -142,6 +146,7 @@
   align-items: center;
   padding: 0 40px;
   border-bottom: 1px solid var(--cmd-border);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
   position: sticky;
   top: 0;
   z-index: 90;
@@ -171,12 +176,13 @@
   padding: 30px;
   border-radius: 28px;
   border: 1px solid var(--cmd-border);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .stat-card-m:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
   border-color: var(--cmd-gold);
 }
 
@@ -192,7 +198,7 @@
 .stat-value {
   font-size: 28px;
   font-weight: 900;
-  color: var(--cmd-coffee);
+  color: var(--cmd-text);
   margin: 0;
 }
 
@@ -202,7 +208,7 @@
   border-radius: 32px;
   border: 1px solid var(--cmd-border);
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
 }
 
 .data-table {
@@ -218,7 +224,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--cmd-text-muted);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.02);
   border-bottom: 1px solid var(--cmd-border);
 }
 
@@ -226,7 +232,7 @@
   padding: 20px 24px;
   font-size: 14px;
   border-bottom: 1px solid var(--cmd-border);
-  color: var(--cmd-coffee);
+  color: var(--cmd-text);
 }
 
 .data-table tr:last-child td { border-bottom: none; }
@@ -240,9 +246,10 @@
   letter-spacing: 0.5px;
 }
 
-.badge-blue { background: #eff6ff; color: #3b82f6; }
-.badge-green { background: #f0fdf4; color: #22c55e; }
-.badge-gold { background: #fffcf0; color: var(--cmd-gold); }
+.badge-blue  { background: #eff6ff; color: #3b82f6; }
+.badge-green { background: #f0fdf4; color: #16a34a; }
+.badge-red   { background: #fef2f2; color: #ef4444; }
+.badge-gold  { background: #fffbeb; color: #b45309; }
 
 /* Buttons */
 .login-button {
@@ -347,6 +354,11 @@
   justify-content: center;
   background-color: var(--cmd-bg);
 }
+
+/* Scrollbar for light theme */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #d6cfc4; border-radius: 10px; }
 
 /* ─── Command Center Login Page ─── */
 .cmd-body {
