@@ -448,15 +448,12 @@ async function processWinner(
   });
   if (!game) return;
 
-  // Winner takes all (totalPrize already has house edge deducted)
   const prizeAmount = new Decimal(game.totalPrize);
 
-  // Record winner
   await prisma.winner.create({
     data: { gameId, userId, ticketId, winMode, prizeAmount },
   });
 
-  // Credit wallet
   const wallet = await prisma.wallet.findUnique({ where: { userId } });
   if (wallet) {
     const before = wallet.balance;
@@ -486,19 +483,18 @@ async function processWinner(
 
   await prisma.ticket.update({ where: { id: ticketId }, data: { isWinner: true } });
 
-  // Award XP for winning
   const xpKey = `WIN_${winMode}` as keyof typeof XP_REWARDS;
   const xpAmount = XP_REWARDS[xpKey] ?? XP_REWARDS.WIN_ROW;
   try {
     await awardCoins(userId, xpAmount, `Bingo WIN: ${winMode} in game ${gameId}`);
-  } catch (e) { logger.warn(`[Coins] Failed to award win XP to ${userId}:`, e); }
+  } catch (e) { 
+    logger.warn(`[Coins] Failed to award win XP to ${userId}:`, e); 
+  }
 
-  // ─── CHECK JACKPOT ───
   try {
     const jackpotWin = await checkJackpotWin(userId, ticketId, winMode, drawnNumbers.length);
     if (jackpotWin) {
       logger.info(`🔥 JACKPOT! User ${userId} won ${jackpotWin} ETB!`);
-      // Notify user specifically
       await triggerUserEvent(userId, 'jackpot-alert', { amount: jackpotWin.toFixed(2) });
     }
   } catch (e) { 
