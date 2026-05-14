@@ -212,7 +212,7 @@ function GameContent() {
         if (toastTimer.current) clearTimeout(toastTimer.current);
         toastTimer.current = setTimeout(() => setToast(null), 4000);
       } else {
-        alert('No Bingo detected yet! Check your patterns.');
+        alert(res.error || 'No Bingo detected yet! Check your patterns.');
       }
     }
     catch (e: any) { 

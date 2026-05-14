@@ -365,22 +365,19 @@ async function checkAllTickets(gameId: string, drawnNumbers: number[]): Promise<
   for (const ticket of tickets) {
     const cardData = ticket.card as any;
     const rows = Array.isArray(cardData) ? cardData : cardData.rows;
+    // We still check for won status to log it or update DB, but we do NOT auto-claim anymore.
+    // The user MUST click the "BINGO" button in the UI to claim the prize.
     const result = checkWin(rows as BingoCard, drawnNumbers);
 
-    if (result.won) {
-      for (const mode of result.modes) {
-        if (!existingWinModes.has(mode as any)) {
-          await processWinner(gameId, ticket.userId, ticket.id, mode as any, drawnNumbers);
-          existingWinModes.add(mode as any);
-        }
-      }
-    }
-
-    // Update marked numbers (Auto-daub in DB for verification, but user still needs to click BINGO)
+    // Update marked numbers (Auto-daub in DB for verification)
     await prisma.ticket.update({
       where: { id: ticket.id },
       data: { markedNumbers: drawnNumbers },
     });
+    
+    if (result.won) {
+        logger.debug(`[Game ${gameId}] Ticket ${ticket.id} has ${result.modes.join(', ')} but waiting for manual claim.`);
+    }
   }
 }
 
@@ -400,14 +397,15 @@ export async function claimBingoWin(gameId: string, userId: string): Promise<{ w
   const existingWinners = await prisma.winner.findMany({ where: { gameId } });
   const existingWinModes = new Set(existingWinners.map(w => w.winMode));
 
+  let hasPattern = false;
   for (const ticket of tickets) {
     const cardData = ticket.card as any;
     const rows = Array.isArray(cardData) ? cardData : cardData.rows;
     const result = checkWin(rows as BingoCard, drawnNumbers);
 
     if (result.won) {
+      hasPattern = true;
       // Find the best available win mode that hasn't been claimed yet
-      // Priority: FULL_HOUSE > FOUR_CORNERS > DIAGONAL > COLUMN > ROW
       const priority = ['FULL_HOUSE', 'FOUR_CORNERS', 'DIAGONAL', 'COLUMN', 'ROW'] as const;
       for (const mode of priority) {
         if (result.modes.includes(mode as any) && !existingWinModes.has(mode as any)) {
@@ -426,7 +424,10 @@ export async function claimBingoWin(gameId: string, userId: string): Promise<{ w
     }
   }
 
-  return { won: false };
+  return { 
+    won: false, 
+    error: hasPattern ? 'This prize has already been claimed by another player!' : 'No Bingo detected yet! Check your patterns.' 
+  };
 }
 
 async function calculatePrize(game: any, winMode: string): Promise<Decimal> {
