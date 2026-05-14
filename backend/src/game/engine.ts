@@ -382,7 +382,7 @@ async function checkAllTickets(gameId: string, drawnNumbers: number[]): Promise<
 }
 
 // ─── Claim Bingo Win (Manual) ─────────────────────────────────
-export async function claimBingoWin(gameId: string, userId: string): Promise<{ won: boolean; mode?: string; prize?: number }> {
+export async function claimBingoWin(gameId: string, userId: string): Promise<{ won: boolean; mode?: string; prize?: number; error?: string }> {
   const game = await prisma.game.findUnique({
     where: { id: gameId },
     include: { drawHistory: true, room: true }
