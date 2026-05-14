@@ -37,11 +37,12 @@ export const config = {
       JACKPOT: 2,
       VIP: 2,
     },
+    commissionRate: 0.25,
     countdown: {
       default: 60,
     } as Record<string, number>,
     drawIntervalMs: 3000,         // 3 seconds between draws
-    houseEdgePercent: parseFloat(process.env.HOUSE_EDGE_PERCENT || '20'),
+    houseEdgePercent: parseFloat(process.env.HOUSE_EDGE_PERCENT || '25'),
     totalNumbers: 75,             // standard bingo 1-75
   },
   withdrawal: {

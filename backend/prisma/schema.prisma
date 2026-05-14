@@ -78,7 +78,7 @@ model Wallet {
   userId           String   @unique @db.Uuid @map("user_id")
   balance          Decimal  @default(0) @db.Decimal(20, 4)
   credit           Decimal  @default(0) @db.Decimal(20, 4)
-  commissionRate   Decimal  @default(0.20) @db.Decimal(5, 4) @map("commission_rate")
+  commissionRate   Decimal  @default(0.25) @db.Decimal(5, 4) @map("commission_rate")
   referralBalance  Decimal  @default(0) @db.Decimal(20, 4) @map("referral_balance")
   bonusBalance     Decimal  @default(0) @db.Decimal(20, 4) @map("bonus_balance")
   coins            Int      @default(0)
