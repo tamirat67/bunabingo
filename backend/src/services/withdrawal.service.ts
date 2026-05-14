@@ -21,14 +21,18 @@ export async function createWithdrawalRequest(
     throw new Error('Insufficient balance');
   }
 
-  // ─── Withdrawal Guard: Must play more than 5 games ───
-  const gamesPlayed = await prisma.ticket.groupBy({
-    where: { userId },
-    by: ['gameId'],
-  });
+  // ─── Withdrawal Guard: Must play 5+ games AND win at least 1 game ───
+  const [gamesPlayed, winsCount] = await Promise.all([
+    prisma.ticket.groupBy({ where: { userId }, by: ['gameId'] }),
+    prisma.winner.count({ where: { userId } })
+  ]);
 
-  if (gamesPlayed.length <= 5) {
-    throw new Error(`Anti-Abuse: You must play more than 5 games before requesting a withdrawal. You have played ${gamesPlayed.length} games.`);
+  if (gamesPlayed.length < 5) {
+    throw new Error(`Anti-Abuse: You must play at least 5 games before requesting a withdrawal. You have played ${gamesPlayed.length} games.`);
+  }
+
+  if (winsCount < 1) {
+    throw new Error(`Restricted: You must win at least 1 game (Row, Column, or Full House) before you can request a withdrawal. Keep playing to win! 🎰`);
   }
 
   const withdrawal = await prisma.withdrawal.create({
