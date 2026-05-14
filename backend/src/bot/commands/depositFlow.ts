@@ -162,7 +162,6 @@ export async function handleDepositMessage(ctx: Context): Promise<boolean> {
     }
 
     // ── Valid — show parsed confirmation ──
-    const d = result.data!;
     const verifiedBadge = result.onlineVerified ? '✅ INSTANTLY VERIFIED' : '⚠️ Checking with bank...';
 
     await ctx.reply(
