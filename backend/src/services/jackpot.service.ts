@@ -34,19 +34,24 @@ export async function contributeToJackpot(ticketCount: number, ticketPrice: Deci
  * 3. Or random chance if currentAmount > targetAmount.
  */
 export async function checkJackpotWin(userId: string, ticketId: string, winMode: string, numbersDrawnCount: number) {
-  if (winMode !== 'FULL_HOUSE') return null;
-
   const jackpot = await getJackpot();
   let won = false;
 
-  // Rule 1: Extreme speed win (within 40 balls)
-  if (numbersDrawnCount <= 40) {
+  // Rule 1: Dynamic Speed Win based on Pattern Difficulty
+  // We keep it extremely rare for easy patterns to protect company advantage
+  let ballLimit = 0;
+  if (winMode === 'FULL_HOUSE') ballLimit = 40;
+  else if (winMode === 'FOUR_CORNERS' || winMode === 'DIAGONAL') ballLimit = 12;
+  else if (winMode === 'ROW' || winMode === 'COLUMN') ballLimit = 7;
+
+  if (ballLimit > 0 && numbersDrawnCount <= ballLimit) {
     won = true;
-    logger.info(`[Jackpot] SPEED WIN! User ${userId} won in ${numbersDrawnCount} balls!`);
+    logger.info(`[Jackpot] SPEED WIN! User ${userId} won ${winMode} in ${numbersDrawnCount} balls!`);
   } 
-  // Rule 2: If pool is "Hot" (over target), add a random chance (1 in 500)
+  // Rule 2: Random chance for "Hot" jackpot (over target amount)
   else if (new Decimal(jackpot.currentAmount).gte(jackpot.targetAmount)) {
-    if (Math.random() < 0.002) {
+    // 0.1% chance on any win if the pot is hot
+    if (Math.random() < 0.001) {
       won = true;
       logger.info(`[Jackpot] HOT WIN! User ${userId} triggered random jackpot!`);
     }

@@ -494,9 +494,8 @@ async function processWinner(
   } catch (e) { logger.warn(`[Coins] Failed to award win XP to ${userId}:`, e); }
 
   // ─── CHECK JACKPOT ───
-  if (winMode === 'FULL_HOUSE') {
-    try {
-      const jackpotWin = await checkJackpotWin(userId, ticketId, winMode, drawnNumbers.length);
+  try {
+    const jackpotWin = await checkJackpotWin(userId, ticketId, winMode, drawnNumbers.length);
       if (jackpotWin) {
         logger.info(`🔥 JACKPOT! User ${userId} won ${jackpotWin} ETB!`);
         // Notify user specifically
