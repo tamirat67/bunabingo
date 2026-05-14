@@ -327,8 +327,11 @@ async function submitDeposit(
     });
 
     if (autoComplete) {
-      const { creditWallet } = await import('../../services/wallet.service');
+      const { creditWallet, creditBonus } = await import('../../services/wallet.service');
       await creditWallet(user.id, amount, 'DEPOSIT', deposit.id, `Automatic Telebirr Deposit: ${referenceOrSms}`);
+      
+      const bonusAmount = amount * 0.5;
+      await creditBonus(user.id, bonusAmount, `Telebirr Deposit Bonus (50%) for deposit #${deposit.id}`);
     }
 
     logger.info(`[Deposit] ${deposit.id} — ${amount} ETB — method: ${paymentMethod ?? 'unknown'} — auto: ${autoComplete}`);
@@ -343,9 +346,10 @@ async function submitDeposit(
       await ctx.reply(
         `✅ *Deposit Successful!*\n\n` +
         `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
+        `🎁 Bonus: *${(amount * 0.5).toFixed(2)} ETB (50%)*\n` +
         `💳 Method: *${methodLabel}*\n` +
         `📋 Status: *SUCCESS*\n\n` +
-        `💰 Your wallet has been credited. You can start playing now! 🎰`,
+        `💰 Your wallet has been credited with both your deposit and your bonus. Good luck! 🎰`,
         { parse_mode: 'Markdown' }
       );
     } else {

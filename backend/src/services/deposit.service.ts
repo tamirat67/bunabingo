@@ -72,10 +72,10 @@ export async function approveDeposit(depositId: string, adminId: string) {
   if (deposit.userId) {
     await creditWallet(deposit.userId, deposit.amount, 'DEPOSIT', depositId, 'Deposit approved');
 
-    // ─── 20% Deposit Bonus ───
+    // ─── 50% Deposit Bonus ───
     const { creditBonus } = await import('./wallet.service');
-    const bonusAmount = Number(deposit.amount) * 0.2;
-    await creditBonus(deposit.userId, bonusAmount, `Deposit bonus (20%) for request #${depositId}`);
+    const bonusAmount = Number(deposit.amount) * 0.5;
+    await creditBonus(deposit.userId, bonusAmount, `Deposit bonus (50%) for request #${depositId}`);
 
     // ─── 10% Agent Commission ───
     if (deposit.user?.referredBy) {
@@ -93,11 +93,11 @@ export async function approveDeposit(depositId: string, adminId: string) {
       data: { adminId: adminId, targetUserId: deposit.userId, action: 'APPROVE_DEPOSIT', details: { depositId, amount: deposit.amount, bonus: bonusAmount } },
     });
 
-    await triggerUserEvent(deposit.userId, 'deposit-approved', {
-      depositId,
-      amount: deposit.amount.toString(),
-      bonus: bonusAmount.toFixed(2),
-    });
+      await triggerUserEvent(deposit.userId, 'deposit-approved', {
+        depositId,
+        amount: deposit.amount.toString(),
+        bonus: bonusAmount.toFixed(2),
+      });
   }
 
   logger.info(`Deposit approved: ${depositId} by admin/agent ${adminId}`);
