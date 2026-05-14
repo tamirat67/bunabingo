@@ -152,7 +152,7 @@ export async function handleDepositMessage(ctx: Context): Promise<boolean> {
 
     // ── Valid — show parsed confirmation ──
     const d = result.data!;
-    const verifiedBadge = result.onlineVerified ? '✅ Verified online' : '⚠️ Pending manual review';
+    const verifiedBadge = result.onlineVerified ? '✅ INSTANTLY VERIFIED' : '⚠️ Checking with bank...';
 
     await ctx.reply(
       `✅ *Receipt Validated!*\n\n` +
@@ -165,7 +165,7 @@ export async function handleDepositMessage(ctx: Context): Promise<boolean> {
       `Service Fee    : ETB ${d.serviceFee.toFixed(2)}\n` +
       `\`\`\`\n` +
       `🔗 ${verifiedBadge}\n\n` +
-      `Submitting your deposit...`,
+      `Finalizing your deposit...`,
       { parse_mode: 'Markdown' }
     );
 
@@ -331,11 +331,11 @@ async function submitDeposit(
 
     if (autoComplete) {
       await ctx.reply(
-        `✅ *Deposit Approved Automatically!*\n\n` +
+        `✅ *Deposit Successful!*\n\n` +
         `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
         `💳 Method: *${methodLabel}*\n` +
-        `📋 Status: *Completed*\n\n` +
-        `💰 Your balance has been updated. Good luck! 🎰`,
+        `📋 Status: *INSTANTLY VERIFIED*\n\n` +
+        `💰 Your wallet has been credited automatically. Good luck! 🎰`,
         { parse_mode: 'Markdown' }
       );
     } else {

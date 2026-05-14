@@ -2,10 +2,11 @@
 PassengerEnabled off
 
 RewriteEngine On
-RewriteBase /scraper/
+# Base is / since it's likely on a subdomain root
+RewriteBase /
 
-# Route /validate/ID to scraper.php
-RewriteRule ^validate/([A-Z0-9]+)$ scraper.php?transactionId=$1 [L,QSA]
+# Route /validate/ID to index.php
+RewriteRule ^validate/([A-Z0-9]+)$ index.php?transactionId=$1 [L,QSA]
 
 # Handle root access
-RewriteRule ^$ scraper.php [L]
+RewriteRule ^$ index.php [L]

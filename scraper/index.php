@@ -1,7 +1,7 @@
 <?php
 /**
  * Telebirr Receipt Scraper - PHP Edition
- * Compatible with Plesk PHP 8.1 - 8.4
+ * Optimized for Instant Bot Verification
  */
 
 header('Content-Type: application/json');
@@ -14,9 +14,10 @@ function loadEnv($path) {
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         if (strpos(trim($line), '#') === 0) continue;
-        list($name, $value) = explode('=', $line, 2);
-        $_ENV[trim($name)] = trim($value);
-        putenv(trim($name) . "=" . trim($value));
+        $parts = explode('=', $line, 2);
+        if (count($parts) < 2) continue;
+        $_ENV[trim($parts[0])] = trim($parts[1]);
+        putenv(trim($parts[0]) . "=" . trim($parts[1]));
     }
 }
 loadEnv(__DIR__ . '/.env');
@@ -24,7 +25,7 @@ loadEnv(__DIR__ . '/.env');
 // --- 2. Authentication ---
 $BUNA_ENGINE_KEY = getenv('BUNA_ENGINE_KEY') ?: $_ENV['BUNA_ENGINE_KEY'] ?? '9f7a2d8e4c6b1a0f9e8d7c6b5a43210fe9';
 $headers = getallheaders();
-$apiKey = $headers['x-api-key'] ?? $headers['X-API-KEY'] ?? '';
+$apiKey = $headers['x-api-key'] ?? $headers['X-API-KEY'] ?? $headers['X-Api-Key'] ?? '';
 
 if ($BUNA_ENGINE_KEY && $apiKey !== $BUNA_ENGINE_KEY) {
     http_response_code(401);
@@ -32,11 +33,19 @@ if ($BUNA_ENGINE_KEY && $apiKey !== $BUNA_ENGINE_KEY) {
     exit;
 }
 
-// --- 3. Routing ---
+// --- 3. Routing (Handles /validate/ID or ?transactionId=ID) ---
 $txnId = $_GET['transactionId'] ?? null;
 
+// Handle path-based routing (/validate/ID)
 if (!$txnId) {
-    echo json_encode(['success' => true, 'message' => 'Telebirr PHP Scraper Active']);
+    $uri = $_SERVER['REQUEST_URI'];
+    if (preg_match('/\/validate\/([A-Z0-9]+)/i', $uri, $matches)) {
+        $txnId = $matches[1];
+    }
+}
+
+if (!$txnId) {
+    echo json_encode(['success' => true, 'message' => 'Buna Engine Scraper (PHP) is Live 🚀']);
     exit;
 }
 
@@ -45,7 +54,7 @@ $result = scrapeTelebirrReceipt($txnId);
 
 if (!$result) {
     http_response_code(404);
-    echo json_encode(['success' => false, 'error' => 'Receipt not found or portal unreachable']);
+    echo json_encode(['success' => false, 'error' => 'Receipt not found']);
 } else {
     echo json_encode(['success' => true, 'data' => $result]);
 }
@@ -54,7 +63,8 @@ if (!$result) {
  * Scrapes Telebirr receipt info from the official portal
  */
 function scrapeTelebirrReceipt($transactionId) {
-    $url = "https://transactioninfo.ethiotelecom.et/receipt/" . strtoupper(trim($transactionId));
+    $transactionId = strtoupper(trim($transactionId));
+    $url = "https://transactioninfo.ethiotelecom.et/receipt/" . $transactionId;
     
     $options = [
         "http" => [
@@ -70,7 +80,6 @@ function scrapeTelebirrReceipt($transactionId) {
     if (!$html) return null;
 
     $dom = new DOMDocument();
-    // Suppress warnings for malformed HTML
     @$dom->loadHTML($html);
     $xpath = new DOMXPath($dom);
 
@@ -84,8 +93,8 @@ function scrapeTelebirrReceipt($transactionId) {
         'status' => 'Success'
     ];
 
-    // Scrape Telebirr table rows
-    $nodes = $xpath->query("//tr | //div[contains(@class, 'detail-item')] | //div[contains(@class, 'row')]");
+    // Scrape Table rows
+    $nodes = $xpath->query("//tr | //div[contains(@class, 'detail-item')]");
     
     foreach ($nodes as $node) {
         $text = trim($node->nodeValue);
@@ -98,20 +107,19 @@ function scrapeTelebirrReceipt($transactionId) {
         if (stripos($text, 'Date') !== false)           $data['dateTime'] = extractValue($text);
     }
 
-    // Clean numeric amount (e.g., "ETB 15.00" -> "15.00")
     if ($data['amount']) {
         preg_match('/[\d.]+/', $data['amount'], $amtMatches);
         if ($amtMatches) $data['amount'] = $amtMatches[0];
     }
+
+    // Verify it's not empty
+    if (empty($data['amount'])) return null;
 
     return $data;
 }
 
 function extractValue($text) {
     $parts = explode(':', $text);
-    if (count($parts) > 1) {
-        return trim($parts[1]);
-    }
-    // Fallback: try to split by whitespace if no colon
+    if (count($parts) > 1) return trim($parts[1]);
     return trim($text);
 }
