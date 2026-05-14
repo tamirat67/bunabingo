@@ -170,7 +170,7 @@ export async function handleDepositMessage(ctx: Context): Promise<boolean> {
     );
 
     // Use transaction ID as the reference (unique & verifiable)
-    await submitDeposit(ctx, session.amount!, d.transactionId, undefined, 'telebirr', d);
+    await submitDeposit(ctx, session.amount!, d.transactionId, undefined, 'telebirr', d, result.onlineVerified);
     return true;
   }
 
@@ -296,7 +296,8 @@ async function submitDeposit(
   referenceOrSms: string,
   screenshotFileId: string | undefined,
   paymentMethod?: PaymentMethod,
-  meta?: any
+  meta?: any,
+  autoComplete: boolean = false
 ) {
   const tgUser = ctx.from!;
   clearSession(tgUser.id);
@@ -311,11 +312,16 @@ async function submitDeposit(
         amount,
         txnId: referenceOrSms,
         receiptUrl: screenshotFileId ?? null,
-        status: 'pending',
+        status: autoComplete ? 'completed' : 'pending',
       },
     });
 
-    logger.info(`[Deposit] ${deposit.id} — ${amount} ETB — method: ${paymentMethod ?? 'unknown'}`);
+    if (autoComplete) {
+      const { creditWallet } = await import('../../services/wallet.service');
+      await creditWallet(user.id, amount, 'DEPOSIT', deposit.id, `Automatic Telebirr Deposit: ${referenceOrSms}`);
+    }
+
+    logger.info(`[Deposit] ${deposit.id} — ${amount} ETB — method: ${paymentMethod ?? 'unknown'} — auto: ${autoComplete}`);
 
     const methodLabel =
       paymentMethod === 'telebirr' ? 'Telebirr' :
@@ -323,22 +329,36 @@ async function submitDeposit(
       paymentMethod === 'cbe_bank' ? 'CBE Bank' :
       paymentMethod === 'mpesa'    ? 'MPESA'    : 'Manual';
 
-    await ctx.reply(
-      `✅ *Deposit Submitted Successfully!*\n\n` +
-      `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
-      `💳 Method: *${methodLabel}*\n` +
-      `📋 Status: *Pending Review*\n\n` +
-      `⏱ Your deposit will be reviewed within *30 minutes*.\n` +
-      `You will be notified once approved. 🙏`,
-      { parse_mode: 'Markdown' }
-    );
+    if (autoComplete) {
+      await ctx.reply(
+        `✅ *Deposit Approved Automatically!*\n\n` +
+        `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
+        `💳 Method: *${methodLabel}*\n` +
+        `📋 Status: *Completed*\n\n` +
+        `💰 Your balance has been updated. Good luck! 🎰`,
+        { parse_mode: 'Markdown' }
+      );
+    } else {
+      await ctx.reply(
+        `✅ *Deposit Submitted Successfully!*\n\n` +
+        `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
+        `💳 Method: *${methodLabel}*\n` +
+        `📋 Status: *Pending Review*\n\n` +
+        `⏱ Your deposit will be reviewed within *30 minutes*.\n` +
+        `You will be notified once approved. 🙏`,
+        { parse_mode: 'Markdown' }
+      );
+    }
 
     // Notify admins
     const userName = tgUser.username ? `@${tgUser.username}` : user.firstName;
     const isSms = paymentMethod === 'telebirr';
 
-    let adminCaption =
-      `📥 *New Manual Deposit — ${methodLabel}*\n\n` +
+    let adminCaption = autoComplete
+      ? `🤖 *Automatic Deposit Handled — ${methodLabel}*\n\n`
+      : `📥 *New Manual Deposit — ${methodLabel}*\n\n`;
+    
+    adminCaption += 
       `👤 User: ${userName}\n` +
       `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
       `🆔 Deposit ID: \`${deposit.id}\`\n\n`;
@@ -361,12 +381,14 @@ async function submitDeposit(
         : `🔖 Reference: \`${referenceOrSms}\``;
     }
 
-    const adminKeyboard = Markup.inlineKeyboard([
-      [
-        Markup.button.callback('✅ Approve', `approve_dep_${deposit.id}`),
-        Markup.button.callback('❌ Reject',  `reject_dep_${deposit.id}`),
-      ],
-    ]);
+    const adminKeyboard = autoComplete 
+      ? undefined // No buttons needed for automatic deposits
+      : Markup.inlineKeyboard([
+          [
+            Markup.button.callback('✅ Approve', `approve_dep_${deposit.id}`),
+            Markup.button.callback('❌ Reject',  `reject_dep_${deposit.id}`),
+          ],
+        ]);
 
     for (const adminIdStr of config.bot.adminIds) {
       try {
