@@ -334,7 +334,7 @@ async function submitDeposit(
         `✅ *Deposit Successful!*\n\n` +
         `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
         `💳 Method: *${methodLabel}*\n` +
-        `📋 Status: *INSTANTLY VERIFIED*\n\n` +
+        `📋 Status: *SUCCESS*\n\n` +
         `💰 Your wallet has been credited. You can start playing now! 🎰`,
         { parse_mode: 'Markdown' }
       );
@@ -344,8 +344,8 @@ async function submitDeposit(
         `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
         `💳 Method: *${methodLabel}*\n` +
         `📋 Status: *Pending Review*\n\n` +
-        `⏱ Your deposit will be reviewed within *30 minutes*.\n` +
-        `You will be notified once approved. 🙏`,
+        `⏱ Our system is verifying your payment with the bank. This usually takes less than 30 minutes.\n` +
+        `You will be notified once credited. 🙏`,
         { parse_mode: 'Markdown' }
       );
     }
@@ -355,8 +355,8 @@ async function submitDeposit(
     const isSms = paymentMethod === 'telebirr';
 
     let adminCaption = autoComplete
-      ? `🤖 *Automatic Deposit Handled — ${methodLabel}*\n\n`
-      : `📥 *New Manual Deposit — ${methodLabel}*\n\n`;
+      ? `🤖 *[AUTO-APPROVED] — ${methodLabel}*\n\n`
+      : `📥 *[MANUAL REVIEW] — ${methodLabel}*\n\n`;
     
     adminCaption += 
       `👤 User: ${userName}\n` +
