@@ -55,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   if (!user) return <div className="login-container">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: 'var(--cmd-gold)' }}></div>
   </div>;
 
   const isAdmin = user.role === 'ADMIN' || user.isAdmin;
@@ -78,16 +78,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="admin-layout admin-body">
+    <div className={`admin-layout admin-body ${!isSidebarOpen ? 'sidebar-collapsed' : ''}`}>
       <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <FiAward />
           </div>
           <span className="sidebar-title">BUNA ADMIN</span>
-          <div className="sidebar-toggle" style={{ marginLeft: 'auto' }} onClick={() => setSidebarOpen(false)}>
-            <FiX />
-          </div>
         </div>
 
         <nav className="sidebar-nav">
@@ -99,22 +96,56 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-pill">
-            <div className="user-avatar">{(user.firstName || 'U')[0]}</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: '800', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.firstName}</div>
-              <div style={{ fontSize: '10px', opacity: 0.6 }}>{user.role}</div>
+          <div className="user-pill" style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '16px' }}>
+            <div className="user-avatar" style={{ background: 'var(--cmd-tan)', color: 'var(--cmd-coffee)', fontWeight: '800' }}>
+              {(user.firstName || 'U')[0]}
             </div>
-            <FiLogOut style={{ cursor: 'pointer', color: '#ef4444' }} onClick={handleLogout} />
+            {isSidebarOpen && (
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: '800', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'white' }}>{user.firstName}</div>
+                <div style={{ fontSize: '10px', opacity: 0.6, textTransform: 'uppercase', color: 'var(--cmd-tan)' }}>{user.role}</div>
+              </div>
+            )}
           </div>
+          
+          <button
+            onClick={handleLogout}
+            title="Logout"
+            style={{
+              marginTop: '10px',
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: isSidebarOpen ? 'flex-start' : 'center',
+              gap: '10px',
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: '12px',
+              padding: '12px 14px',
+              color: '#f87171',
+              fontWeight: '900',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            <FiLogOut size={16} />
+            {isSidebarOpen && <span>Logout</span>}
+          </button>
         </div>
       </aside>
 
       <main className="admin-main">
         <header className="admin-header">
-          <div className="sidebar-toggle" onClick={() => setSidebarOpen(true)}>
-            <FiMenu />
-          </div>
+          <button 
+            onClick={() => setSidebarOpen(!isSidebarOpen)}
+            className="sidebar-toggle-btn"
+            title={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
+          >
+            {isSidebarOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+          </button>
           
           <div style={{ flex: 1 }}>
             <h2 style={{ fontSize: '14px', fontWeight: '800', color: '#3d2b1f', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -133,6 +164,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="admin-content custom-scrollbar">
           {children}
         </div>
+
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div 
+            className="mobile-overlay"
+            onClick={() => setSidebarOpen(false)}
+          ></div>
+        )}
       </main>
 
       <style>{`

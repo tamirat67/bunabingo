@@ -46,7 +46,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   if (!user) return <div className="login-container">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: 'var(--cmd-gold)' }}></div>
   </div>;
 
   const navItems = [
@@ -57,9 +57,9 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="admin-layout admin-body">
+    <div className={`admin-layout admin-body ${!isSidebarOpen ? 'sidebar-collapsed' : ''}`}>
       {/* Sidebar */}
-      <aside className="admin-sidebar" style={{ width: isSidebarOpen ? '260px' : '80px' }}>
+      <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         {/* Logo */}
         <div className="sidebar-header">
           <div className="sidebar-logo" style={{ background: 'linear-gradient(135deg, #d4af37, #b8962e)' }}>
@@ -143,7 +143,8 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
         <header className="admin-header">
           <button 
             onClick={() => setSidebarOpen(!isSidebarOpen)}
-            style={{ background: 'var(--cmd-card)', border: '1px solid var(--cmd-border)', color: 'white', cursor: 'pointer', padding: '10px', borderRadius: '12px' }}
+            className="sidebar-toggle-btn"
+            title={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
           >
             {isSidebarOpen ? <FiX size={20} /> : <FiMenu size={20} />}
           </button>
@@ -163,6 +164,14 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
         <div className="admin-content custom-scrollbar">
           {children}
         </div>
+
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div 
+            className="mobile-overlay"
+            onClick={() => setSidebarOpen(false)}
+          ></div>
+        )}
       </main>
 
       <style>{`
