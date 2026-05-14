@@ -115,9 +115,37 @@ export default function ProfilePage() {
               <User size={40} color={T.gold} />
            </div>
            <div style={{ fontSize: '24px', fontWeight: '900' }}>{profile?.username || profile?.firstName || 'Buna Player'}</div>
-           <div style={{ fontSize: '12px', color: T.gold, fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>
-              {profile?.role === 'AGENT' ? '🌟 Official Agent' : 'Member since 2024'}
-           </div>
+           
+           {/* Smart Badge for Agents/Admins */}
+           {profile?.role === 'AGENT' || profile?.isAdmin ? (
+             <motion.div 
+               initial={{ scale: 0.9, opacity: 0 }}
+               animate={{ scale: 1, opacity: 1 }}
+               style={{ 
+                 display: 'inline-flex', 
+                 alignItems: 'center', 
+                 gap: '6px',
+                 background: 'linear-gradient(135deg, #d4af37, #b8962e)', 
+                 color: 'black', 
+                 padding: '4px 12px', 
+                 borderRadius: '20px', 
+                 fontSize: '11px', 
+                 fontWeight: '900',
+                 textTransform: 'uppercase',
+                 marginTop: '8px',
+                 boxShadow: '0 4px 12px rgba(212,175,55,0.3)',
+                 border: '1px solid rgba(255,255,255,0.3)',
+                 letterSpacing: '0.5px'
+               }}
+             >
+                <ShieldCheck size={14} /> 
+                {profile?.isAdmin ? 'ADMINISTRATOR' : 'OFFICIAL AGENT'}
+             </motion.div>
+           ) : (
+             <div style={{ fontSize: '11px', color: T.gold, fontWeight: '900', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '1px', marginTop: '8px' }}>
+                Standard Player
+             </div>
+           )}
         </div>
 
         {/* ── Stats Grid ── */}
