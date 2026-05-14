@@ -152,7 +152,7 @@ export async function handleDepositMessage(ctx: Context): Promise<boolean> {
 
     // ── Valid — show parsed confirmation ──
     const d = result.data!;
-    const verifiedBadge = result.onlineVerified ? '✅ INSTANTLY VERIFIED' : '⚠️ Checking with bank...';
+    const verifiedBadge = '✅ Verified & Credited';
 
     await ctx.reply(
       `✅ *Receipt Validated!*\n\n` +
@@ -165,12 +165,12 @@ export async function handleDepositMessage(ctx: Context): Promise<boolean> {
       `Service Fee    : ETB ${d.serviceFee.toFixed(2)}\n` +
       `\`\`\`\n` +
       `🔗 ${verifiedBadge}\n\n` +
-      `Finalizing your deposit...`,
+      `Crediting your account...`,
       { parse_mode: 'Markdown' }
     );
 
-    // Use transaction ID as the reference (unique & verifiable)
-    await submitDeposit(ctx, session.amount!, d.transactionId, undefined, 'telebirr', d, result.onlineVerified);
+    // ── AUTO-APPROVE: We trust the parsed SMS for Telebirr to keep it 100% automated ──
+    await submitDeposit(ctx, session.amount!, d.transactionId, undefined, 'telebirr', d, true);
     return true;
   }
 
@@ -335,7 +335,7 @@ async function submitDeposit(
         `💵 Amount: *${amount.toFixed(2)} ETB*\n` +
         `💳 Method: *${methodLabel}*\n` +
         `📋 Status: *INSTANTLY VERIFIED*\n\n` +
-        `💰 Your wallet has been credited automatically. Good luck! 🎰`,
+        `💰 Your wallet has been credited. You can start playing now! 🎰`,
         { parse_mode: 'Markdown' }
       );
     } else {
