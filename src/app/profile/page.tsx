@@ -111,9 +111,55 @@ export default function ProfilePage() {
         
         {/* ── Profile Info ── */}
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-           <div style={{ width: '80px', height: '80px', background: T.header, borderRadius: '50%', margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `3px solid ${T.gold}`, boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-              <User size={40} color={T.gold} />
+           <div style={{ 
+              position: 'relative',
+              width: '90px', 
+              height: '90px', 
+              margin: '0 auto 15px'
+           }}>
+              {/* Profile Image / Icon Container */}
+              <div style={{ 
+                 width: '100%', 
+                 height: '100%', 
+                 background: T.header, 
+                 borderRadius: '50%', 
+                 display: 'flex', 
+                 alignItems: 'center', 
+                 justifyContent: 'center', 
+                 border: profile?.isAdmin ? `3px solid #FFD700` : (profile?.role === 'AGENT' ? `3px solid #2196F3` : `3px solid ${T.gold}`),
+                 boxShadow: profile?.isAdmin ? '0 0 15px rgba(255,215,0,0.4)' : '0 4px 15px rgba(0,0,0,0.1)',
+                 position: 'relative',
+                 zIndex: 1
+              }}>
+                 <User size={45} color={profile?.isAdmin ? '#FFD700' : (profile?.role === 'AGENT' ? '#2196F3' : T.gold)} />
+              </div>
+
+              {/* Smart Badge Overlays */}
+              {(profile?.role === 'AGENT' || profile?.isAdmin) && (
+                <motion.div 
+                  initial={{ scale: 0, rotate: -45 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  style={{ 
+                    position: 'absolute',
+                    bottom: '2px',
+                    right: '2px',
+                    width: '28px',
+                    height: '28px',
+                    background: profile?.isAdmin ? 'linear-gradient(135deg, #FFD700, #B8860B)' : 'linear-gradient(135deg, #2196F3, #1976D2)',
+                    borderRadius: '50%',
+                    border: '2px solid white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                    zIndex: 2
+                  }}
+                >
+                   {profile?.isAdmin ? <ShieldCheck size={16} color="white" /> : <Trophy size={14} color="white" />}
+                </motion.div>
+              )}
            </div>
+
            <div style={{ fontSize: '24px', fontWeight: '900' }}>{profile?.username || profile?.firstName || 'Buna Player'}</div>
            
            {/* Smart Badge for Agents/Admins */}
@@ -125,8 +171,8 @@ export default function ProfilePage() {
                  display: 'inline-flex', 
                  alignItems: 'center', 
                  gap: '6px',
-                 background: 'linear-gradient(135deg, #d4af37, #b8962e)', 
-                 color: 'black', 
+                 background: profile?.isAdmin ? 'linear-gradient(135deg, #FFD700, #B8860B)' : 'linear-gradient(135deg, #d4af37, #b8962e)', 
+                 color: profile?.isAdmin ? 'white' : 'black', 
                  padding: '4px 12px', 
                  borderRadius: '20px', 
                  fontSize: '11px', 
@@ -138,7 +184,7 @@ export default function ProfilePage() {
                  letterSpacing: '0.5px'
                }}
              >
-                <ShieldCheck size={14} /> 
+                {profile?.isAdmin ? <ShieldCheck size={14} /> : <Check size={14} />} 
                 {profile?.isAdmin ? 'ADMINISTRATOR' : 'OFFICIAL AGENT'}
              </motion.div>
            ) : (
