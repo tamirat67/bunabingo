@@ -387,12 +387,12 @@ function GameContent() {
                             borderRadius: '4px', 
                             fontSize: '11px', 
                             fontWeight: '900', 
-                            background: isFree ? '#27AE60' : userMarked ? T.gold : (isHinted ? COL_COLOR[colKey] : T.statBg), 
+                            background: isFree ? '#27AE60' : userMarked ? T.gold : (isHinted ? '#E67E22' : T.statBg), 
                             color: (isFree || isHinted) ? 'white' : (userMarked ? T.header : T.text), 
                             border: userMarked ? `3px solid white` : (isHinted ? `2px solid white` : 'none'),
                             position: 'relative',
                             overflow: 'hidden',
-                            boxShadow: isHinted ? `0 0 10px ${COL_COLOR[colKey]}66` : 'none',
+                            boxShadow: isHinted ? `0 0 10px rgba(230, 126, 34, 0.6)` : 'none',
                             transition: 'all 0.3s ease'
                           }}
                         >
