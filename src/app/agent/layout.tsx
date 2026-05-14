@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FiLogOut } from 'react-icons/fi';
 import { 
   FiPieChart, FiUsers, FiDollarSign, 
   FiSettings, FiLogOut, FiMenu, FiX, FiAward, FiArrowLeft
