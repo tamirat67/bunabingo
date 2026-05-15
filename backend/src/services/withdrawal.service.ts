@@ -13,7 +13,7 @@ export async function createWithdrawalRequest(
   accountNumber: string,
   accountName: string
 ) {
-  if (amount < 25) throw new Error('Minimum withdrawal is 25 ETB');
+  if (amount < 200) throw new Error('Minimum withdrawal is 200 ETB');
 
   // Check balance first
   const wallet = await prisma.wallet.findUnique({ where: { userId } });
@@ -146,9 +146,12 @@ export async function rejectWithdrawal(withdrawalId: string, adminId: string, re
   logger.info(`Withdrawal rejected: ${withdrawalId} — ${reason}`);
 }
 
-export async function getPendingWithdrawals() {
+export async function getPendingWithdrawals(agentId?: string) {
   return prisma.withdrawal.findMany({
-    where: { status: 'pending' },
+    where: { 
+      status: 'pending',
+      user: agentId ? { referredBy: agentId } : undefined
+    },
     include: { user: { select: { username: true, telegramId: true, telegramUsername: true, firstName: true } } },
     orderBy: { createdAt: 'asc' },
   });

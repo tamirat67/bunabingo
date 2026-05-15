@@ -69,12 +69,14 @@ export default function AgentsPage() {
           <h2 className="stat-value">{totalCount || agents.length}</h2>
         </div>
         <div className="stat-card-m">
-          <p className="stat-label">Network Players</p>
-          <h2 className="stat-value">{agents.reduce((acc, a) => acc + (a.referrals?.length || 0), 0)}</h2>
+          <p className="stat-label">Total Pre-Deposit Liquidity</p>
+          <h2 className="stat-value" style={{ color: '#4ade80' }}>
+            {agents.reduce((acc, a) => acc + Number(a.agentPreDepositWallet?.balance || 0), 0).toLocaleString()} ETB
+          </h2>
         </div>
         <div className="stat-card-m">
-          <p className="stat-label">Network Growth</p>
-          <h2 className="stat-value" style={{ color: '#4ade80' }}>+100%</h2>
+          <p className="stat-label">Branch Players</p>
+          <h2 className="stat-value">{agents.reduce((acc, a) => acc + (a.referrals?.length || 0), 0)}</h2>
         </div>
       </div>
 
@@ -98,21 +100,22 @@ export default function AgentsPage() {
               <th>Agent Name</th>
               <th>Username</th>
               <th>Branch Players</th>
+              <th>Pre-Deposit Balance</th>
               <th>Total Volume</th>
-              <th>Commission</th>
+              <th>Net Profit</th>
               <th style={{ textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
                <tr>
-                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center' }}>
+                  <td colSpan={7} style={{ padding: '40px', textAlign: 'center' }}>
                     <div className="animate-spin" style={{ width: '32px', height: '32px', border: '3px solid #d4af37', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto' }}></div>
                   </td>
                </tr>
             ) : filteredAgents.length === 0 ? (
                <tr>
-                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>No agents matching your search.</td>
+                  <td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>No agents matching your search.</td>
                </tr>
             ) : filteredAgents.map((agent) => (
               <tr key={agent.id}>
@@ -127,6 +130,9 @@ export default function AgentsPage() {
                 </td>
                 <td>
                    <span className="badge badge-blue">{agent.referrals?.length || 0} Players</span>
+                </td>
+                <td style={{ fontWeight: '800', color: Number(agent.agentPreDepositWallet?.balance || 0) < 1000 ? '#ef4444' : '#4ade80' }}>
+                   {Number(agent.agentPreDepositWallet?.balance || 0).toLocaleString()} ETB
                 </td>
                 <td style={{ fontWeight: '600' }}>
                    {Number(agent.wallet?.totalDeposited || 0).toLocaleString()} ETB

@@ -17,6 +17,9 @@ export default function AgentDashboard() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [playersLoading, setPlayersLoading] = useState(false);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [withdrawalsLoading, setWithdrawalsLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -25,6 +28,7 @@ export default function AgentDashboard() {
         setUser(userRes.data);
         const statsRes = await api.get('/agent/stats');
         setStats(statsRes.data);
+        fetchWithdrawals();
       } catch (err) {
         console.error('Failed to fetch agent stats:', err);
       } finally {
@@ -33,6 +37,36 @@ export default function AgentDashboard() {
     }
     fetchData();
   }, []);
+
+  async function fetchWithdrawals() {
+    try {
+      setWithdrawalsLoading(true);
+      const res = await api.get('/admin/withdrawals/pending');
+      setWithdrawals(res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch withdrawals:', err);
+    } finally {
+      setWithdrawalsLoading(false);
+    }
+  }
+
+  async function handleWithdrawalAction(id: string, action: 'approve' | 'reject') {
+    if (!window.confirm(`Are you sure you want to ${action} this withdrawal?`)) return;
+    
+    try {
+      setActionLoading(id);
+      await api.post(`/admin/withdrawals/${id}/${action}`, { reason: 'Processed by Branch Agent' });
+      fetchWithdrawals();
+      // Also refresh stats since balance might change
+      const statsRes = await api.get('/agent/stats');
+      setStats(statsRes.data);
+    } catch (err) {
+      console.error(`Failed to ${action} withdrawal:`, err);
+      alert(`Error: Failed to ${action} withdrawal`);
+    } finally {
+      setActionLoading(null);
+    }
+  }
 
   useEffect(() => {
     fetchPlayers();
@@ -169,6 +203,86 @@ export default function AgentDashboard() {
               • <b>Your Take: 18.75%</b>
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Pending Withdrawals Section */}
+      <div className="agent-card-lg" style={{ marginTop: '2rem', border: withdrawals.length > 0 ? '1px solid #d4af37' : '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="agent-flex-between" style={{ marginBottom: '1.5rem' }}>
+          <div>
+            <h3 className="agent-h3">Pending Withdrawals</h3>
+            <p className="agent-subtitle">Requests from your branch players that need approval.</p>
+          </div>
+          <div className={`agent-icon-badge ${withdrawals.length > 0 ? 'gold' : 'blue'}`}>
+            <FiArrowUpRight size={20} />
+          </div>
+        </div>
+
+        <div className="data-table-container" style={{ background: 'transparent', border: 'none' }}>
+           <table className="data-table">
+             <thead>
+               <tr style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                 <th style={{ textAlign: 'left', padding: '1rem' }}>Player</th>
+                 <th style={{ textAlign: 'left', padding: '1rem' }}>Amount</th>
+                 <th style={{ textAlign: 'left', padding: '1rem' }}>Bank / Account</th>
+                 <th style={{ textAlign: 'right', padding: '1rem' }}>Actions</th>
+               </tr>
+             </thead>
+             <tbody>
+               {withdrawalsLoading ? (
+                 <tr>
+                    <td colSpan={4} style={{ padding: '3rem', textAlign: 'center' }}>
+                       <div className="animate-spin" style={{ width: '24px', height: '24px', border: '2px solid #d4af37', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto' }}></div>
+                    </td>
+                 </tr>
+               ) : withdrawals.length === 0 ? (
+                 <tr>
+                    <td colSpan={4} style={{ padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
+                       No pending withdrawals. You're all caught up!
+                    </td>
+                 </tr>
+               ) : withdrawals.map((wd) => (
+                 <tr key={wd.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                   <td style={{ padding: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                         <div className="user-avatar" style={{ width: '32px', height: '32px', fontSize: '12px' }}>{wd.user?.firstName?.[0] || 'P'}</div>
+                         <div>
+                            <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>{wd.user?.firstName}</div>
+                            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem' }}>@{wd.user?.telegramUsername || 'no_user'}</div>
+                         </div>
+                      </div>
+                   </td>
+                   <td style={{ padding: '1rem', color: '#fff', fontWeight: 800 }}>
+                      {Number(wd.amount).toLocaleString()} <span style={{ color: '#d4af37', fontSize: '0.7rem' }}>ETB</span>
+                   </td>
+                   <td style={{ padding: '1rem' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>{wd.bankName}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem' }}>{wd.accountNumber}</div>
+                   </td>
+                   <td style={{ padding: '1rem', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                         <button 
+                           onClick={() => handleWithdrawalAction(wd.id, 'reject')}
+                           disabled={!!actionLoading}
+                           className="agent-btn-copy" 
+                           style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', fontSize: '0.7rem', padding: '0.4rem 0.8rem' }}
+                         >
+                           REJECT
+                         </button>
+                         <button 
+                           onClick={() => handleWithdrawalAction(wd.id, 'approve')}
+                           disabled={!!actionLoading}
+                           className="agent-btn-copy" 
+                           style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid #22c55e', fontSize: '0.7rem', padding: '0.4rem 0.8rem' }}
+                         >
+                           {actionLoading === wd.id ? '...' : 'APPROVE'}
+                         </button>
+                      </div>
+                   </td>
+                 </tr>
+               ))}
+             </tbody>
+           </table>
         </div>
       </div>
 

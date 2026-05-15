@@ -113,6 +113,30 @@ export default function WalletPage() {
                   </div>
                </div>
 
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '25px' }}>
+                  <button 
+                    onClick={() => {
+                      // Redirect to Telegram bot deposit command
+                      const tg = (window as any).Telegram?.WebApp;
+                      if (tg) {
+                        tg.close();
+                        window.location.href = `https://t.me/buna_bingobot?start=deposit`;
+                      } else {
+                        alert('Please use the Telegram bot to deposit');
+                      }
+                    }}
+                    style={{ padding: '12px', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', fontWeight: '900', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  >
+                    <ArrowDownLeft size={18} /> Deposit
+                  </button>
+                  <button 
+                    onClick={() => router.push('/withdraw')}
+                    style={{ padding: '12px', borderRadius: '12px', background: T.gold, border: 'none', color: T.header, fontWeight: '900', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  >
+                    <ArrowUpRight size={18} /> Withdraw
+                  </button>
+               </div>
+
                <button 
                   onClick={async () => {
                     try {
@@ -126,9 +150,9 @@ export default function WalletPage() {
                       alert(e.response?.data?.error || 'Failed to convert coins. Minimum 100 XP required.');
                     }
                   }}
-                  style={{ width: '100%', marginTop: '20px', padding: '12px', borderRadius: '12px', background: T.gold, border: 'none', color: T.header, fontWeight: '900', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  style={{ width: '100%', marginTop: '15px', padding: '12px', borderRadius: '12px', background: 'transparent', border: `1px solid ${T.gold}`, color: T.gold, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                >
-                  <Download size={18} /> Convert Coins to ETB
+                  <Download size={16} /> Convert XP to ETB Bonus
                </button>
             </div>
 

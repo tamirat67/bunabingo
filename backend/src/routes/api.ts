@@ -304,7 +304,8 @@ router.post('/withdrawals', withdrawLimiter, async (req: Request, res: Response)
   if (!user) return res.status(401).json({ error: 'Verification required to play' });
   try {
     const { amount, accountName, accountNumber, bankName } = req.body;
-    const wd = await createWithdrawalRequest(user.id, parseFloat(amount), accountName, accountNumber, bankName);
+    // Parameter order in service: bankName, accountNumber, accountName
+    const wd = await createWithdrawalRequest(user.id, parseFloat(amount), bankName, accountNumber, accountName);
     res.json({ success: true, withdrawal: wd });
   } catch (e: any) {
     res.status(400).json({ error: e.message });
@@ -715,8 +716,10 @@ staffRouter.post('/deposits/:id/reject', async (req, res) => {
   } catch (e: any) { res.status(400).json({ error: e.message }); }
 });
 
-staffRouter.get('/withdrawals/pending', async (_req, res) => {
-  res.json(await getPendingWithdrawals());
+staffRouter.get('/withdrawals/pending', async (req, res) => {
+  const admin = (req as any).user;
+  const agentId = admin.isAdmin ? undefined : admin.id;
+  res.json(await getPendingWithdrawals(agentId));
 });
 staffRouter.post('/withdrawals/:id/approve', async (req, res) => {
   const admin = (req as any).user;

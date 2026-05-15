@@ -282,7 +282,11 @@ export async function getAgents(page = 1, limit = 20) {
       where: { role: 'AGENT' },
       skip,
       take: limit,
-      include: { wallet: true, referrals: { select: { id: true } } },
+      include: { 
+        wallet: true, 
+        agentPreDepositWallet: true,
+        referrals: { select: { id: true } } 
+      },
       orderBy: { createdAt: 'desc' },
     }),
     prisma.user.count({ where: { role: 'AGENT' } }),
