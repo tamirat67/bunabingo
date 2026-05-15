@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiUserX, FiShield, FiTrendingUp, FiMoreHorizontal, FiUserCheck } from 'react-icons/fi';
 import api from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
 import '@/app/admin.css';
 
 export default function UsersPage() {
@@ -10,6 +11,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [stats, setStats] = useState({ total: 0, active: 0, banned: 0 });
 
   useEffect(() => {
@@ -20,11 +22,10 @@ export default function UsersPage() {
     try {
       setLoading(true);
       const response = await api.get(`/admin/users?page=${page}`);
-      // The backend returns an object with 'users' array and metadata
       const data = response.data;
       setUsers(data.users || []);
+      setTotalPages(data.pages || 1);
       
-      // Calculate mini stats
       const total = data.total || data.users?.length || 0;
       const banned = data.users?.filter((u: any) => u.status === 'BANNED').length || 0;
       setStats({ total, active: total - banned, banned });
@@ -189,11 +190,13 @@ export default function UsersPage() {
         )}
       </div>
 
-      {/* Pagination Placeholder */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px', gap: '12px' }}>
-         <button className="login-button" style={{ background: '#fff', color: '#3d2b1f', border: '1px solid #e7e5e4' }} disabled={page === 1} onClick={() => setPage(page-1)}>Previous</button>
-         <button className="login-button" style={{ background: '#fff', color: '#3d2b1f', border: '1px solid #e7e5e4' }} onClick={() => setPage(page+1)}>Next Page</button>
-      </div>
+      {/* Pagination */}
+      <Pagination 
+        currentPage={page} 
+        totalPages={totalPages} 
+        onPageChange={setPage} 
+        loading={loading}
+      />
     </div>
   );
 }

@@ -4,6 +4,9 @@ import prisma from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { approveDeposit, rejectDeposit } from '../services/deposit.service';
 import { approveWithdrawal, rejectWithdrawal } from '../services/withdrawal.service';
+import { getAgentPreDepositStatus, getAgentCommissionHistory } from '../services/agentPreDeposit.service';
+import { Decimal } from '@prisma/client/runtime/library';
+import { config } from '../config';
 
 const router = Router();
 
@@ -20,35 +23,73 @@ router.get('/stats', async (req: Request, res: Response) => {
     const [
       playerCount,
       totalDeposits,
-      wallet,
-      totalCommissionEarned
+      totalSalesAgg,
+      totalCommissionPaidAgg,
+      preDepositStatus
     ] = await Promise.all([
       prisma.user.count({ where: { referredBy: agent.id } }),
       prisma.deposit.aggregate({
         where: { user: { referredBy: agent.id }, status: 'approved' },
         _sum: { amount: true }
       }),
-      prisma.wallet.findUnique({
-        where: { userId: agent.id },
-        select: { balance: true }
-      }),
+      // Total Sales = Total spent on tickets by players under this agent
       prisma.transaction.aggregate({
-        where: { userId: agent.id, type: 'REFERRAL_BONUS' },
+        where: { 
+          user: { referredBy: agent.id }, 
+          type: 'TICKET_PURCHASE',
+          status: 'COMPLETED'
+        },
         _sum: { amount: true }
-      })
+      }),
+      // Net Commission Paid = Total 6.25% amounts debited from agent's pre-deposit wallet
+      prisma.agentCommissionLog.aggregate({
+        where: { agentId: agent.id, type: 'COMMISSION_DEBIT' },
+        _sum: { amount: true }
+      }),
+      getAgentPreDepositStatus(agent.id)
     ]);
- 
+
+    const totalSales = totalSalesAgg._sum.amount || new Decimal(0);
+    const netCommissionPaid = totalCommissionPaidAgg._sum.amount || new Decimal(0);
+    
+    // Agent Take-Home = Total Sales * 18.75%
+    // In our system, the house margin is 25%. 6.25% goes to Admin, 18.75% is the Agent's part.
+    const agentTakeHome = totalSales.mul(config.game.agentProfitRate);
+
     res.json({
       playerCount,
       totalDeposits: totalDeposits._sum.amount || 0,
-      commissionBalance: wallet?.balance || 0,
-      totalCommissionEarned: totalCommissionEarned._sum.amount || 0,
+      totalSales: totalSales,
+      netCommissionPaid: netCommissionPaid,
+      agentTakeHome: agentTakeHome,
+      preDeposit: {
+        balance: preDepositStatus.balance,
+        state: preDepositStatus.state,
+        message: preDepositStatus.stateMessage,
+      }
     });
   } catch (err) {
     logger.error(`[AgentAPI] Failed to fetch stats for agent ${agent.id}:`, err);
     res.status(500).json({ error: 'Failed to fetch agent statistics' });
   }
 });
+
+/**
+ * GET /api/agent/commission-history
+ */
+router.get('/commission-history', async (req: Request, res: Response) => {
+  const agent = (req as any).user;
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+
+  try {
+    const history = await getAgentCommissionHistory(agent.id, page, limit);
+    res.json(history);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch commission history' });
+  }
+});
+
 
 /**
  * GET /api/agent/players
@@ -76,6 +117,41 @@ router.get('/players', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch players' });
   }
 });
+
+/**
+ * GET /api/agent/winners
+ */
+router.get('/winners', async (req: Request, res: Response) => {
+  const agent = (req as any).user;
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+
+  try {
+    const winners = await prisma.winner.findMany({
+      where: { user: { referredBy: agent.id } },
+      include: { 
+        user: { select: { firstName: true, telegramUsername: true } },
+        game: { include: { room: true } }
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { paidAt: 'desc' }
+    });
+    
+    const total = await prisma.winner.count({
+      where: { user: { referredBy: agent.id } }
+    });
+
+    res.json({
+      winners,
+      total,
+      pages: Math.ceil(total / limit)
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch branch winners' });
+  }
+});
+
 
 /**
  * GET /api/agent/deposits/pending

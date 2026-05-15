@@ -766,6 +766,19 @@ staffRouter.post('/users/:id/promote', restrictToAdmin, async (req, res) => {
   }
 });
 
+staffRouter.post('/agents/:id/recharge', restrictToAdmin, async (req, res) => {
+  const admin = (req as any).user;
+  const { amount } = req.body;
+  const { rechargeAgentPreDepositWallet } = await import('../services/agentPreDeposit.service');
+  try {
+    const newBalance = await rechargeAgentPreDepositWallet(req.params.id, parseFloat(amount), admin.id);
+    res.json({ success: true, newBalance });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
 staffRouter.post('/users/:id/demote', restrictToAdmin, async (req, res) => {
   const admin = (req as any).user;
   const { demoteFromAgent } = await import('../services/user.service');
@@ -780,7 +793,8 @@ staffRouter.post('/users/:id/demote', restrictToAdmin, async (req, res) => {
 staffRouter.get('/analytics', restrictToAdmin, async (_req, res) => {
   const [
     totalUsers, totalGames, totalDeposits, totalWithdrawals,
-    pendingDeposits, pendingWithdrawals, activeGames
+    pendingDeposits, pendingWithdrawals, activeGames,
+    globalSalesAgg, totalCompanyRevenueAgg
   ] = await Promise.all([
     prisma.user.count(),
     prisma.game.count({ where: { status: 'FINISHED' } }),
@@ -789,14 +803,27 @@ staffRouter.get('/analytics', restrictToAdmin, async (_req, res) => {
     prisma.deposit.count({ where: { status: 'PENDING' } }),
     prisma.withdrawal.count({ where: { status: 'PENDING' } }),
     prisma.game.count({ where: { status: { in: ['RUNNING', 'COUNTDOWN', 'WAITING'] } } }),
+    // Global Sales: Total spent on tickets by all players
+    prisma.transaction.aggregate({ 
+      where: { type: 'TICKET_PURCHASE', status: 'COMPLETED' }, 
+      _sum: { amount: true } 
+    }),
+    // Total Company Revenue: Total of all 6.25% commissions collected
+    prisma.agentCommissionLog.aggregate({ 
+      where: { type: 'COMMISSION_DEBIT' }, 
+      _sum: { amount: true } 
+    }),
   ]);
   res.json({
     totalUsers, totalGames, activeGames,
-    totalDeposited: totalDeposits._sum.amount,
-    totalWithdrawn: totalWithdrawals._sum.amount,
+    totalDeposited: totalDeposits._sum.amount || 0,
+    totalWithdrawn: totalWithdrawals._sum.amount || 0,
     pendingDeposits, pendingWithdrawals,
+    globalSales: globalSalesAgg._sum.amount || 0,
+    totalCompanyRevenue: totalCompanyRevenueAgg._sum.amount || 0,
   });
 });
+
 
 staffRouter.get('/games/active', restrictToAdmin, async (_req, res) => {
   const games = await prisma.game.findMany({

@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { getProfile } from '../../lib/api';
+import api, { getProfile } from '../../lib/api';
 import { initTelegram } from '../../lib/telegram';
 import { useRouter } from 'next/navigation';
 import { 
@@ -37,6 +37,8 @@ export default function ProfilePage() {
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [agentStats, setAgentStats] = useState<any>(null);
+  const [adminStats, setAdminStats] = useState<any>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -54,6 +56,16 @@ export default function ProfilePage() {
       setLoading(true);
       const data = await getProfile();
       setProfile(data);
+      
+      if (data?.role === 'AGENT' || data?.role === 'agent') {
+        const { getAgentStats } = await import('../../lib/api');
+        const stats = await getAgentStats();
+        setAgentStats(stats);
+      }
+      if (data?.role === 'ADMIN' || data?.isAdmin) {
+        const res = await api.get('/admin/analytics');
+        setAdminStats(res.data);
+      }
     } catch (e) {
     } finally {
       setLoading(false);
@@ -84,7 +96,7 @@ export default function ProfilePage() {
     if (tg) {
       const inviteUrl = `https://t.me/buna_bingobot?start=${profile?.id || ''}`;
       const text = `🎰 Join me on Buna Bingo! ☕️ We both get 5 ETB bonus!`;
-      tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${encodeURIComponent(text)}`);
+      tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${encodeURIComponent(text)}&text=${encodeURIComponent(text)}`);
     }
   };
 
@@ -117,7 +129,6 @@ export default function ProfilePage() {
               height: '90px', 
               margin: '0 auto 15px'
            }}>
-              {/* Profile Image / Icon Container */}
               <div style={{ 
                  width: '100%', 
                  height: '100%', 
@@ -134,7 +145,6 @@ export default function ProfilePage() {
                  <User size={45} color={profile?.isAdmin ? '#FFD700' : (profile?.role === 'AGENT' ? '#2196F3' : T.gold)} />
               </div>
 
-              {/* Smart Badge Overlays */}
               {(profile?.role === 'AGENT' || profile?.isAdmin) && (
                 <motion.div 
                   initial={{ scale: 0, rotate: -45 }}
@@ -162,7 +172,6 @@ export default function ProfilePage() {
 
            <div style={{ fontSize: '24px', fontWeight: '900' }}>{profile?.username || profile?.firstName || 'Buna Player'}</div>
            
-           {/* Smart Badge for Agents/Admins */}
            {profile?.role === 'AGENT' || profile?.isAdmin ? (
              <motion.div 
                initial={{ scale: 0.9, opacity: 0 }}
@@ -212,13 +221,55 @@ export default function ProfilePage() {
            </div>
         </div>
 
+        {/* ── Admin Platform Performance (if Admin) ── */}
+        {adminStats && (
+           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ background: 'linear-gradient(135deg, #1a1a1a, #2a2a2a)', padding: '20px', borderRadius: '24px', border: `2px solid ${T.gold}`, marginBottom: '30px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+              <div style={{ fontSize: '11px', fontWeight: '900', color: T.gold, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '15px', textAlign: 'center' }}>Platform Performance</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                 <div style={{ textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', color: 'white' }}>Total Users</div>
+                    <div style={{ fontSize: '18px', fontWeight: '900', color: 'white' }}>{Number(adminStats.totalUsers || 0).toLocaleString()} <span style={{ fontSize: '10px', opacity: 0.3 }}>PLAYERS</span></div>
+                 </div>
+                 <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', color: 'white' }}>Network Size</div>
+                    <div style={{ fontSize: '18px', fontWeight: '900', color: T.gold }}>{Number(adminStats.activeGames || 0).toLocaleString()} <span style={{ fontSize: '10px', opacity: 0.3 }}>LIVE</span></div>
+                 </div>
+              </div>
+              <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'center' }}>
+                 <div style={{ fontSize: '10px', color: '#4ade80', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <ShieldCheck size={12} /> Global Administrator View
+                 </div>
+              </div>
+           </motion.div>
+        )}
+
+        {/* ── Agent Branch Performance (if Agent) ── */}
+        {agentStats && (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ background: 'linear-gradient(135deg, #1a1a1a, #2a2a2a)', padding: '20px', borderRadius: '24px', border: `1px solid ${T.gold}`, marginBottom: '30px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+               <div style={{ fontSize: '11px', fontWeight: '900', color: T.gold, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '15px', textAlign: 'center' }}>Branch Performance</div>
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                  <div style={{ textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+                     <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', color: 'white' }}>Total Sales</div>
+                     <div style={{ fontSize: '18px', fontWeight: '900', color: 'white' }}>{Number(agentStats.totalSales || 0).toLocaleString()} <span style={{ fontSize: '10px', opacity: 0.3 }}>ETB</span></div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                     <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', color: 'white' }}>Net Profit</div>
+                     <div style={{ fontSize: '18px', fontWeight: '900', color: T.gold }}>{Number(agentStats.agentTakeHome || 0).toLocaleString()} <span style={{ fontSize: '10px', opacity: 0.3 }}>ETB</span></div>
+                  </div>
+               </div>
+               <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ fontSize: '10px', color: '#4ade80', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                     <Users size={12} /> {agentStats.playerCount} Active Players
+                  </div>
+               </div>
+            </motion.div>
+         )}
+
         {/* ── Settings Section ── */}
         <div style={{ marginBottom: '25px' }}>
            <div style={{ fontSize: '12px', fontWeight: '900', opacity: 0.4, textTransform: 'uppercase', marginBottom: '10px', paddingLeft: '5px' }}>Settings & Preferences</div>
            
            <div style={{ background: T.card, borderRadius: '16px', overflow: 'hidden', border: `1px solid ${T.border}` }}>
-              
-              {/* Game Sound */}
               <div onClick={toggleSound} style={{ padding: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${T.border}`, cursor: 'pointer' }}>
                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '36px', height: '36px', background: 'rgba(76,175,80,0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -231,7 +282,6 @@ export default function ProfilePage() {
                  </div>
               </div>
 
-              {/* Theme Picker */}
               <div onClick={() => setShowThemePicker(!showThemePicker)} style={{ padding: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${T.border}`, cursor: 'pointer' }}>
                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '36px', height: '36px', background: 'rgba(212,175,55,0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -262,7 +312,6 @@ export default function ProfilePage() {
                  )}
               </AnimatePresence>
 
-              {/* Invite Friends */}
               <div onClick={handleInvite} style={{ padding: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '36px', height: '36px', background: 'rgba(33,150,243,0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -275,46 +324,21 @@ export default function ProfilePage() {
            </div>
         </div>
 
-        {/* ── Referral Link Box (Smart & Premium) ── */}
+        {/* ── Referral Link Box ── */}
         <div style={{ marginBottom: '30px' }}>
            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', padding: '0 5px' }}>
               <div style={{ fontSize: '12px', fontWeight: '900', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1px' }}>Your Referral Link</div>
               <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: '900' }}>{profile?.referralsCount || 0} REFERRED</div>
            </div>
            
-           <div style={{ 
-              background: '#f0f7ff', 
-              border: '2px solid #bfdbfe', 
-              borderRadius: '20px', 
-              padding: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
-           }}>
+           <div style={{ background: '#f0f7ff', border: '2px solid #bfdbfe', borderRadius: '20px', padding: '8px', display: 'flex', alignItems: 'center' }}>
               <div style={{ flex: 1, paddingLeft: '12px', overflow: 'hidden' }}>
                  <div style={{ fontSize: '10px', opacity: 0.4, fontWeight: '900', marginBottom: '2px' }}>SHARE & EARN 5 ETB</div>
                  <code style={{ display: 'block', fontSize: '12px', color: '#1d4ed8', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     t.me/buna_bingobot?start={profile?.id?.split('-')[0]}
                  </code>
               </div>
-              <button 
-                 onClick={handleCopyLink}
-                 style={{ 
-                    background: copied ? '#10b981' : '#1d4ed8', 
-                    color: 'white', 
-                    border: 'none', 
-                    height: '44px',
-                    padding: '0 20px', 
-                    borderRadius: '16px', 
-                    fontSize: '12px', 
-                    fontWeight: '900',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    transition: 'all 0.2s',
-                    boxShadow: copied ? '0 4px 10px rgba(16,185,129,0.3)' : '0 4px 10px rgba(29,78,216,0.3)'
-                 }}
-              >
+              <button onClick={handleCopyLink} style={{ background: copied ? '#10b981' : '#1d4ed8', color: 'white', border: 'none', height: '44px', padding: '0 20px', borderRadius: '16px', fontSize: '12px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px' }}>
                  {copied ? <Check size={16} /> : <Copy size={16} />}
                  {copied ? 'DONE' : 'COPY'}
               </button>
@@ -323,63 +347,20 @@ export default function ProfilePage() {
 
         {/* ── Action Buttons ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-           
-           {/* Agent Dashboard Link - ONLY FOR AGENTS */}
            {(profile?.role === 'AGENT' || profile?.isAdmin) && (
-              <button 
-                 onClick={() => router.push('/agent')}
-                 style={{ 
-                    width: '100%', 
-                    padding: '16px', 
-                    borderRadius: '16px', 
-                    background: 'linear-gradient(135deg, #d4af37, #b8962e)', 
-                    border: 'none', 
-                    color: 'black', 
-                    fontWeight: '900', 
-                    fontSize: '14px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    gap: '10px',
-                    boxShadow: '0 8px 20px rgba(212,175,55,0.25)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px'
-                 }}
-              >
-                 <ShieldCheck size={20} /> Agent Portal
+              <button onClick={() => router.push('/agent')} style={{ width: '100%', padding: '16px', borderRadius: '16px', background: 'linear-gradient(135deg, #d4af37, #b8962e)', border: 'none', color: 'black', fontWeight: '900', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                 <ShieldCheck size={20} /> {profile?.isAdmin ? 'Administrator Portal' : 'Agent Portal'}
               </button>
            )}
 
-           <button 
-              onClick={() => window.open('https://t.me/bunabingosupport', '_blank')}
-              style={{ 
-                 width: '100%', 
-                 padding: '16px', 
-                 borderRadius: '16px', 
-                 background: T.card, 
-                 border: `1px solid ${T.border}`, 
-                 color: T.text, 
-                 fontWeight: '900', 
-                 fontSize: '14px', 
-                 display: 'flex', 
-                 alignItems: 'center', 
-                 justifyContent: 'center', 
-                 gap: '10px',
-                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-              }}
-           >
+           <button onClick={() => window.open('https://t.me/bunabingosupport', '_blank')} style={{ width: '100%', padding: '16px', borderRadius: '16px', background: T.card, border: `1px solid ${T.border}`, color: T.text, fontWeight: '900', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
               <Coffee size={20} /> Support Channel
            </button>
-
-           <div style={{ textAlign: 'center', fontSize: '10px', opacity: 0.3, marginTop: '20px' }}>
-              BUNA BINGO v2.4.0 • ROYAL EDITION
-           </div>
         </div>
-
       </div>
 
-      {/* ── Premium Navbar (Fixed at Bottom) ── */}
-      <div style={{ position: 'fixed', bottom: 15, left: 15, right: 15, background: T.header, display: 'flex', justifyContent: 'space-around', padding: '10px 5px', borderRadius: '20px', border: `1px solid ${T.gold}`, boxShadow: '0 8px 32px rgba(0,0,0,0.3)', zIndex: 1000 }}>
+      {/* ── Navbar ── */}
+      <div style={{ position: 'fixed', bottom: 15, left: 15, right: 15, background: T.header, display: 'flex', justifyContent: 'space-around', padding: '10px 5px', borderRadius: '20px', border: `1px solid ${T.gold}`, zIndex: 1000 }}>
          {[
            { label: 'Game',    icon: <Play size={20} color={T.gold} />, active: false, path: '/' },
            { label: 'Scores',  icon: <Trophy size={20} color={T.gold} />, active: false, path: '/scores' },
@@ -387,21 +368,12 @@ export default function ProfilePage() {
            { label: 'Wallet',  icon: <Wallet size={20} color={T.gold} />, active: false, path: '/wallet' },
            { label: 'Profile', icon: <User size={20} fill={T.gold} color={T.gold} />, active: true, path: '/profile' },
          ].map((item) => (
-           <div 
-              key={item.label} 
-              onClick={() => router.push(item.path)}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', flex: 1, opacity: item.active ? 1 : 0.5, cursor: 'pointer' }}
-           >
+           <div key={item.label} onClick={() => router.push(item.path)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', flex: 1, opacity: item.active ? 1 : 0.5, cursor: 'pointer' }}>
              {item.icon}
              <span style={{ fontSize: '10px', fontWeight: '900', color: T.gold }}>{item.label}</span>
            </div>
          ))}
       </div>
-
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap');
-        body { background: ${T.bg} !important; margin: 0; padding: 0; transition: background 0.3s ease; }
-      `}</style>
     </div>
   );
 }

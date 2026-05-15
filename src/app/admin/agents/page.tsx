@@ -3,21 +3,28 @@
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiExternalLink, FiUserPlus, FiTrendingUp, FiUserX } from 'react-icons/fi';
 import api from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
 import '@/app/admin.css';
 
 export default function AgentsPage() {
   const [agents, setAgents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     fetchAgents();
-  }, []);
+  }, [page]);
 
   async function fetchAgents() {
     try {
-      const response = await api.get('/admin/agents');
+      setLoading(true);
+      const response = await api.get(`/admin/agents?page=${page}`);
       setAgents(response.data.agents || []);
+      setTotalPages(response.data.pages || 1);
+      setTotalCount(response.data.total || 0);
     } catch (err) {
       console.error('Failed to fetch agents:', err);
     } finally {
@@ -59,7 +66,7 @@ export default function AgentsPage() {
       <div className="stat-grid">
         <div className="stat-card-m">
           <p className="stat-label">Total Agents</p>
-          <h2 className="stat-value">{agents.length}</h2>
+          <h2 className="stat-value">{totalCount || agents.length}</h2>
         </div>
         <div className="stat-card-m">
           <p className="stat-label">Network Players</p>
@@ -148,6 +155,13 @@ export default function AgentsPage() {
           </tbody>
         </table>
       </div>
+
+      <Pagination 
+        currentPage={page} 
+        totalPages={totalPages} 
+        onPageChange={setPage} 
+        loading={loading}
+      />
     </div>
   );
 }

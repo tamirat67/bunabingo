@@ -8,6 +8,7 @@ import { RoomType, GameStatus } from '@prisma/client';
 import { PREDEFINED_CARDS } from '../lib/predefinedCards';
 import { awardCoins, XP_REWARDS } from '../services/wallet.service';
 import { contributeToJackpot, checkJackpotWin } from '../services/jackpot.service';
+import { debitAgentCommissionForGame } from '../services/agentPreDeposit.service';
 
 interface ActiveGame {
   gameId: string;
@@ -196,6 +197,60 @@ async function runGame(gameId: string): Promise<void> {
     try {
       await awardCoins(userId, XP_REWARDS.JOIN_GAME * numTickets, `Joined game ${gameId} with ${numTickets} card(s)`);
     } catch (e) { logger.warn(`[Coins] Failed to award join XP to ${userId}:`, e); }
+  }
+
+  // ─── Three-Way Revenue Split ───────────────────────────────────────────────
+  // TOTAL_SALES = sum of all player buy-ins (before any house margin is taken)
+  // Company Commission (6.25%) is debited from the Agent Pre-Deposit Wallet.
+  // Agent Gross Profit (18.75%) is the remainder of the house margin.
+  // Player Prize Pool (75%) is paid out to the winner(s).
+  const totalSales = totalPrizePool.add(totalHouseEdge); // reconstruct gross sales
+  try {
+    await debitAgentCommissionForGame(gameId, totalSales);
+  } catch (commissionErr: any) {
+    // Hard block: cancel game and refund (nothing was deducted yet for prizes,
+    // but we already charged player wallets above — we must refund them here).
+    logger.error(`[Game ${gameId}] Commission debit FAILED — cancelling game:`, commissionErr);
+
+    // Refund every charged user
+    for (const [userId, userTickets] of ticketsByUser) {
+      const numTickets = userTickets.length;
+      const totalCharge = new Decimal(unitPrice).mul(numTickets);
+      await prisma.wallet.update({
+        where: { userId },
+        data: {
+          balance: { increment: totalCharge },
+          totalSpent: { decrement: totalCharge },
+        },
+      });
+      await prisma.transaction.create({
+        data: {
+          userId,
+          type: 'REFUND',
+          amount: totalCharge,
+          balanceBefore: new Decimal(0), // approximate — exact value not critical for refund log
+          balanceAfter: new Decimal(0),
+          status: 'COMPLETED',
+          referenceId: gameId,
+          description: `Refund: game cancelled — insufficient agent commission balance`,
+        },
+      });
+      await triggerUserEvent(userId, 'game-cancelled', {
+        gameId,
+        reason: 'Agent commission balance insufficient. Game cancelled and refunded.',
+      });
+    }
+
+    await prisma.game.update({
+      where: { id: gameId },
+      data: {
+        status: GameStatus.CANCELLED,
+        cancelledAt: new Date(),
+        cancelReason: commissionErr.message,
+      },
+    });
+    await triggerGameEvent(gameId, 'game-cancelled', { gameId, reason: commissionErr.message });
+    return;
   }
 
   // Contribute to Global Jackpot

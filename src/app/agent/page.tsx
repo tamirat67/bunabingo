@@ -3,15 +3,20 @@
 import React, { useEffect, useState } from 'react';
 import {
   FiUsers, FiTrendingUp, FiDollarSign,
-  FiArrowUpRight, FiUserCheck, FiTarget
+  FiArrowUpRight, FiUserCheck, FiTarget, FiAlertTriangle, FiCheckCircle, FiSearch
 } from 'react-icons/fi';
 import api from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
 
 export default function AgentDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [players, setPlayers] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [playersLoading, setPlayersLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -28,6 +33,23 @@ export default function AgentDashboard() {
     }
     fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchPlayers();
+  }, [page]);
+
+  async function fetchPlayers() {
+    try {
+      setPlayersLoading(true);
+      const res = await api.get(`/agent/players?page=${page}`);
+      setPlayers(res.data.users || []);
+      setTotalPages(res.data.pages || 1);
+    } catch (err) {
+      console.error('Failed to fetch players:', err);
+    } finally {
+      setPlayersLoading(false);
+    }
+  }
 
   const handleCopy = () => {
     if (!user) return;
@@ -47,10 +69,10 @@ export default function AgentDashboard() {
   }
 
   const statCards = [
-    { label: 'My Players',          value: stats.playerCount,                                           icon: FiUsers,     trend: '+5%',   color: 'blue' },
-    { label: 'Deposit Volume',       value: `${(stats.totalDeposits || 0).toLocaleString()} ETB`,        icon: FiTrendingUp,trend: '+18%',  color: 'gold' },
-    { label: 'Commission Balance',   value: `${(stats.commissionBalance || 0).toLocaleString()} ETB`,    icon: FiDollarSign,trend: 'Live',  color: 'gold' },
-    { label: 'Total Earned',         value: `${(stats.totalCommissionEarned || 0).toLocaleString()} ETB`,icon: FiUserCheck, trend: 'All-time', color: 'gold' },
+    { label: 'My Players',          value: stats.playerCount,                                           icon: FiUsers,     trend: 'Live',   color: 'blue' },
+    { label: 'Agent Wallet',        value: `${(stats.preDeposit?.balance || 0).toLocaleString()} ETB`,  icon: FiDollarSign,trend: stats.preDeposit?.state, color: stats.preDeposit?.state === 'GREEN' ? 'green' : stats.preDeposit?.state === 'YELLOW' ? 'gold' : 'red' },
+    { label: 'Net Commission Paid', value: `${(stats.netCommissionPaid || 0).toLocaleString()} ETB`,   icon: FiTrendingUp, trend: 'To Admin', color: 'blue' },
+    { label: 'Agent Take-Home',      value: `${(stats.agentTakeHome || 0).toLocaleString()} ETB`,      icon: FiUserCheck, trend: '18.75% Net', color: 'gold' },
   ];
 
   return (
@@ -67,6 +89,33 @@ export default function AgentDashboard() {
           Top Agent Tier
         </div>
       </div>
+
+      {/* Pre-Deposit Status Banner */}
+      {stats.preDeposit && (
+        <div className={`agent-status-banner ${stats.preDeposit.state.toLowerCase()}`} style={{
+          padding: '1rem 1.5rem',
+          borderRadius: '1rem',
+          marginBottom: '2rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem',
+          background: stats.preDeposit.state === 'GREEN' ? 'rgba(34, 197, 94, 0.1)' : stats.preDeposit.state === 'YELLOW' ? 'rgba(234, 179, 8, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+          border: `1px solid ${stats.preDeposit.state === 'GREEN' ? '#22c55e' : stats.preDeposit.state === 'YELLOW' ? '#eab308' : '#ef4444'}`,
+        }}>
+          {stats.preDeposit.state === 'GREEN' ? <FiCheckCircle color="#22c55e" size={24} /> : <FiAlertTriangle color={stats.preDeposit.state === 'YELLOW' ? '#eab308' : '#ef4444'} size={24} />}
+          <div>
+            <h4 style={{ color: '#fff', fontWeight: 700, margin: 0 }}>Wallet Status: {stats.preDeposit.state}</h4>
+            <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.875rem' }}>{stats.preDeposit.message}</p>
+          </div>
+          {stats.preDeposit.state !== 'GREEN' && (
+            <div style={{ marginLeft: 'auto' }}>
+              <button className="agent-btn-copy" style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }} onClick={() => window.open('https://t.me/bunabingosupport', '_blank')}>
+                RECHARGE NOW
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Stat Cards */}
       <div className="agent-stat-grid">
@@ -104,16 +153,92 @@ export default function AgentDashboard() {
 
         {/* Commission Rate */}
         <div className="agent-card-lg">
-          <h3 className="agent-h3">Commission Rate</h3>
-          <p className="agent-subtitle agent-mt-1">You earn a percentage of every deposit made by your players.</p>
+          <h3 className="agent-h3">Your Profit Share</h3>
+          <p className="agent-subtitle agent-mt-1">From the 25% house margin, you keep 75% as your profit.</p>
           <div className="agent-rate-display agent-mt-4">
-            <span className="agent-rate-big">10%</span>
+            <span className="agent-rate-big">18.75%</span>
             <div className="agent-rate-meta">
-              <p className="agent-text-white" style={{ fontWeight: 900, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Fixed Rate</p>
-              <p className="agent-text-muted2" style={{ fontSize: '0.75rem' }}>Standard Agent Commission</p>
+              <p className="agent-text-white" style={{ fontWeight: 900, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Net Profit</p>
+              <p className="agent-text-muted2" style={{ fontSize: '0.75rem' }}>Calculated from Total Sales</p>
             </div>
           </div>
+          <div className="agent-mt-4 p-3 rounded" style={{ background: 'rgba(255,255,255,0.05)', fontSize: '0.8rem' }}>
+            <p className="agent-text-muted2" style={{ margin: 0 }}>
+              • House Margin: 25%<br/>
+              • Admin Cut: 6.25% (Pre-Deposit)<br/>
+              • <b>Your Take: 18.75%</b>
+            </p>
+          </div>
         </div>
+      </div>
+
+      {/* Branch Players Table */}
+      <div className="agent-card-lg" style={{ marginTop: '2rem' }}>
+        <div className="agent-flex-between" style={{ marginBottom: '1.5rem' }}>
+          <div>
+            <h3 className="agent-h3">Branch Players</h3>
+            <p className="agent-subtitle">All players joined through your referral link.</p>
+          </div>
+          <div className="agent-icon-badge blue">
+            <FiUsers size={20} />
+          </div>
+        </div>
+
+        <div className="data-table-container" style={{ background: 'transparent', border: 'none' }}>
+           <table className="data-table">
+             <thead>
+               <tr style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                 <th style={{ textAlign: 'left', padding: '1rem' }}>Player</th>
+                 <th style={{ textAlign: 'left', padding: '1rem' }}>Joined</th>
+                 <th style={{ textAlign: 'left', padding: '1rem' }}>Balance</th>
+                 <th style={{ textAlign: 'right', padding: '1rem' }}>Status</th>
+               </tr>
+             </thead>
+             <tbody>
+               {playersLoading ? (
+                 <tr>
+                    <td colSpan={4} style={{ padding: '3rem', textAlign: 'center' }}>
+                       <div className="animate-spin" style={{ width: '24px', height: '24px', border: '2px solid #d4af37', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto' }}></div>
+                    </td>
+                 </tr>
+               ) : players.length === 0 ? (
+                 <tr>
+                    <td colSpan={4} style={{ padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
+                       No players in your branch yet. Share your link!
+                    </td>
+                 </tr>
+               ) : players.map((player) => (
+                 <tr key={player.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                   <td style={{ padding: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                         <div className="user-avatar" style={{ width: '32px', height: '32px', fontSize: '12px' }}>{player.firstName?.[0] || 'P'}</div>
+                         <div>
+                            <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>{player.firstName}</div>
+                            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem' }}>@{player.telegramUsername || 'no_user'}</div>
+                         </div>
+                      </div>
+                   </td>
+                   <td style={{ padding: '1rem', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+                      {new Date(player.createdAt).toLocaleDateString()}
+                   </td>
+                   <td style={{ padding: '1rem', color: '#fff', fontWeight: 800 }}>
+                      {Number(player.wallet?.balance || 0).toLocaleString()} <span style={{ color: '#d4af37', fontSize: '0.7rem' }}>ETB</span>
+                   </td>
+                   <td style={{ padding: '1rem', textAlign: 'right' }}>
+                      <span className="badge badge-green" style={{ fontSize: '0.65rem' }}>ACTIVE</span>
+                   </td>
+                 </tr>
+               ))}
+             </tbody>
+           </table>
+        </div>
+
+        <Pagination 
+          currentPage={page} 
+          totalPages={totalPages} 
+          onPageChange={setPage} 
+          loading={playersLoading}
+        />
       </div>
 
     </div>

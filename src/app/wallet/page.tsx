@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { getMe, getWallet } from '../../lib/api';
+import api from '../../lib/api';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '../../context/ThemeContext';
 import { 
@@ -24,12 +25,22 @@ export default function WalletPage() {
   const router = useRouter();
   const { T } = useTheme();
   const [user, setUser] = useState<any>(null);
+  const [agentStats, setAgentStats] = useState<any>(null);
+  const [adminStats, setAdminStats] = useState<any>(null);
   const [tab, setTab] = useState('balance');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    getMe().then(setUser).catch(() => { });
+    getMe().then(u => {
+      setUser(u);
+      if (u?.role === 'AGENT' || u?.role === 'agent') {
+        api.get('/agent/stats').then(res => setAgentStats(res.data)).catch(() => {});
+      }
+      if (u?.role === 'ADMIN' || u?.isAdmin) {
+        api.get('/admin/analytics').then(res => setAdminStats(res.data)).catch(() => {});
+      }
+    }).catch(() => { });
   }, []);
 
   if (!mounted) return null;
@@ -120,6 +131,56 @@ export default function WalletPage() {
                   <Download size={18} /> Convert Coins to ETB
                </button>
             </div>
+
+            {/* ── Admin Platform Health Card ── */}
+            {adminStats && (
+               <div style={{ marginTop: '25px', background: 'linear-gradient(135deg, #1a1a1a, #2a2a2a)', padding: '20px', borderRadius: '24px', border: `2px solid ${T.gold}`, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '900', color: T.gold, textTransform: 'uppercase', letterSpacing: '2px' }}>PLATFORM HEALTH</div>
+                    <div style={{ fontSize: '10px', padding: '4px 8px', borderRadius: '20px', background: 'rgba(34,197,94,0.1)', color: '#22c55e', fontWeight: '900' }}>
+                      LIVE DATA
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '32px', fontWeight: '900', color: 'white' }}>{Number(adminStats.globalSales ?? 0).toLocaleString()} <span style={{ fontSize: '16px', opacity: 0.5 }}>ETB</span></div>
+                  <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '5px', color: 'white' }}>Total platform-wide ticket sales volume.</p>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div>
+                      <div style={{ fontSize: '10px', opacity: 0.5, color: 'white' }}>CO. REVENUE (6.25%)</div>
+                      <div style={{ fontSize: '14px', fontWeight: '900', color: T.gold }}>{Number(adminStats.totalCompanyRevenue ?? 0).toLocaleString()} <span style={{ fontSize: '10px', opacity: 0.3 }}>ETB</span></div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '10px', opacity: 0.5, color: 'white' }}>ACTIVE GAMES</div>
+                      <div style={{ fontSize: '14px', fontWeight: '900', color: '#4ade80' }}>{adminStats.activeGames} <span style={{ fontSize: '10px', opacity: 0.3 }}>NOW</span></div>
+                    </div>
+                  </div>
+               </div>
+            )}
+
+            {/* ── Agent Pre-Deposit Card (if Agent) ── */}
+            {agentStats && (
+               <div style={{ marginTop: '25px', background: T.card, padding: '20px', borderRadius: '24px', border: `1px solid ${agentStats.preDeposit?.state === 'RED' ? '#ef4444' : agentStats.preDeposit?.state === 'YELLOW' ? '#eab308' : T.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '900', opacity: 0.5 }}>AGENT PRE-DEPOSIT</div>
+                    <div style={{ fontSize: '10px', padding: '4px 8px', borderRadius: '20px', background: agentStats.preDeposit?.state === 'GREEN' ? 'rgba(34,197,94,0.1)' : agentStats.preDeposit?.state === 'YELLOW' ? 'rgba(234,179,8,0.1)' : 'rgba(239,68,68,0.1)', color: agentStats.preDeposit?.state === 'GREEN' ? '#22c55e' : agentStats.preDeposit?.state === 'YELLOW' ? '#eab308' : '#ef4444', fontWeight: '900' }}>
+                      {agentStats.preDeposit?.state}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '32px', fontWeight: '900' }}>{Number(agentStats.preDeposit?.balance ?? 0).toLocaleString()} <span style={{ fontSize: '16px', opacity: 0.5 }}>ETB</span></div>
+                  <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '5px', lineHeight: '1.4' }}>{agentStats.preDeposit?.message}</p>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px', paddingTop: '15px', borderTop: `1px solid ${T.border}` }}>
+                    <div>
+                      <div style={{ fontSize: '10px', opacity: 0.5 }}>BRANCH SALES</div>
+                      <div style={{ fontSize: '14px', fontWeight: '900' }}>{Number(agentStats.totalSales ?? 0).toLocaleString()} <span style={{ fontSize: '10px', opacity: 0.3 }}>ETB</span></div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '10px', opacity: 0.5 }}>TAKE-HOME (18.75%)</div>
+                      <div style={{ fontSize: '14px', fontWeight: '900', color: T.gold }}>{Number(agentStats.agentTakeHome ?? 0).toLocaleString()} <span style={{ fontSize: '10px', opacity: 0.3 }}>ETB</span></div>
+                    </div>
+                  </div>
+               </div>
+            )}
 
             <div style={{ marginTop: '25px' }}>
                <div style={{ fontSize: '12px', fontWeight: '900', opacity: 0.4, textTransform: 'uppercase', marginBottom: '12px', paddingLeft: '5px' }}>Recent Activity</div>

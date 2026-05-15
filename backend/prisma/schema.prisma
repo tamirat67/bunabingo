@@ -57,14 +57,16 @@ model User {
   lastActiveAt     DateTime @default(now()) @db.Timestamptz(6) @map("last_active_at")
   createdAt        DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
 
-  wallet           Wallet?
-  deposits         Deposit[]
-  withdrawals      Withdrawal[]
-  transactions     Transaction[]
-  adminLogs        AdminLog[]    @relation("AdminActor")
-  auditLogs        AdminLog[]    @relation("AuditUser")
-  tickets          Ticket[]
-  winners          Winner[]
+  wallet               Wallet?
+  agentPreDepositWallet AgentPreDepositWallet?
+  deposits             Deposit[]
+  withdrawals          Withdrawal[]
+  transactions         Transaction[]
+  adminLogs            AdminLog[]    @relation("AdminActor")
+  auditLogs            AdminLog[]    @relation("AuditUser")
+  tickets              Ticket[]
+  winners              Winner[]
+  agentCommissionLogs  AgentCommissionLog[]
 
   // Self-relation for referrals
   referrer         User?    @relation("UserReferrals", fields: [referredBy], references: [id])
@@ -233,6 +235,44 @@ model AdminLog {
   targetUser   User?    @relation("AuditUser", fields: [targetUserId], references: [id])
 
   @@map("admin_logs")
+}
+
+// ── Agent Pre-Deposit Commission Wallet ───────────────────────────────────
+// One row per Agent. Funded manually (recharge). Auto-debited 6.25% per game.
+// Games are hard-blocked when balance < required commission for that game.
+model AgentPreDepositWallet {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId         String   @unique @db.Uuid @map("agent_id")
+  balance         Decimal  @default(10000) @db.Decimal(20, 4)
+  totalDebited    Decimal  @default(0) @db.Decimal(20, 4) @map("total_debited")
+  totalRecharged  Decimal  @default(0) @db.Decimal(20, 4) @map("total_recharged")
+  createdAt       DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt       DateTime @default(now()) @db.Timestamptz(6) @map("updated_at")
+
+  agent           User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  commissionLogs  AgentCommissionLog[]
+
+  @@map("agent_pre_deposit_wallets")
+}
+
+// Every 6.25% deduction and every recharge is logged here for full audit trail
+model AgentCommissionLog {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId     String   @db.Uuid @map("agent_id")
+  walletId    String   @db.Uuid @map("wallet_id")
+  type        String   // 'COMMISSION_DEBIT' | 'RECHARGE'
+  amount      Decimal  @db.Decimal(20, 4)
+  gameId      String?  @map("game_id")     // nullable — recharges have no game
+  totalSales  Decimal? @db.Decimal(20, 4) @map("total_sales")
+  description String?
+  balanceBefore Decimal @db.Decimal(20, 4) @map("balance_before")
+  balanceAfter  Decimal @db.Decimal(20, 4) @map("balance_after")
+  createdAt   DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+
+  agent       User                  @relation(fields: [agentId], references: [id])
+  wallet      AgentPreDepositWallet @relation(fields: [walletId], references: [id])
+
+  @@map("agent_commission_logs")
 }
 
 model Jackpot {

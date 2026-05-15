@@ -2,6 +2,8 @@ import prisma from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { config } from '../config';
 import { creditWallet, creditBonus, awardCoins, XP_REWARDS } from './wallet.service';
+import { getOrCreateAgentPreDepositWallet } from './agentPreDeposit.service';
+
 
 const REFERRAL_BONUS_ETB = 5;
 
@@ -224,6 +226,9 @@ export async function promoteToAgent(userId: string, adminId: string) {
     where: { id: userId },
     data: { role: 'AGENT' },
   });
+
+  // Seed the Agent Pre-Deposit Wallet if it doesn't exist yet
+  await getOrCreateAgentPreDepositWallet(userId);
 
   await prisma.adminLog.create({
     data: {

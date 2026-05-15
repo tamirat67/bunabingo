@@ -45,10 +45,10 @@ export default function AdminDashboard() {
   const isAdmin = user.role === 'ADMIN' || user.isAdmin;
 
   const statCards = isAdmin ? [
-    { label: 'Total Users', value: stats.totalUsers, icon: FiUsers, trend: '+12%', color: 'blue' },
-    { label: 'Active Games', value: stats.activeGames, icon: FiActivity, trend: 'Normal', color: 'green' },
-    { label: 'Total Deposits', value: `${(stats.totalDeposited || 0).toLocaleString()} ETB`, icon: FiTrendingUp, trend: '+24%', color: 'amber' },
-    { label: 'Pending Withdrawals', value: stats.pendingWithdrawals, icon: FiDollarSign, trend: 'Action Needed', color: 'red' },
+    { label: 'Global Sales', value: `${(stats.globalSales || 0).toLocaleString()} ETB`, icon: FiPieChart, trend: 'Gross Volume', color: 'blue' },
+    { label: 'Company Revenue', value: `${(stats.totalCompanyRevenue || 0).toLocaleString()} ETB`, icon: FiDollarSign, trend: '6.25% Net', color: 'green' },
+    { label: 'Total Players', value: stats.totalUsers, icon: FiUsers, trend: 'All Time', color: 'amber' },
+    { label: 'Active Games', value: stats.activeGames, icon: FiActivity, trend: 'Running Now', color: 'purple' },
   ] : [
     { label: 'My Players', value: stats.playerCount, icon: FiUsers, trend: '+5%', color: 'blue' },
     { label: 'Total Volume', value: `${(stats.totalDeposits || 0).toLocaleString()} ETB`, icon: FiTrendingUp, trend: '+18%', color: 'amber' },
@@ -85,23 +85,40 @@ export default function AdminDashboard() {
       </div>
 
       {isAdmin && (
-        <div className="grid-layout" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
+        <div className="grid-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
            <div className="data-table-container">
               <div style={{ padding: '24px', borderBottom: '1px solid var(--admin-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                 <h3 style={{ margin: 0, fontWeight: '800' }}>Platform Revenue Distribution</h3>
-                 <div style={{ display: 'flex', gap: '8px' }}>
-                    <div style={{ padding: '8px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', fontSize: '12px', fontWeight: '700' }}>
-                       Net Profit: <span style={{ color: 'var(--admin-accent)' }}>{(Number(stats.totalDeposited || 0) - Number(stats.totalWithdrawn || 0)).toLocaleString()} ETB</span>
-                    </div>
+                 <h3 style={{ margin: 0, fontWeight: '800' }}>Platform Health</h3>
+              </div>
+              <div style={{ padding: '30px' }}>
+                 <div className="agent-flex-between" style={{ marginBottom: '1rem' }}>
+                    <span className="agent-text-muted2">Total Deposited</span>
+                    <span className="agent-text-white" style={{ fontWeight: 700 }}>{stats.totalDeposited.toLocaleString()} ETB</span>
+                 </div>
+                 <div className="agent-flex-between" style={{ marginBottom: '1rem' }}>
+                    <span className="agent-text-muted2">Total Withdrawn</span>
+                    <span className="agent-text-white" style={{ fontWeight: 700 }}>{stats.totalWithdrawn.toLocaleString()} ETB</span>
+                 </div>
+                 <div style={{ height: '1px', background: 'var(--admin-border)', margin: '1rem 0' }} />
+                 <div className="agent-flex-between">
+                    <span className="agent-text-muted2">Net Float</span>
+                    <span className="agent-text-white" style={{ fontWeight: 900, color: '#4ade80', fontSize: '1.25rem' }}>{(stats.totalDeposited - stats.totalWithdrawn).toLocaleString()} ETB</span>
                  </div>
               </div>
-              <div style={{ padding: '40px', textAlign: 'center' }}>
-                 <FiPieChart size={48} style={{ color: 'rgba(255,255,255,0.05)', marginBottom: '16px' }} />
-                 <p style={{ color: 'var(--admin-text-muted)', fontStyle: 'italic' }}> Detailed analytics and agent performance charts will be unlocked as data volume grows.</p>
+           </div>
+
+           <div className="data-table-container" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '1rem', cursor: 'pointer' }} onClick={() => window.location.href='/admin/agents'}>
+              <div className={`agent-icon-badge blue`} style={{ width: '64px', height: '64px' }}>
+                <FiUserCheck size={32} />
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <h3 style={{ margin: 0, fontWeight: '800' }}>Manage All Agents</h3>
+                <p className="agent-subtitle">Manage branch balances and performance</p>
               </div>
            </div>
         </div>
       )}
+
     </div>
   );
 }

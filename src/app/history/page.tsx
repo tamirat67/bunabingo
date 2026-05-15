@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { getHistory, getGlobalHistory } from '../../lib/api';
+import api, { getHistory, getGlobalHistory } from '../../lib/api';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '../../context/ThemeContext';
 import { RefreshCw, Search, Trophy, Calendar, Clock, User, Play, Wallet as WalletIcon, History as HistoryIcon } from 'lucide-react';
@@ -14,11 +14,29 @@ export default function HistoryPage() {
   const [search, setSearch] = useState('');
   const [globalHistory, setGlobalHistory] = useState<any[]>([]);
   const [myHistory, setMyHistory] = useState<any[]>([]);
+  const [branchHistory, setBranchHistory] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
 
-  const loadData = () => {
-    getGlobalHistory().then(setGlobalHistory).catch(() => {});
-    getHistory().then(setMyHistory).catch(() => {});
+  const loadData = async () => {
+    try {
+      const meRes = await api.get('/me');
+      setUser(meRes.data);
+      
+      getGlobalHistory().then(setGlobalHistory).catch(() => {});
+      getHistory().then(setMyHistory).catch(() => {});
+      
+      if (meRes.data.role === 'AGENT' || meRes.data.role === 'agent' || meRes.data.role === 'ADMIN' || meRes.data.isAdmin) {
+        // If agent, fetch their branch winners. If admin, fetch all winners (global history is already doing this, but we can label it specifically)
+        if (meRes.data.role === 'AGENT' || meRes.data.role === 'agent') {
+          api.get('/agent/winners').then(res => setBranchHistory(res.data.winners)).catch(() => {});
+        } else {
+          // For Admin, 'Branch' is the whole platform
+          getGlobalHistory().then(setBranchHistory).catch(() => {});
+        }
+        setTab(meRes.data.role === 'ADMIN' || meRes.data.isAdmin ? 'recent' : 'branch');
+      }
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -28,7 +46,7 @@ export default function HistoryPage() {
 
   if (!mounted) return null;
 
-  const currentData = tab === 'recent' ? globalHistory : myHistory;
+  const currentData = tab === 'recent' ? globalHistory : tab === 'my' ? myHistory : branchHistory;
   const filteredData = currentData.filter(item => {
     if (filter && Number(item.game?.room?.ticketPrice) !== filter) return false;
     if (search && !item.user?.firstName?.toLowerCase().includes(search.toLowerCase()) &&
@@ -54,7 +72,12 @@ export default function HistoryPage() {
 
         {/* ── Tabs ── */}
         <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-          {[['recent', 'Recent Games'], ['my', 'My Games']].map(([key, label]) => (
+          {[
+            ['recent', 'Global'], 
+            ['my', 'Personal'],
+            ...(user?.role === 'AGENT' || user?.role === 'agent' ? [['branch', 'My Branch']] : []),
+            ...(user?.role === 'ADMIN' || user?.isAdmin ? [['branch', 'All Winners']] : [])
+          ].map(([key, label]) => (
             <div key={key} onClick={() => setTab(key)} style={{ flex: 1, textAlign: 'center', padding: '10px', borderRadius: '10px', background: tab === key ? T.gold : 'transparent', color: tab === key ? T.header : T.text, fontWeight: '900', fontSize: '13px', cursor: 'pointer', border: tab === key ? 'none' : `1px solid ${T.border}` }}>
               {label}
             </div>
